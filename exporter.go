@@ -17,10 +17,23 @@ limitations under the License.
 package main
 
 import (
+	"flag"
+	"fmt"
 	"os"
 
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
+)
+
+// Messages
+const (
+	versionMessage = "Insights Results Aggregator Cleaner version 1.0"
+)
+
+// Exit codes
+const (
+	// ExitStatusOK means that the tool finished with success
+	ExitStatusOK = iota
 )
 
 const (
@@ -28,7 +41,34 @@ const (
 	defaultConfigFileName     = "config"
 )
 
+// showVersion function displays version information.
+func showVersion() {
+	fmt.Println(versionMessage)
+}
+
+// doSelectedOperation function perform operation selected on command line.
+// When no operation is specified, the Notification writer service is started
+// instead.
+func doSelectedOperation(configuration ConfigStruct, cliFlags CliFlags) (int, error) {
+	switch {
+	case cliFlags.ShowVersion:
+		showVersion()
+		return ExitStatusOK, nil
+	default:
+		return ExitStatusOK, nil
+	}
+	// this can not happen: return ExitStatusOK, nil
+}
+
 func main() {
+	// command line flags
+	var cliFlags CliFlags
+
+	// define and parse all command line options
+
+	// parse all command line flags
+	flag.Parse()
+
 	// config has exactly the same structure as *.toml file
 	config, err := LoadConfiguration(configFileEnvVariableName, defaultConfigFileName)
 	if err != nil {
@@ -37,6 +77,14 @@ func main() {
 
 	if config.Logging.Debug {
 		log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
+	}
+
+	// perform selected operation
+	exitStatus, err := doSelectedOperation(config, cliFlags)
+	if err != nil {
+		log.Err(err).Msg("Do selected operation")
+		os.Exit(exitStatus)
+		return
 	}
 
 	log.Debug().Msg("Started")
