@@ -100,6 +100,7 @@ func main() {
 	flag.BoolVar(&cliFlags.ShowAuthors, "authors", false, "show authors")
 	flag.BoolVar(&cliFlags.ShowConfiguration, "show-configuration", false, "show configuration")
 	flag.BoolVar(&cliFlags.PrintSummaryTable, "summary", false, "print summary table after export")
+	flag.StringVar(&cliFlags.Output, "output", "", "output to: CSV, S3")
 
 	// parse all command line flags
 	flag.Parse()

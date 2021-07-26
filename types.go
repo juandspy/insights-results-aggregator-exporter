@@ -22,4 +22,5 @@ type CliFlags struct {
 	ShowAuthors       bool
 	ShowConfiguration bool
 	PrintSummaryTable bool
+	Output            string
 }

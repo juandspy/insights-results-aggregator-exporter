@@ -7,10 +7,15 @@ Exporter for Insights Results data stored by Insights Results Aggregator
 Usage of ./irae:
   -authors
         show authors
+  -output string
+        output to: CSV, S3
   -show-configuration
         show configuration
+  -summary
+        print summary table after export
   -version
         show version
+
 ```
 
 ## Makefile usage
