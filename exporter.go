@@ -28,6 +28,7 @@ import (
 // Messages
 const (
 	versionMessage = "Insights Results Aggregator Cleaner version 1.0"
+	authorsMessage = "Pavel Tisnovsky, Red Hat Inc."
 )
 
 // Exit codes
@@ -46,6 +47,11 @@ func showVersion() {
 	fmt.Println(versionMessage)
 }
 
+// showAuthors function displays information about authors.
+func showAuthors() {
+	fmt.Println(authorsMessage)
+}
+
 // doSelectedOperation function perform operation selected on command line.
 // When no operation is specified, the Notification writer service is started
 // instead.
@@ -53,6 +59,9 @@ func doSelectedOperation(configuration ConfigStruct, cliFlags CliFlags) (int, er
 	switch {
 	case cliFlags.ShowVersion:
 		showVersion()
+		return ExitStatusOK, nil
+	case cliFlags.ShowAuthors:
+		showAuthors()
 		return ExitStatusOK, nil
 	default:
 		return ExitStatusOK, nil
@@ -65,6 +74,8 @@ func main() {
 	var cliFlags CliFlags
 
 	// define and parse all command line options
+	flag.BoolVar(&cliFlags.ShowVersion, "version", false, "show version")
+	flag.BoolVar(&cliFlags.ShowAuthors, "authors", false, "show authors")
 
 	// parse all command line flags
 	flag.Parse()
