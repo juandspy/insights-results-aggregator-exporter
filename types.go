@@ -21,4 +21,5 @@ type CliFlags struct {
 	ShowVersion       bool
 	ShowAuthors       bool
 	ShowConfiguration bool
+	PrintSummaryTable bool
 }

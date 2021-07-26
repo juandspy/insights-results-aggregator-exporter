@@ -99,6 +99,7 @@ func main() {
 	flag.BoolVar(&cliFlags.ShowVersion, "version", false, "show version")
 	flag.BoolVar(&cliFlags.ShowAuthors, "authors", false, "show authors")
 	flag.BoolVar(&cliFlags.ShowConfiguration, "show-configuration", false, "show configuration")
+	flag.BoolVar(&cliFlags.PrintSummaryTable, "summary", false, "print summary table after export")
 
 	// parse all command line flags
 	flag.Parse()
