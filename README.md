@@ -1,6 +1,18 @@
 # insights-results-aggregator-exporter
 Exporter for Insights Results data stored by Insights Results Aggregator
 
+## Usage
+
+```
+Usage of ./irae:
+  -authors
+        show authors
+  -show-configuration
+        show configuration
+  -version
+        show version
+```
+
 ## Makefile usage
 
 ```
