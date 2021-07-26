@@ -18,6 +18,7 @@ package main
 
 // CliFlags represents structure holding all command line arguments and flags.
 type CliFlags struct {
-	ShowVersion bool
-	ShowAuthors bool
+	ShowVersion       bool
+	ShowAuthors       bool
+	ShowConfiguration bool
 }

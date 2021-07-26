@@ -52,6 +52,25 @@ func showAuthors() {
 	fmt.Println(authorsMessage)
 }
 
+// showConfiguration function displays actual configuration.
+func showConfiguration(config ConfigStruct) {
+	storageConfig := GetStorageConfiguration(config)
+	log.Info().
+		Str("Driver", storageConfig.Driver).
+		Str("DB Name", storageConfig.PGDBName).
+		Str("Username", storageConfig.PGUsername). // password is omitted on purpose
+		Str("Host", storageConfig.PGHost).
+		Int("Port", storageConfig.PGPort).
+		Bool("LogSQLQueries", storageConfig.LogSQLQueries).
+		Msg("Storage configuration")
+
+	loggingConfig := GetLoggingConfiguration(config)
+	log.Info().
+		Str("Level", loggingConfig.LogLevel).
+		Bool("Pretty colored debug logging", loggingConfig.Debug).
+		Msg("Logging configuration")
+}
+
 // doSelectedOperation function perform operation selected on command line.
 // When no operation is specified, the Notification writer service is started
 // instead.
@@ -62,6 +81,9 @@ func doSelectedOperation(configuration ConfigStruct, cliFlags CliFlags) (int, er
 		return ExitStatusOK, nil
 	case cliFlags.ShowAuthors:
 		showAuthors()
+		return ExitStatusOK, nil
+	case cliFlags.ShowConfiguration:
+		showConfiguration(configuration)
 		return ExitStatusOK, nil
 	default:
 		return ExitStatusOK, nil
@@ -76,6 +98,7 @@ func main() {
 	// define and parse all command line options
 	flag.BoolVar(&cliFlags.ShowVersion, "version", false, "show version")
 	flag.BoolVar(&cliFlags.ShowAuthors, "authors", false, "show authors")
+	flag.BoolVar(&cliFlags.ShowConfiguration, "show-configuration", false, "show configuration")
 
 	// parse all command line flags
 	flag.Parse()
