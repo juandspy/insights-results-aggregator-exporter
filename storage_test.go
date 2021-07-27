@@ -15,3 +15,64 @@ limitations under the License.
 */
 
 package main_test
+
+import (
+	"testing"
+
+	"github.com/stretchr/testify/assert"
+
+	main "github.com/RedHatInsights/insights-results-aggregator-exporter"
+)
+
+// TestNewStorage checks whether constructor for new storage returns error for improper storage configuration
+func TestNewStorageError(t *testing.T) {
+	_, err := main.NewStorage(main.StorageConfiguration{
+		Driver: "non existing driver",
+	})
+	assert.EqualError(t, err, "driver non existing driver is not supported")
+}
+
+// TestNewStoragePostgreSQL function tests creating new storage with logs
+func TestNewStoragePostgreSQL(t *testing.T) {
+	_, err := main.NewStorage(main.StorageConfiguration{
+		Driver:        "postgres",
+		PGUsername:    "user",
+		PGPassword:    "password",
+		PGHost:        "nowhere",
+		PGPort:        1234,
+		PGDBName:      "test",
+		PGParams:      "",
+		LogSQLQueries: true,
+	})
+
+	// we just happen to make connection without trying to actually connect
+	assert.Nil(t, err)
+}
+
+// TestNewStorageSQLite3 function tests creating new storage with logs
+func TestNewStorageSQLite3(t *testing.T) {
+	_, err := main.NewStorage(main.StorageConfiguration{
+		Driver:        "sqlite3",
+		LogSQLQueries: true,
+	})
+
+	// we just happen to make connection without trying to actually connect
+	assert.Nil(t, err)
+}
+
+// TestClose function tests database close operation.
+func TestClose(t *testing.T) {
+	storage, err := main.NewStorage(main.StorageConfiguration{
+		Driver:        "sqlite3",
+		LogSQLQueries: true,
+	})
+
+	// we just happen to make connection without trying to actually connect
+	assert.Nil(t, err)
+
+	// try to close the storage
+	err = storage.Close()
+
+	// it should not fail
+	assert.Nil(t, err)
+}
