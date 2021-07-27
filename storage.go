@@ -43,6 +43,7 @@ const (
 	unableToCloseDBRowsHandle         = "Unable to close the DB rows handle"
 )
 
+// Storage represents an interface to almost any database or storage system
 type Storage interface {
 	Close() error
 }
