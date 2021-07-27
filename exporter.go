@@ -98,7 +98,11 @@ func doSelectedOperation(configuration ConfigStruct, cliFlags CliFlags) (int, er
 			return ExitStatusStorageError, err
 		}
 
-		storage.Close()
+		err = storage.Close()
+		if err != nil {
+			log.Err(err).Msg(operationFailedMessage)
+			return ExitStatusStorageError, err
+		}
 
 		return ExitStatusOK, nil
 	}
