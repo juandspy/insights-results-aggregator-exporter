@@ -27,14 +27,18 @@ import (
 
 // Messages
 const (
-	versionMessage = "Insights Results Aggregator Cleaner version 1.0"
-	authorsMessage = "Pavel Tisnovsky, Red Hat Inc."
+	versionMessage         = "Insights Results Aggregator Cleaner version 1.0"
+	authorsMessage         = "Pavel Tisnovsky, Red Hat Inc."
+	operationFailedMessage = "Operation failed"
 )
 
 // Exit codes
 const (
 	// ExitStatusOK means that the tool finished with success
 	ExitStatusOK = iota
+
+	// ExitStatusStorageError is returned in case of any consumer-related error
+	ExitStatusStorageError
 )
 
 const (
@@ -86,6 +90,20 @@ func doSelectedOperation(configuration ConfigStruct, cliFlags CliFlags) (int, er
 		showConfiguration(configuration)
 		return ExitStatusOK, nil
 	default:
+		// prepare the storage
+		storageConfiguration := GetStorageConfiguration(configuration)
+		storage, err := NewStorage(storageConfiguration)
+		if err != nil {
+			log.Err(err).Msg(operationFailedMessage)
+			return ExitStatusStorageError, err
+		}
+
+		err = storage.Close()
+		if err != nil {
+			log.Err(err).Msg(operationFailedMessage)
+			return ExitStatusStorageError, err
+		}
+
 		return ExitStatusOK, nil
 	}
 	// this can not happen: return ExitStatusOK, nil

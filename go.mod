@@ -4,6 +4,9 @@ go 1.14
 
 require (
 	github.com/BurntSushi/toml v0.3.1
+	github.com/DATA-DOG/go-sqlmock v1.5.0
+	github.com/lib/pq v1.10.2
+	github.com/mattn/go-sqlite3 v2.0.3+incompatible
 	github.com/redhatinsights/app-common-go v1.5.1
 	github.com/rs/zerolog v1.23.0
 	github.com/spf13/viper v1.8.1

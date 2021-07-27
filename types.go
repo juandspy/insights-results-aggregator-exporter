@@ -16,6 +16,9 @@ limitations under the License.
 
 package main
 
+// DBDriver type for db driver enum
+type DBDriver int
+
 // CliFlags represents structure holding all command line arguments and flags.
 type CliFlags struct {
 	ShowVersion       bool
