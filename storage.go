@@ -43,21 +43,66 @@ const (
 	unableToCloseDBRowsHandle         = "Unable to close the DB rows handle"
 )
 
-// initDatabaseConnection initializes driver, checks if it's supported and
-// initializes connection to the storage.
-func initDatabaseConnection(configuration StorageConfiguration) (*sql.DB, error) {
-	driverName := configuration.Driver
-	dataSource := ""
-	log.Info().Str("driverName", configuration.Driver).Msg("DB connection configuration")
+type Storage interface {
+	Close() error
+}
 
-	// initialize connection into selected database using the right driver
+// DBStorage is an implementation of Storage interface that use selected SQL like database
+// like SQLite, PostgreSQL, MariaDB, RDS etc. That implementation is based on the standard
+// sql package. It is possible to configure connection via Configuration structure.
+// SQLQueriesLog is log for sql queries, default is nil which means nothing is logged
+type DBStorage struct {
+	connection   *sql.DB
+	dbDriverType DBDriver
+}
+
+// NewStorage function creates and initializes a new instance of Storage interface
+func NewStorage(configuration StorageConfiguration) (*DBStorage, error) {
+	log.Info().Msg("Initializing connection to storage")
+
+	driverType, driverName, dataSource, err := initAndGetDriver(configuration)
+	if err != nil {
+		log.Error().Err(err).Msg("Unsupported driver")
+		return nil, err
+	}
+
+	log.Info().
+		Str("driver", driverName).
+		Str("datasource", dataSource).
+		Msg("Making connection to data storage")
+
+	// prepare connection
+	connection, err := sql.Open(driverName, dataSource)
+	if err != nil {
+		log.Error().Err(err).Msg("Can not connect to data storage")
+		return nil, err
+	}
+
+	log.Info().Msg("Connection to storage established")
+	return NewFromConnection(connection, driverType), nil
+}
+
+// NewFromConnection function creates and initializes a new instance of Storage interface from prepared connection
+func NewFromConnection(connection *sql.DB, dbDriverType DBDriver) *DBStorage {
+	return &DBStorage{
+		connection:   connection,
+		dbDriverType: dbDriverType,
+	}
+}
+
+// initAndGetDriver initializes driver(with logs if logSQLQueries is true),
+// checks if it's supported and returns driver type, driver name, dataSource and error
+func initAndGetDriver(configuration StorageConfiguration) (driverType DBDriver, driverName string, dataSource string, err error) {
+	//var driver sql_driver.Driver
+	driverName = configuration.Driver
+
 	switch driverName {
 	case "sqlite3":
-		//driverType := DBDriverSQLite3
+		driverType = DBDriverSQLite3
 		//driver = &sqlite3.SQLiteDriver{}
-		dataSource = configuration.SQLiteDataSource
+		// dataSource = configuration.SQLiteDataSource
 	case "postgres":
-		//driverType := DBDriverPostgres
+		driverType = DBDriverPostgres
 		//driver = &pq.Driver{}
 		dataSource = fmt.Sprintf(
 			"postgresql://%v:%v@%v:%v/%v?%v",
@@ -69,19 +114,22 @@ func initDatabaseConnection(configuration StorageConfiguration) (*sql.DB, error)
 			configuration.PGParams,
 		)
 	default:
-		err := fmt.Errorf("driver %v is not supported", driverName)
-		log.Err(err).Msg(canNotConnectToDataStorageMessage)
-		return nil, err
+		err = fmt.Errorf("driver %v is not supported", driverName)
+		return
 	}
 
-	// try to initialize connection to the storage
-	connection, err := sql.Open(driverName, dataSource)
+	return
+}
 
-	// check if establishing a connection was successful
-	if err != nil {
-		log.Err(err).Msg(canNotConnectToDataStorageMessage)
-		return nil, err
+// Close method closes the connection to database. Needs to be called at the end of application lifecycle.
+func (storage DBStorage) Close() error {
+	log.Info().Msg("Closing connection to data storage")
+	if storage.connection != nil {
+		err := storage.connection.Close()
+		if err != nil {
+			log.Error().Err(err).Msg("Can not close connection to data storage")
+			return err
+		}
 	}
-
-	return connection, nil
+	return nil
 }
