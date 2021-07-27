@@ -86,6 +86,14 @@ func doSelectedOperation(configuration ConfigStruct, cliFlags CliFlags) (int, er
 		showConfiguration(configuration)
 		return ExitStatusOK, nil
 	default:
+		// initialize connection to database
+		connection, err := initDatabaseConnection(configuration.Storage)
+		if err != nil {
+			log.Err(err).Msg("Connection to database not established")
+		}
+
+		connection.Close()
+
 		return ExitStatusOK, nil
 	}
 	// this can not happen: return ExitStatusOK, nil
