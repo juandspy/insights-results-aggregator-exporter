@@ -85,6 +85,15 @@ func performDataExport(configuration ConfigStruct, cliFlags CliFlags) (int, erro
 		return ExitStatusStorageError, err
 	}
 
+	tableNames, err := storage.ReadListOfTables()
+	if err != nil {
+		log.Err(err).Msg(operationFailedMessage)
+		return ExitStatusStorageError, err
+	}
+
+	log.Info().Int("count", len(tableNames)).Msg("List of tables")
+	printTables(tableNames)
+
 	// we have finished, let's close the connection to database
 	err = storage.Close()
 	if err != nil {
@@ -94,6 +103,12 @@ func performDataExport(configuration ConfigStruct, cliFlags CliFlags) (int, erro
 
 	// default exit value + no error
 	return ExitStatusOK, nil
+}
+
+func printTables(tableNames []TableName) {
+	for i, tableName := range tableNames {
+		log.Info().Int("#", i+1).Str("table", string(tableName)).Msg("Table in database")
+	}
 }
 
 // doSelectedOperation function perform operation selected on command line.

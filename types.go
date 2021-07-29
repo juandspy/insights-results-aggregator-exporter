@@ -19,6 +19,8 @@ package main
 // DBDriver type for db driver enum
 type DBDriver int
 
+type TableName string
+
 // CliFlags represents structure holding all command line arguments and flags.
 type CliFlags struct {
 	ShowVersion       bool
