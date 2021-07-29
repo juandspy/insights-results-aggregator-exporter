@@ -75,6 +75,27 @@ func showConfiguration(config ConfigStruct) {
 		Msg("Logging configuration")
 }
 
+// performDataExport function exports all data into selected output
+func performDataExport(configuration ConfigStruct, cliFlags CliFlags) (int, error) {
+	// prepare the storage
+	storageConfiguration := GetStorageConfiguration(configuration)
+	storage, err := NewStorage(storageConfiguration)
+	if err != nil {
+		log.Err(err).Msg(operationFailedMessage)
+		return ExitStatusStorageError, err
+	}
+
+	// we have finished, let's close the connection to database
+	err = storage.Close()
+	if err != nil {
+		log.Err(err).Msg(operationFailedMessage)
+		return ExitStatusStorageError, err
+	}
+
+	// default exit value + no error
+	return ExitStatusOK, nil
+}
+
 // doSelectedOperation function perform operation selected on command line.
 // When no operation is specified, the Notification writer service is started
 // instead.
@@ -90,21 +111,8 @@ func doSelectedOperation(configuration ConfigStruct, cliFlags CliFlags) (int, er
 		showConfiguration(configuration)
 		return ExitStatusOK, nil
 	default:
-		// prepare the storage
-		storageConfiguration := GetStorageConfiguration(configuration)
-		storage, err := NewStorage(storageConfiguration)
-		if err != nil {
-			log.Err(err).Msg(operationFailedMessage)
-			return ExitStatusStorageError, err
-		}
-
-		err = storage.Close()
-		if err != nil {
-			log.Err(err).Msg(operationFailedMessage)
-			return ExitStatusStorageError, err
-		}
-
-		return ExitStatusOK, nil
+		// default operation - data export
+		return performDataExport(configuration, cliFlags)
 	}
 	// this can not happen: return ExitStatusOK, nil
 }
