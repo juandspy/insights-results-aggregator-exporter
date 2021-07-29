@@ -19,6 +19,7 @@ package main
 // DBDriver type for db driver enum
 type DBDriver int
 
+// TableName type represents table name
 type TableName string
 
 // CliFlags represents structure holding all command line arguments and flags.

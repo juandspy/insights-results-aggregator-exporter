@@ -151,7 +151,7 @@ func (storage DBStorage) Close() error {
 	return nil
 }
 
-// Read list of tables reads names of all public tables stored in opened
+// ReadListOfTables method reads names of all public tables stored in opened
 // database.
 func (storage DBStorage) ReadListOfTables() ([]TableName, error) {
 	// slice to make list of tables
@@ -271,6 +271,7 @@ func fillInMasterData(columnTypes []*sql.ColumnType, scanArgs []interface{}) map
 	return masterData
 }
 
+// ReadTable method reads the whole content of selected table.
 func (storage DBStorage) ReadTable(tableName TableName) error {
 	// it is not possible to use parameter for table name or a key
 	// disable "G201 (CWE-89): SQL string concatenation (Confidence: HIGH, Severity: MEDIUM)"
