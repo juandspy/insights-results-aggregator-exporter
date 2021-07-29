@@ -274,7 +274,7 @@ func fillInMasterData(columnTypes []*sql.ColumnType, scanArgs []interface{}) map
 // ReadTable method reads the whole content of selected table.
 func (storage DBStorage) ReadTable(tableName TableName) error {
 	// it is not possible to use parameter for table name or a key
-	// disable "G201 (CWE-89): SQL string concatenation (Confidence: HIGH, Severity: MEDIUM)"
+	// disable "G201 (CWE-89): SQL string formatting (Confidence: HIGH, Severity: MEDIUM)"
 	// #nosec G201
 	sqlStatement := fmt.Sprintf("SELECT * FROM %s", tableName)
 	log.Info().Str("SQL statement", sqlStatement).Msg("Performing")
