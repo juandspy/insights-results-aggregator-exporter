@@ -41,6 +41,7 @@ const (
 const (
 	canNotConnectToDataStorageMessage = "Can not connect to data storage"
 	unableToCloseDBRowsHandle         = "Unable to close the DB rows handle"
+	sqlStatementExecutionError        = "SQL statement execution error"
 )
 
 // SQL statements
@@ -59,6 +60,7 @@ type Storage interface {
 	Close() error
 
 	ReadListOfTables() ([]TableName, error)
+	ReadTable(tableName string) error
 }
 
 // DBStorage is an implementation of Storage interface that use selected SQL like database
@@ -182,4 +184,48 @@ func (storage DBStorage) ReadListOfTables() ([]TableName, error) {
 	}
 
 	return tableList, nil
+}
+
+func (storage DBStorage) ReadTable(tableName TableName) error {
+	// it is not possible to use parameter for table name or a key
+	// disable "G201 (CWE-89): SQL string concatenation (Confidence: HIGH, Severity: MEDIUM)"
+	// #nosec G201
+	sqlStatement := fmt.Sprintf("SELECT * FROM %s", tableName)
+	log.Info().Str("SQL statement", sqlStatement).Msg("Performing")
+
+	rows, err := storage.connection.Query(sqlStatement)
+	if err != nil {
+		log.Error().Err(err).Msg(sqlStatementExecutionError)
+		return err
+	}
+
+	defer func() {
+		err := rows.Close()
+		if err != nil {
+			log.Error().Err(err).Msg(unableToCloseDBRowsHandle)
+		}
+	}()
+
+	columns, err := rows.Columns()
+
+	log.Info().Str("table", string(tableName)).Int("columns", len(columns)).Msg("table metadata")
+
+	// prepare data structure to hold raw values
+	values := make([]interface{}, len(columns))
+	for i, _ := range columns {
+		values[i] = new(sql.RawBytes)
+	}
+
+	// iterate over all rows
+	for rows.Next() {
+		// read raw values
+		err = rows.Scan(values...)
+		if err != nil {
+			log.Error().Err(err).Msg("Unable to scan row")
+		}
+		// it is now needed to check each element of values for nil
+		// then to use type introspection and type assertion to be
+		// able to fetch the column into a typed variable if needed
+	}
+	return nil
 }

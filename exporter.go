@@ -93,6 +93,9 @@ func performDataExport(configuration ConfigStruct, cliFlags CliFlags) (int, erro
 
 	log.Info().Int("count", len(tableNames)).Msg("List of tables")
 	printTables(tableNames)
+	for _, tableName := range tableNames {
+		storage.ReadTable(tableName)
+	}
 
 	// we have finished, let's close the connection to database
 	err = storage.Close()
