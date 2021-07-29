@@ -43,9 +43,22 @@ const (
 	unableToCloseDBRowsHandle         = "Unable to close the DB rows handle"
 )
 
+// SQL statements
+const (
+	// Select all public tables from open database
+	selectListOfTables = `
+           SELECT tablename
+             FROM pg_catalog.pg_tables
+            WHERE schemaname != 'information_schema'
+              AND schemaname != 'pg_catalog';
+   `
+)
+
 // Storage represents an interface to almost any database or storage system
 type Storage interface {
 	Close() error
+
+	ReadListOfTables() ([]TableName, error)
 }
 
 // DBStorage is an implementation of Storage interface that use selected SQL like database
@@ -122,7 +135,8 @@ func initAndGetDriver(configuration StorageConfiguration) (driverType DBDriver, 
 	return
 }
 
-// Close method closes the connection to database. Needs to be called at the end of application lifecycle.
+// Close method closes the connection to database. Needs to be called at the
+// end of application lifecycle.
 func (storage DBStorage) Close() error {
 	log.Info().Msg("Closing connection to data storage")
 	if storage.connection != nil {
@@ -133,4 +147,39 @@ func (storage DBStorage) Close() error {
 		}
 	}
 	return nil
+}
+
+// Read list of tables reads names of all public tables stored in opened
+// database.
+func (storage DBStorage) ReadListOfTables() ([]TableName, error) {
+	// slice to make list of tables
+	var tableList = make([]TableName, 0)
+
+	rows, err := storage.connection.Query(selectListOfTables)
+	if err != nil {
+		return tableList, err
+	}
+
+	defer func() {
+		err := rows.Close()
+		if err != nil {
+			log.Error().Err(err).Msg(unableToCloseDBRowsHandle)
+		}
+	}()
+
+	// read all table names
+	for rows.Next() {
+		var tableName TableName
+
+		err := rows.Scan(&tableName)
+		if err != nil {
+			if closeErr := rows.Close(); closeErr != nil {
+				log.Error().Err(closeErr).Msg(unableToCloseDBRowsHandle)
+			}
+			return tableList, err
+		}
+		tableList = append(tableList, tableName)
+	}
+
+	return tableList, nil
 }
