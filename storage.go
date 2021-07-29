@@ -41,11 +41,26 @@ const (
 const (
 	canNotConnectToDataStorageMessage = "Can not connect to data storage"
 	unableToCloseDBRowsHandle         = "Unable to close the DB rows handle"
+	sqlStatementExecutionError        = "SQL statement execution error"
+)
+
+// SQL statements
+const (
+	// Select all public tables from open database
+	selectListOfTables = `
+           SELECT tablename
+             FROM pg_catalog.pg_tables
+            WHERE schemaname != 'information_schema'
+              AND schemaname != 'pg_catalog';
+   `
 )
 
 // Storage represents an interface to almost any database or storage system
 type Storage interface {
 	Close() error
+
+	ReadListOfTables() ([]TableName, error)
+	ReadTable(tableName string) error
 }
 
 // DBStorage is an implementation of Storage interface that use selected SQL like database
@@ -122,7 +137,8 @@ func initAndGetDriver(configuration StorageConfiguration) (driverType DBDriver, 
 	return
 }
 
-// Close method closes the connection to database. Needs to be called at the end of application lifecycle.
+// Close method closes the connection to database. Needs to be called at the
+// end of application lifecycle.
 func (storage DBStorage) Close() error {
 	log.Info().Msg("Closing connection to data storage")
 	if storage.connection != nil {
@@ -131,6 +147,186 @@ func (storage DBStorage) Close() error {
 			log.Error().Err(err).Msg("Can not close connection to data storage")
 			return err
 		}
+	}
+	return nil
+}
+
+// ReadListOfTables method reads names of all public tables stored in opened
+// database.
+func (storage DBStorage) ReadListOfTables() ([]TableName, error) {
+	// slice to make list of tables
+	var tableList = make([]TableName, 0)
+
+	rows, err := storage.connection.Query(selectListOfTables)
+	if err != nil {
+		return tableList, err
+	}
+
+	defer func() {
+		err := rows.Close()
+		if err != nil {
+			log.Error().Err(err).Msg(unableToCloseDBRowsHandle)
+		}
+	}()
+
+	// read all table names
+	for rows.Next() {
+		var tableName TableName
+
+		err := rows.Scan(&tableName)
+		if err != nil {
+			if closeErr := rows.Close(); closeErr != nil {
+				log.Error().Err(closeErr).Msg(unableToCloseDBRowsHandle)
+			}
+			return tableList, err
+		}
+		tableList = append(tableList, tableName)
+	}
+
+	return tableList, nil
+}
+
+// logColumnTypes is helper function to print column names and types for
+// selected table.
+func logColumnTypes(tableName TableName, columnTypes []*sql.ColumnType) {
+	log.Info().Str("table columns", string(tableName)).Int("columns", len(columnTypes)).Msg("table metadata")
+
+	for i, columnType := range columnTypes {
+		log.Info().
+			Str("name", columnType.Name()).
+			Str("type", columnType.DatabaseTypeName()).
+			Int("column", i+1).Msg("column type")
+	}
+}
+
+// fillInScanArgs prepares arguments for the Scan method to retrieve row from
+// selected table.
+//
+// Based on:
+// https://stackoverflow.com/questions/42774467/how-to-convert-sql-rows-to-typed-json-in-golang#60386531
+func fillInScanArgs(columnTypes []*sql.ColumnType) []interface{} {
+	count := len(columnTypes)
+
+	// data structure to scan one row
+	scanArgs := make([]interface{}, count)
+
+	for i, v := range columnTypes {
+		switch v.DatabaseTypeName() {
+		case "VARCHAR", "TEXT", "UUID", "TIMESTAMP":
+			scanArgs[i] = new(sql.NullString)
+			break
+		case "BOOL":
+			scanArgs[i] = new(sql.NullBool)
+			break
+		case "INT4":
+			scanArgs[i] = new(sql.NullInt64)
+			break
+		default:
+			scanArgs[i] = new(sql.NullString)
+		}
+	}
+
+	return scanArgs
+}
+
+// fillInMasterData fills the structure by row data read from database from
+// selected table.
+//
+// Based on:
+// https://stackoverflow.com/questions/42774467/how-to-convert-sql-rows-to-typed-json-in-golang#60386531
+func fillInMasterData(columnTypes []*sql.ColumnType, scanArgs []interface{}) map[string]interface{} {
+	masterData := map[string]interface{}{}
+
+	// fill-in the data structure by row data
+	for i, v := range columnTypes {
+
+		if z, ok := (scanArgs[i]).(*sql.NullBool); ok {
+			masterData[v.Name()] = z.Bool
+			continue
+		}
+
+		if z, ok := (scanArgs[i]).(*sql.NullString); ok {
+			masterData[v.Name()] = z.String
+			continue
+		}
+
+		if z, ok := (scanArgs[i]).(*sql.NullInt64); ok {
+			masterData[v.Name()] = z.Int64
+			continue
+		}
+
+		if z, ok := (scanArgs[i]).(*sql.NullFloat64); ok {
+			masterData[v.Name()] = z.Float64
+			continue
+		}
+
+		if z, ok := (scanArgs[i]).(*sql.NullInt32); ok {
+			masterData[v.Name()] = z.Int32
+			continue
+		}
+
+		masterData[v.Name()] = scanArgs[i]
+	}
+
+	return masterData
+}
+
+// ReadTable method reads the whole content of selected table.
+func (storage DBStorage) ReadTable(tableName TableName) error {
+	// it is not possible to use parameter for table name or a key
+	// disable "G201 (CWE-89): SQL string formatting (Confidence: HIGH, Severity: MEDIUM)"
+	// #nosec G201
+	sqlStatement := fmt.Sprintf("SELECT * FROM %s", tableName)
+	log.Info().Str("SQL statement", sqlStatement).Msg("Performing")
+
+	rows, err := storage.connection.Query(sqlStatement)
+	if err != nil {
+		log.Error().Err(err).Msg(sqlStatementExecutionError)
+		return err
+	}
+
+	defer func() {
+		err := rows.Close()
+		if err != nil {
+			log.Error().Err(err).Msg(unableToCloseDBRowsHandle)
+		}
+	}()
+
+	// try to retrieve column types
+	columnTypes, err := rows.ColumnTypes()
+
+	if err != nil {
+		log.Error().Err(err).Msg("Unable to retrieve column types")
+		return err
+	}
+
+	logColumnTypes(tableName, columnTypes)
+
+	// prepare data structure to hold raw values
+	finalRows := []interface{}{}
+
+	// read table row by row
+	for rows.Next() {
+		// prepare arguments for the Scan method to retrieve row from
+		// selected table.
+		scanArgs := fillInScanArgs(columnTypes)
+
+		// do the actual scan of row read from database
+		err := rows.Scan(scanArgs...)
+
+		if err != nil {
+			log.Error().Err(err).Msg("Unable to scan row")
+			return err
+		}
+
+		// it is now needed to check each element of values for nil
+		// then to use type introspection and type assertion to be
+		// able to fetch the column into a typed variable if needed
+		masterData := fillInMasterData(columnTypes, scanArgs)
+
+		// TODO: make the export part there
+		println(masterData)
+		finalRows = append(finalRows, masterData)
 	}
 	return nil
 }
