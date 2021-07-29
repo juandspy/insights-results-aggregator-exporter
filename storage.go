@@ -186,6 +186,91 @@ func (storage DBStorage) ReadListOfTables() ([]TableName, error) {
 	return tableList, nil
 }
 
+// logColumnTypes is helper function to print column names and types for
+// selected table.
+func logColumnTypes(tableName TableName, columnTypes []*sql.ColumnType) {
+	log.Info().Str("table", string(tableName)).Int("columns", len(columnTypes)).Msg("table metadata")
+
+	for i, columnType := range columnTypes {
+		log.Info().
+			Str("name", columnType.Name()).
+			Str("type", columnType.DatabaseTypeName()).
+			Int("column", i+1).Msg("column type")
+	}
+}
+
+// fillInScanArgs prepares arguments for the Scan method to retrieve row from
+// selected table.
+//
+// Based on:
+// https://stackoverflow.com/questions/42774467/how-to-convert-sql-rows-to-typed-json-in-golang#60386531
+func fillInScanArgs(columnTypes []*sql.ColumnType) []interface{} {
+	count := len(columnTypes)
+
+	// data structure to scan one row
+	scanArgs := make([]interface{}, count)
+
+	for i, v := range columnTypes {
+		switch v.DatabaseTypeName() {
+		case "VARCHAR", "TEXT", "UUID", "TIMESTAMP":
+			scanArgs[i] = new(sql.NullString)
+			break
+		case "BOOL":
+			scanArgs[i] = new(sql.NullBool)
+			break
+		case "INT4":
+			scanArgs[i] = new(sql.NullInt64)
+			break
+		default:
+			scanArgs[i] = new(sql.NullString)
+		}
+	}
+
+	return scanArgs
+}
+
+// fillInMasterData fills the structure by row data read from database from
+// selected table.
+//
+// Based on:
+// https://stackoverflow.com/questions/42774467/how-to-convert-sql-rows-to-typed-json-in-golang#60386531
+func fillInMasterData(columnTypes []*sql.ColumnType, scanArgs []interface{}) map[string]interface{} {
+	masterData := map[string]interface{}{}
+
+	// fill-in the data structure by row data
+	for i, v := range columnTypes {
+
+		if z, ok := (scanArgs[i]).(*sql.NullBool); ok {
+			masterData[v.Name()] = z.Bool
+			continue
+		}
+
+		if z, ok := (scanArgs[i]).(*sql.NullString); ok {
+			masterData[v.Name()] = z.String
+			continue
+		}
+
+		if z, ok := (scanArgs[i]).(*sql.NullInt64); ok {
+			masterData[v.Name()] = z.Int64
+			continue
+		}
+
+		if z, ok := (scanArgs[i]).(*sql.NullFloat64); ok {
+			masterData[v.Name()] = z.Float64
+			continue
+		}
+
+		if z, ok := (scanArgs[i]).(*sql.NullInt32); ok {
+			masterData[v.Name()] = z.Int32
+			continue
+		}
+
+		masterData[v.Name()] = scanArgs[i]
+	}
+
+	return masterData
+}
+
 func (storage DBStorage) ReadTable(tableName TableName) error {
 	// it is not possible to use parameter for table name or a key
 	// disable "G201 (CWE-89): SQL string concatenation (Confidence: HIGH, Severity: MEDIUM)"
@@ -206,26 +291,41 @@ func (storage DBStorage) ReadTable(tableName TableName) error {
 		}
 	}()
 
-	columns, err := rows.Columns()
+	// try to retrieve column types
+	columnTypes, err := rows.ColumnTypes()
 
-	log.Info().Str("table", string(tableName)).Int("columns", len(columns)).Msg("table metadata")
-
-	// prepare data structure to hold raw values
-	values := make([]interface{}, len(columns))
-	for i, _ := range columns {
-		values[i] = new(sql.RawBytes)
+	if err != nil {
+		log.Error().Err(err).Msg("Unable to retrieve column types")
+		return err
 	}
 
-	// iterate over all rows
+	logColumnTypes(tableName, columnTypes)
+
+	// prepare data structure to hold raw values
+	finalRows := []interface{}{}
+
+	// read table row by row
 	for rows.Next() {
-		// read raw values
-		err = rows.Scan(values...)
+		// prepare arguments for the Scan method to retrieve row from
+		// selected table.
+		scanArgs := fillInScanArgs(columnTypes)
+
+		// do the actual scan of row read from database
+		err := rows.Scan(scanArgs...)
+
 		if err != nil {
 			log.Error().Err(err).Msg("Unable to scan row")
+			return err
 		}
+
 		// it is now needed to check each element of values for nil
 		// then to use type introspection and type assertion to be
 		// able to fetch the column into a typed variable if needed
+		masterData := fillInMasterData(columnTypes, scanArgs)
+
+		// TODO: make the export part there
+		println(masterData)
+		finalRows = append(finalRows, masterData)
 	}
 	return nil
 }
