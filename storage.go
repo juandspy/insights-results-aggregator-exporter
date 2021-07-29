@@ -189,7 +189,7 @@ func (storage DBStorage) ReadListOfTables() ([]TableName, error) {
 // logColumnTypes is helper function to print column names and types for
 // selected table.
 func logColumnTypes(tableName TableName, columnTypes []*sql.ColumnType) {
-	log.Info().Str("table", string(tableName)).Int("columns", len(columnTypes)).Msg("table metadata")
+	log.Info().Str("table columns", string(tableName)).Int("columns", len(columnTypes)).Msg("table metadata")
 
 	for i, columnType := range columnTypes {
 		log.Info().
