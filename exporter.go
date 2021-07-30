@@ -73,6 +73,17 @@ func showConfiguration(config ConfigStruct) {
 		Str("Level", loggingConfig.LogLevel).
 		Bool("Pretty colored debug logging", loggingConfig.Debug).
 		Msg("Logging configuration")
+
+	s3Configuration := GetS3Configuration(config)
+	log.Info().
+		Str("Type", s3Configuration.Type).
+		Str("URL", s3Configuration.EndpointURL).
+		Uint("Port", s3Configuration.EndpointPort).
+		Str("AccessKeyID", s3Configuration.AccessKeyID).
+		Str("SecretAccessKey", s3Configuration.SecretAccessKey).
+		Bool("Use SSL", s3Configuration.UseSSL).
+		Str("Bucket", s3Configuration.Bucket).
+		Msg("S3 configuration")
 }
 
 // performDataExport function exports all data into selected output
