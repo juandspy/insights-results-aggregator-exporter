@@ -139,6 +139,19 @@ func TestLoadLoggingConfiguration(t *testing.T) {
 	assert.Equal(t, "", loggingCfg.LogLevel)
 }
 
+// TestLoadS3Configuration tests loading the S3 configuration sub-tree
+func TestLoadS3Configuration(t *testing.T) {
+	envVar := "INSIGHTS_RESULTS_AGGREGATOR_EXPORTER_CONFIG_FILE"
+	mustSetEnv(t, envVar, "tests/config2")
+	config, err := main.LoadConfiguration(envVar, "")
+	assert.Nil(t, err, "Failed loading configuration file from env var!")
+
+	S3Cfg := main.GetS3Configuration(config)
+
+	assert.Equal(t, "minio", S3Cfg.Type)
+	assert.Equal(t, false, S3Cfg.UseSSL)
+}
+
 // TestLoadConfigurationFromEnvVariableClowderEnabled tests loading the config.
 // file for testing from an environment variable. Clowder config is enabled in
 // this case.
