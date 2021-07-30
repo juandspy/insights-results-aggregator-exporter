@@ -64,7 +64,7 @@ func showConfiguration(config ConfigStruct) {
 		Str("DB Name", storageConfig.PGDBName).
 		Str("Username", storageConfig.PGUsername). // password is omitted on purpose
 		Str("Host", storageConfig.PGHost).
-		Int("Port", storageConfig.PGPort).
+		Int("DB Port", storageConfig.PGPort).
 		Bool("LogSQLQueries", storageConfig.LogSQLQueries).
 		Msg("Storage configuration")
 
@@ -78,7 +78,7 @@ func showConfiguration(config ConfigStruct) {
 	log.Info().
 		Str("Type", s3Configuration.Type).
 		Str("URL", s3Configuration.EndpointURL).
-		Uint("Port", s3Configuration.EndpointPort).
+		Uint("S3 Port", s3Configuration.EndpointPort).
 		Str("AccessKeyID", s3Configuration.AccessKeyID).
 		Str("SecretAccessKey", s3Configuration.SecretAccessKey).
 		Bool("Use SSL", s3Configuration.UseSSL).
