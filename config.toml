@@ -7,6 +7,15 @@ pg_port = 5432
 pg_db_name = "aggregator"
 pg_params = "sslmode=disable"
 
+[s3]
+type = "minio"
+endpoint_url = "127.0.0.1"
+endpoint_port = 9000
+access_key_id = "foobar"
+secret_access_key = "foobar"
+use_ssl = false
+bucket = "test"
+
 [logging]
 debug = true
 log_level = ""

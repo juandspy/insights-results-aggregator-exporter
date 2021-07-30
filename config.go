@@ -83,6 +83,7 @@ const (
 // ConfigStruct is a structure holding the whole service configuration
 type ConfigStruct struct {
 	Storage StorageConfiguration `mapstructure:"storage" toml:"storage"`
+	S3      S3Configuration      `mapstructure:"s3" tomp:"s3"`
 	Logging LoggingConfiguration `mapstructure:"logging" toml:"logging"`
 }
 
@@ -106,17 +107,29 @@ type LoggingConfiguration struct {
 	LoggingToCloudWatchEnabled bool `mapstructure:"logging_to_cloud_watch_enabled" toml:"logging_to_cloud_watch_enabled"`
 }
 
-// StorageConfiguration represents configuration of data storage
+// StorageConfiguration represents configuration of input data storage
+// (database)
 type StorageConfiguration struct {
-	Driver           string `mapstructure:"db_driver"       toml:"db_driver"`
+	Driver           string `mapstructure:"db_driver"         toml:"db_driver"`
 	SQLiteDataSource string `mapstructure:"sqlite_datasource" toml:"sqlite_datasource"`
-	PGUsername       string `mapstructure:"pg_username"     toml:"pg_username"`
-	PGPassword       string `mapstructure:"pg_password"     toml:"pg_password"`
-	PGHost           string `mapstructure:"pg_host"         toml:"pg_host"`
-	PGPort           int    `mapstructure:"pg_port"         toml:"pg_port"`
-	PGDBName         string `mapstructure:"pg_db_name"      toml:"pg_db_name"`
-	PGParams         string `mapstructure:"pg_params"       toml:"pg_params"`
-	LogSQLQueries    bool   `mapstructure:"log_sql_queries" toml:"log_sql_queries"`
+	PGUsername       string `mapstructure:"pg_username"       toml:"pg_username"`
+	PGPassword       string `mapstructure:"pg_password"       toml:"pg_password"`
+	PGHost           string `mapstructure:"pg_host"           toml:"pg_host"`
+	PGPort           int    `mapstructure:"pg_port"           toml:"pg_port"`
+	PGDBName         string `mapstructure:"pg_db_name"        toml:"pg_db_name"`
+	PGParams         string `mapstructure:"pg_params"         toml:"pg_params"`
+	LogSQLQueries    bool   `mapstructure:"log_sql_queries"   toml:"log_sql_queries"`
+}
+
+// S3Configuration represents configuration of S3/Minio data storage
+type S3Configuration struct {
+	Type            string `mapstructure:"type"              toml:"type"`
+	EndpointURL     string `mapstructure:"endpoint_url"      toml:"endpoint_url"`
+	EndpointPort    uint   `mapstructure:"endpoint_port"     toml:"endpoint_port"`
+	AccessKeyID     string `mapstructure:"access_key_id"     toml:"access_key_id"`
+	SecretAccessKey string `mapstructure:"secret_access_key" toml:"secret_access_key"`
+	UseSSL          bool   `mapstructure:"use_ssl"           toml:"use_ssl"`
+	Bucket          string `mapstructure:"bucket"            toml:"bucket"`
 }
 
 // LoadConfiguration loads configuration from defaultConfigFile, file set in
@@ -199,6 +212,11 @@ func GetStorageConfiguration(config ConfigStruct) StorageConfiguration {
 // GetLoggingConfiguration returns logging configuration
 func GetLoggingConfiguration(config ConfigStruct) LoggingConfiguration {
 	return config.Logging
+}
+
+// GetS3Configuration returns S3/Minio configuration
+func GetS3Configuration(config ConfigStruct) S3Configuration {
+	return config.S3
 }
 
 // updateConfigFromClowder updates the current config with the values defined in clowder
