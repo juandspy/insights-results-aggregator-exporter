@@ -15,3 +15,51 @@ limitations under the License.
 */
 
 package main
+
+import (
+	"context"
+	"fmt"
+
+	"github.com/rs/zerolog/log"
+
+	"github.com/minio/minio-go/v7"
+	"github.com/minio/minio-go/v7/pkg/credentials"
+)
+
+// NewS3Connection function initializes connection to S3/Minio storage.
+func NewS3Connection(configuration ConfigStruct) (*minio.Client, context.Context, error) {
+	s3Configuration := GetS3Configuration(configuration)
+
+	endpoint := fmt.Sprintf("%s:%d",
+		s3Configuration.EndpointURL, s3Configuration.EndpointPort)
+
+	log.Info().Str("S3 endpoint", endpoint).Msg("Preparing connection")
+
+	ctx := context.Background()
+
+	// Initialize minio client object
+	minioClient, err := minio.New(endpoint, &minio.Options{
+		Creds: credentials.NewStaticV4(
+			s3Configuration.AccessKeyID,
+			s3Configuration.SecretAccessKey, ""),
+		Secure: s3Configuration.UseSSL,
+	})
+	if err != nil {
+		log.Error().Err(err).Msg("Unable to initialize connection to S3")
+		return nil, nil, err
+	}
+
+	log.Info().Msg("Connection established")
+	return minioClient, ctx, nil
+}
+
+// s3BucketExists checks if bucket with given name exists and can be retrieved
+func s3BucketExists(ctx context.Context, minioClient *minio.Client, bucketName string) (bool, error) {
+	found, err := minioClient.BucketExists(ctx, bucketName)
+	if err != nil {
+		log.Error().Err(err).Str("bucket", bucketName).Msg("Bucket can not be found")
+		return false, err
+	}
+
+	return found, nil
+}

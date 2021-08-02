@@ -29,4 +29,5 @@ type CliFlags struct {
 	ShowConfiguration bool
 	PrintSummaryTable bool
 	Output            string
+	CheckS3Connection bool
 }

@@ -37,8 +37,13 @@ const (
 	// ExitStatusOK means that the tool finished with success
 	ExitStatusOK = iota
 
-	// ExitStatusStorageError is returned in case of any consumer-related error
+	// ExitStatusStorageError is returned in case of any consumer-related
+	// error
 	ExitStatusStorageError
+
+	// ExitStatusS3Error is returned in case of any error related with
+	// S3/Minio connection
+	ExitStatusS3Error
 )
 
 const (
@@ -129,6 +134,29 @@ func printTables(tableNames []TableName) {
 	}
 }
 
+// checkS3Connection checks if connection to S3 is possible
+func checkS3Connection(configuration ConfigStruct) (int, error) {
+	log.Info().Msg("Checking connection to S3")
+	minioClient, context, err := NewS3Connection(configuration)
+	if err != nil {
+		return ExitStatusS3Error, err
+	}
+
+	exists, err := s3BucketExists(context, minioClient, GetS3Configuration(configuration).Bucket)
+	if err != nil {
+		return ExitStatusS3Error, err
+	}
+
+	if !exists {
+		log.Error().Msg("Can not find expected bucket")
+	} else {
+		log.Info().Msg("Bucket has been found")
+	}
+
+	log.Info().Msg("Connection to S3 seems to be ok")
+	return ExitStatusOK, nil
+}
+
 // doSelectedOperation function perform operation selected on command line.
 // When no operation is specified, the Notification writer service is started
 // instead.
@@ -143,6 +171,8 @@ func doSelectedOperation(configuration ConfigStruct, cliFlags CliFlags) (int, er
 	case cliFlags.ShowConfiguration:
 		showConfiguration(configuration)
 		return ExitStatusOK, nil
+	case cliFlags.CheckS3Connection:
+		return checkS3Connection(configuration)
 	default:
 		// default operation - data export
 		return performDataExport(configuration, cliFlags)
@@ -160,6 +190,7 @@ func main() {
 	flag.BoolVar(&cliFlags.ShowConfiguration, "show-configuration", false, "show configuration")
 	flag.BoolVar(&cliFlags.PrintSummaryTable, "summary", false, "print summary table after export")
 	flag.StringVar(&cliFlags.Output, "output", "", "output to: CSV, S3")
+	flag.BoolVar(&cliFlags.CheckS3Connection, "check-s3-connection", false, "check S3 connection and exit")
 
 	// parse all command line flags
 	flag.Parse()
