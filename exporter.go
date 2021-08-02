@@ -142,7 +142,7 @@ func checkS3Connection(configuration ConfigStruct) (int, error) {
 		return ExitStatusS3Error, err
 	}
 
-	exists, err := s3BucketExists(minioClient, context, GetS3Configuration(configuration).Bucket)
+	exists, err := s3BucketExists(context, minioClient, GetS3Configuration(configuration).Bucket)
 	if err != nil {
 		return ExitStatusS3Error, err
 	}

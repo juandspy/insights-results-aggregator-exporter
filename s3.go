@@ -54,7 +54,7 @@ func NewS3Connection(configuration ConfigStruct) (*minio.Client, context.Context
 }
 
 // s3BucketExists checks if bucket with given name exists and can be retrieved
-func s3BucketExists(minioClient *minio.Client, ctx context.Context, bucketName string) (bool, error) {
+func s3BucketExists(ctx context.Context, minioClient *minio.Client, bucketName string) (bool, error) {
 	found, err := minioClient.BucketExists(ctx, bucketName)
 	if err != nil {
 		log.Error().Err(err).Str("bucket", bucketName).Msg("Bucket can not be found")
