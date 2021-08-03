@@ -48,6 +48,7 @@ const (
 	canNotConnectToDataStorageMessage = "Can not connect to data storage"
 	unableToCloseDBRowsHandle         = "Unable to close the DB rows handle"
 	sqlStatementExecutionError        = "SQL statement execution error"
+	unableToRetrieveColumnTypes       = "Unable to retrieve column types"
 )
 
 // SQL statements
@@ -313,7 +314,7 @@ func (storage DBStorage) ReadTable(tableName TableName) ([]M, error) {
 	columnTypes, err := rows.ColumnTypes()
 
 	if err != nil {
-		log.Error().Err(err).Msg("Unable to retrieve column types")
+		log.Error().Err(err).Msg(unableToRetrieveColumnTypes)
 		return nil, err
 	}
 
@@ -365,7 +366,7 @@ func (storage DBStorage) StoreTable(context context.Context,
 	columnTypes, err := rows.ColumnTypes()
 
 	if err != nil {
-		log.Error().Err(err).Msg("Unable to retrieve column types")
+		log.Error().Err(err).Msg(unableToRetrieveColumnTypes)
 		return err
 	}
 
