@@ -17,8 +17,11 @@ limitations under the License.
 package main
 
 import (
+	"bytes"
 	"context"
+	"encoding/csv"
 	"fmt"
+	"io"
 
 	"github.com/rs/zerolog/log"
 
@@ -62,4 +65,35 @@ func s3BucketExists(ctx context.Context, minioClient *minio.Client, bucketName s
 	}
 
 	return found, nil
+}
+
+func storeTableNames(context context.Context, minioClient *minio.Client,
+	bucketName string, objectName string, tableNames []TableName) error {
+	buffer := new(bytes.Buffer)
+
+	writer := csv.NewWriter(buffer)
+	var data = [][]string{{"Table name"}}
+
+	err := writer.WriteAll(data)
+	if err != nil {
+		return err
+	}
+
+	for _, tableName := range tableNames {
+		err := writer.Write([]string{string(tableName)})
+		if err != nil {
+			log.Error().Err(err).Msg("Write to CSV")
+		}
+	}
+
+	writer.Flush()
+
+	reader := io.Reader(buffer)
+
+	options := minio.PutObjectOptions{ContentType: "text/csv"}
+	_, err = minioClient.PutObject(context, bucketName, objectName, reader, -1, options)
+	if err != nil {
+		return err
+	}
+	return nil
 }
