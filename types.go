@@ -31,3 +31,6 @@ type CliFlags struct {
 	Output            string
 	CheckS3Connection bool
 }
+
+// M represents a map with string keys and any value
+type M map[string]interface{}
