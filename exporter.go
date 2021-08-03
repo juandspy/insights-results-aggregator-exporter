@@ -101,6 +101,11 @@ func performDataExport(configuration ConfigStruct, cliFlags CliFlags) (int, erro
 		return ExitStatusStorageError, err
 	}
 
+	minioClient, context, err := NewS3Connection(configuration)
+	if err != nil {
+		return ExitStatusS3Error, err
+	}
+
 	tableNames, err := storage.ReadListOfTables()
 	if err != nil {
 		log.Err(err).Msg(operationFailedMessage)
@@ -115,6 +120,13 @@ func performDataExport(configuration ConfigStruct, cliFlags CliFlags) (int, erro
 			log.Err(err).Msg("Read table content failed")
 			return ExitStatusStorageError, err
 		}
+	}
+
+	err = storeTableNames(context, minioClient,
+		GetS3Configuration(configuration).Bucket, "tables.csv", tableNames)
+	if err != nil {
+		log.Err(err).Msg("Store table list failed")
+		return ExitStatusStorageError, err
 	}
 
 	// we have finished, let's close the connection to database
