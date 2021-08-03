@@ -49,6 +49,7 @@ const (
 	unableToCloseDBRowsHandle         = "Unable to close the DB rows handle"
 	sqlStatementExecutionError        = "SQL statement execution error"
 	unableToRetrieveColumnTypes       = "Unable to retrieve column types"
+	readTableContentFailed            = "Read table content failed"
 )
 
 // SQL statements
@@ -394,7 +395,7 @@ func (storage DBStorage) StoreTable(context context.Context,
 	// now we know column types, time to perform export
 	finalRows, err := storage.ReadTable(tableName)
 	if err != nil {
-		log.Error().Err(err).Msg("Read table content failed")
+		log.Error().Err(err).Msg(readTableContentFailed)
 		return err
 	}
 

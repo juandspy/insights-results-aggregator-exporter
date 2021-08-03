@@ -117,7 +117,7 @@ func performDataExport(configuration ConfigStruct, cliFlags CliFlags) (int, erro
 	for _, tableName := range tableNames {
 		_, err = storage.ReadTable(tableName)
 		if err != nil {
-			log.Err(err).Msg("Read table content failed")
+			log.Err(err).Msg(readTableContentFailed)
 			return ExitStatusStorageError, err
 		}
 	}
