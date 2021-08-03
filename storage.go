@@ -17,7 +17,11 @@ limitations under the License.
 package main
 
 import (
+	"bytes"
+	"context"
+	"encoding/csv"
 	"fmt"
+	"io"
 
 	"database/sql"
 
@@ -25,6 +29,8 @@ import (
 	_ "github.com/mattn/go-sqlite3" // SQLite database driver
 
 	"github.com/rs/zerolog/log"
+
+	"github.com/minio/minio-go/v7"
 )
 
 // Driver types
@@ -271,18 +277,29 @@ func fillInMasterData(columnTypes []*sql.ColumnType, scanArgs []interface{}) map
 	return masterData
 }
 
-// ReadTable method reads the whole content of selected table.
-func (storage DBStorage) ReadTable(tableName TableName) error {
+func select1FromTable(tableName TableName) string {
 	// it is not possible to use parameter for table name or a key
 	// disable "G201 (CWE-89): SQL string formatting (Confidence: HIGH, Severity: MEDIUM)"
 	// #nosec G201
-	sqlStatement := fmt.Sprintf("SELECT * FROM %s", tableName)
+	return fmt.Sprintf("SELECT * FROM %s LIMIT 1", string(tableName))
+}
+
+func selectAllFromTable(tableName TableName) string {
+	// it is not possible to use parameter for table name or a key
+	// disable "G201 (CWE-89): SQL string formatting (Confidence: HIGH, Severity: MEDIUM)"
+	// #nosec G201
+	return fmt.Sprintf("SELECT * FROM %s", string(tableName))
+}
+
+// ReadTable method reads the whole content of selected table.
+func (storage DBStorage) ReadTable(tableName TableName) ([]M, error) {
+	sqlStatement := selectAllFromTable(tableName)
 	log.Info().Str("SQL statement", sqlStatement).Msg("Performing")
 
 	rows, err := storage.connection.Query(sqlStatement)
 	if err != nil {
 		log.Error().Err(err).Msg(sqlStatementExecutionError)
-		return err
+		return nil, err
 	}
 
 	defer func() {
@@ -297,13 +314,13 @@ func (storage DBStorage) ReadTable(tableName TableName) error {
 
 	if err != nil {
 		log.Error().Err(err).Msg("Unable to retrieve column types")
-		return err
+		return nil, err
 	}
 
 	logColumnTypes(tableName, columnTypes)
 
 	// prepare data structure to hold raw values
-	finalRows := []interface{}{}
+	var finalRows []M
 
 	// read table row by row
 	for rows.Next() {
@@ -316,7 +333,7 @@ func (storage DBStorage) ReadTable(tableName TableName) error {
 
 		if err != nil {
 			log.Error().Err(err).Msg("Unable to scan row")
-			return err
+			return nil, err
 		}
 
 		// it is now needed to check each element of values for nil
@@ -325,8 +342,78 @@ func (storage DBStorage) ReadTable(tableName TableName) error {
 		masterData := fillInMasterData(columnTypes, scanArgs)
 
 		// TODO: make the export part there
-		println(masterData)
+		// println(masterData)
 		finalRows = append(finalRows, masterData)
+	}
+	return finalRows, nil
+}
+
+// StoreTable function stores specified table into S3/Minio
+// TODO: Really needs refactoring!!!
+// TODO: refactor retrieving column types info function
+func (storage DBStorage) StoreTable(context context.Context,
+	minioClient *minio.Client, bucketName string, tableName TableName) error {
+	sqlStatement := select1FromTable(tableName)
+
+	rows, err := storage.connection.Query(sqlStatement)
+	if err != nil {
+		log.Error().Err(err).Msg(sqlStatementExecutionError)
+		return err
+	}
+
+	// try to retrieve column types
+	columnTypes, err := rows.ColumnTypes()
+
+	if err != nil {
+		log.Error().Err(err).Msg("Unable to retrieve column types")
+		return err
+	}
+
+	err = rows.Close()
+	if err != nil {
+		log.Error().Err(err).Msg(unableToCloseDBRowsHandle)
+	}
+
+	logColumnTypes(tableName, columnTypes)
+	buffer := new(bytes.Buffer)
+
+	writer := csv.NewWriter(buffer)
+	var colNames []string
+
+	for _, columnType := range columnTypes {
+		colNames = append(colNames, columnType.Name())
+	}
+
+	err = writer.Write(colNames)
+	if err != nil {
+		log.Error().Err(err).Msg("Write column names to CSV")
+		return err
+	}
+
+	// now we know column types, time to perform export
+	finalRows, err := storage.ReadTable(tableName)
+	for _, finalRow := range finalRows {
+		var columns []string
+		for _, colName := range colNames {
+			value := finalRow[colName]
+			str := fmt.Sprintf("%v", value)
+			columns = append(columns, str)
+		}
+		err = writer.Write(columns)
+		if err != nil {
+			log.Error().Err(err).Msg("Write one row to CSV")
+			return err
+		}
+	}
+
+	writer.Flush()
+
+	reader := io.Reader(buffer)
+
+	options := minio.PutObjectOptions{ContentType: "text/csv"}
+	_, err = minioClient.PutObject(context, bucketName, string(tableName), reader, -1, options)
+	if err != nil {
+		return err
 	}
 	return nil
 }
