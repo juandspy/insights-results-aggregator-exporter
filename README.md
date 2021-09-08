@@ -9,6 +9,13 @@
 
 Exporter for Insights Results data stored by Insights Results Aggregator
 
+## Description
+
+Simple service that is able to read data from selected database (PostgreSQL,
+RDS etc.) and store the data as set of CSV files and into S3 bucket. That
+service can be used to make a database snapshot, even for databases that are
+not directly reachable by user.
+
 ## Usage
 
 ```
@@ -26,7 +33,15 @@ Usage of ./irae:
 
 ```
 
-## Makefile usage
+### Building
+
+Go version 1.14 or newer is required to build this tool.
+
+```
+make build
+```
+
+## Makefile targets
 
 ```
 Usage: make <OPTIONS> ... <TARGETS>
@@ -51,4 +66,49 @@ test                 Run the unit tests
 bdd_tests            Run BDD tests
 before_commit        Checks done before commit
 help                 Show this help screen
+```
+
+### Configuration
+
+Default name of configuration file is `config.toml`.
+It can be changed via environment variable `INSIGHTS_RESULTS_EXPORTER_CONFIG_FILE`.
+
+An example of configuration file that can be used in devel environment:
+
+```
+[storage]
+db_driver = "postgres"
+pg_username = "postgres"
+pg_password = "postgres"
+pg_host = "localhost"
+pg_port = 5432
+pg_db_name = "aggregator"
+pg_params = "sslmode=disable"
+
+[s3]
+type = "minio"
+endpoint_url = "127.0.0.1"
+endpoint_port = 9000
+access_key_id = "foobar"
+secret_access_key = "foobar"
+use_ssl = false
+bucket = "test"
+
+[logging]
+debug = true
+log_level = ""
+```
+
+Environment variables that can be used to override configuration file settings:
+
+```
+INSIGHTS_RESULTS_AGGREGATOR_EXPORTER__STORAGE__DB_DRIVER
+INSIGHTS_RESULTS_AGGREGATOR_EXPORTER__STORAGE__PG_USERNAME
+INSIGHTS_RESULTS_AGGREGATOR_EXPORTER__STORAGE__PG_PASSWORD
+INSIGHTS_RESULTS_AGGREGATOR_EXPORTER__STORAGE__PG_HOST
+INSIGHTS_RESULTS_AGGREGATOR_EXPORTER__STORAGE__PG_PORT
+INSIGHTS_RESULTS_AGGREGATOR_EXPORTER__STORAGE__PG_DB_NAME
+INSIGHTS_RESULTS_AGGREGATOR_EXPORTER__STORAGE__PG_PARAMS
+INSIGHTS_RESULTS_AGGREGATOR_EXPORTER__LOGGING__DEBUG
+INSIGHTS_RESULTS_AGGREGATOR_EXPORTER__LOGGING__LOG_DEVEL
 ```
