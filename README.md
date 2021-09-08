@@ -9,6 +9,16 @@
 
 Exporter for Insights Results data stored by Insights Results Aggregator
 
+<!-- vim-markdown-toc GFM -->
+
+* [Description](#description)
+* [Usage](#usage)
+    * [Building](#building)
+* [Makefile targets](#makefile-targets)
+    * [Configuration](#configuration)
+
+<!-- vim-markdown-toc -->
+
 ## Description
 
 Simple service that is able to read data from selected database (PostgreSQL,
