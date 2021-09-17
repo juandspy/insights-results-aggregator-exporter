@@ -135,7 +135,333 @@ limitations under the License.
 
 <div class="keyword">package</div> <div class="ident">main</div><div class="operator"></div>
 
+<div class="keyword">import</div> <div class="operator">(</div>
+	<div class="literal">&#34;flag&#34;</div><div class="operator"></div>
+	<div class="literal">&#34;fmt&#34;</div><div class="operator"></div>
+	<div class="literal">&#34;os&#34;</div><div class="operator"></div>
+
+	<div class="literal">&#34;github.com/rs/zerolog&#34;</div><div class="operator"></div>
+	<div class="literal">&#34;github.com/rs/zerolog/log&#34;</div><div class="operator"></div>
+<div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>Messages</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">const</div> <div class="operator">(</div>
+	<div class="ident">versionMessage</div>         <div class="operator">=</div> <div class="literal">&#34;Insights Results Aggregator Cleaner version 1.0&#34;</div><div class="operator"></div>
+	<div class="ident">authorsMessage</div>         <div class="operator">=</div> <div class="literal">&#34;Pavel Tisnovsky, Red Hat Inc.&#34;</div><div class="operator"></div>
+	<div class="ident">operationFailedMessage</div> <div class="operator">=</div> <div class="literal">&#34;Operation failed&#34;</div><div class="operator"></div>
+<div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>Exit codes</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">const</div> <div class="operator">(</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>ExitStatusOK means that the tool finished with success</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">ExitStatusOK</div> <div class="operator">=</div> <div class="ident">iota</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>ExitStatusStorageError is returned in case of any consumer-related
+error</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">ExitStatusStorageError</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>ExitStatusS3Error is returned in case of any error related with
+S3/Minio connection</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">ExitStatusS3Error</div><div class="operator"></div>
+<div class="operator">)</div><div class="operator"></div>
+
+<div class="keyword">const</div> <div class="operator">(</div>
+	<div class="ident">configFileEnvVariableName</div> <div class="operator">=</div> <div class="literal">&#34;INSIGHTS_RESULTS_AGGREGATOR_EXPORTER_CONFIG_FILE&#34;</div><div class="operator"></div>
+	<div class="ident">defaultConfigFileName</div>     <div class="operator">=</div> <div class="literal">&#34;config&#34;</div><div class="operator"></div>
+<div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>showVersion function displays version information.</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">showVersion</div><div class="operator">(</div><div class="operator">)</div> <div class="operator">{</div>
+	<div class="ident">fmt</div><div class="operator">.</div><div class="ident">Println</div><div class="operator">(</div><div class="ident">versionMessage</div><div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>showAuthors function displays information about authors.</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">showAuthors</div><div class="operator">(</div><div class="operator">)</div> <div class="operator">{</div>
+	<div class="ident">fmt</div><div class="operator">.</div><div class="ident">Println</div><div class="operator">(</div><div class="ident">authorsMessage</div><div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>showConfiguration function displays actual configuration.</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">showConfiguration</div><div class="operator">(</div><div class="ident">config</div> <div class="ident">ConfigStruct</div><div class="operator">)</div> <div class="operator">{</div>
+	<div class="ident">storageConfig</div> <div class="operator">:=</div> <div class="ident">GetStorageConfiguration</div><div class="operator">(</div><div class="ident">config</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">log</div><div class="operator">.</div><div class="ident">Info</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div>
+		<div class="ident">Str</div><div class="operator">(</div><div class="literal">&#34;Driver&#34;</div><div class="operator">,</div> <div class="ident">storageConfig</div><div class="operator">.</div><div class="ident">Driver</div><div class="operator">)</div><div class="operator">.</div>
+		<div class="ident">Str</div><div class="operator">(</div><div class="literal">&#34;DB Name&#34;</div><div class="operator">,</div> <div class="ident">storageConfig</div><div class="operator">.</div><div class="ident">PGDBName</div><div class="operator">)</div><div class="operator">.</div>
+		<div class="ident">Str</div><div class="operator">(</div><div class="literal">&#34;Username&#34;</div><div class="operator">,</div> <div class="ident">storageConfig</div><div class="operator">.</div><div class="ident">PGUsername</div><div class="operator">)</div><div class="operator">.</div> <div class="comment">// password is omitted on purpose</div>
+		<div class="ident">Str</div><div class="operator">(</div><div class="literal">&#34;Host&#34;</div><div class="operator">,</div> <div class="ident">storageConfig</div><div class="operator">.</div><div class="ident">PGHost</div><div class="operator">)</div><div class="operator">.</div>
+		<div class="ident">Int</div><div class="operator">(</div><div class="literal">&#34;DB Port&#34;</div><div class="operator">,</div> <div class="ident">storageConfig</div><div class="operator">.</div><div class="ident">PGPort</div><div class="operator">)</div><div class="operator">.</div>
+		<div class="ident">Bool</div><div class="operator">(</div><div class="literal">&#34;LogSQLQueries&#34;</div><div class="operator">,</div> <div class="ident">storageConfig</div><div class="operator">.</div><div class="ident">LogSQLQueries</div><div class="operator">)</div><div class="operator">.</div>
+		<div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;Storage configuration&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="ident">loggingConfig</div> <div class="operator">:=</div> <div class="ident">GetLoggingConfiguration</div><div class="operator">(</div><div class="ident">config</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">log</div><div class="operator">.</div><div class="ident">Info</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div>
+		<div class="ident">Str</div><div class="operator">(</div><div class="literal">&#34;Level&#34;</div><div class="operator">,</div> <div class="ident">loggingConfig</div><div class="operator">.</div><div class="ident">LogLevel</div><div class="operator">)</div><div class="operator">.</div>
+		<div class="ident">Bool</div><div class="operator">(</div><div class="literal">&#34;Pretty colored debug logging&#34;</div><div class="operator">,</div> <div class="ident">loggingConfig</div><div class="operator">.</div><div class="ident">Debug</div><div class="operator">)</div><div class="operator">.</div>
+		<div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;Logging configuration&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="ident">s3Configuration</div> <div class="operator">:=</div> <div class="ident">GetS3Configuration</div><div class="operator">(</div><div class="ident">config</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">log</div><div class="operator">.</div><div class="ident">Info</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div>
+		<div class="ident">Str</div><div class="operator">(</div><div class="literal">&#34;Type&#34;</div><div class="operator">,</div> <div class="ident">s3Configuration</div><div class="operator">.</div><div class="ident">Type</div><div class="operator">)</div><div class="operator">.</div>
+		<div class="ident">Str</div><div class="operator">(</div><div class="literal">&#34;URL&#34;</div><div class="operator">,</div> <div class="ident">s3Configuration</div><div class="operator">.</div><div class="ident">EndpointURL</div><div class="operator">)</div><div class="operator">.</div>
+		<div class="ident">Uint</div><div class="operator">(</div><div class="literal">&#34;S3 Port&#34;</div><div class="operator">,</div> <div class="ident">s3Configuration</div><div class="operator">.</div><div class="ident">EndpointPort</div><div class="operator">)</div><div class="operator">.</div>
+		<div class="ident">Str</div><div class="operator">(</div><div class="literal">&#34;AccessKeyID&#34;</div><div class="operator">,</div> <div class="ident">s3Configuration</div><div class="operator">.</div><div class="ident">AccessKeyID</div><div class="operator">)</div><div class="operator">.</div>
+		<div class="ident">Str</div><div class="operator">(</div><div class="literal">&#34;SecretAccessKey&#34;</div><div class="operator">,</div> <div class="ident">s3Configuration</div><div class="operator">.</div><div class="ident">SecretAccessKey</div><div class="operator">)</div><div class="operator">.</div>
+		<div class="ident">Bool</div><div class="operator">(</div><div class="literal">&#34;Use SSL&#34;</div><div class="operator">,</div> <div class="ident">s3Configuration</div><div class="operator">.</div><div class="ident">UseSSL</div><div class="operator">)</div><div class="operator">.</div>
+		<div class="ident">Str</div><div class="operator">(</div><div class="literal">&#34;Bucket&#34;</div><div class="operator">,</div> <div class="ident">s3Configuration</div><div class="operator">.</div><div class="ident">Bucket</div><div class="operator">)</div><div class="operator">.</div>
+		<div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;S3 configuration&#34;</div><div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>performDataExport function exports all data into selected output</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">performDataExport</div><div class="operator">(</div><div class="ident">configuration</div> <div class="ident">ConfigStruct</div><div class="operator">,</div> <div class="ident">cliFlags</div> <div class="ident">CliFlags</div><div class="operator">)</div> <div class="operator">(</div><div class="ident">int</div><div class="operator">,</div> <div class="ident">error</div><div class="operator">)</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>prepare the storage</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">storageConfiguration</div> <div class="operator">:=</div> <div class="ident">GetStorageConfiguration</div><div class="operator">(</div><div class="ident">configuration</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">storage</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">NewStorage</div><div class="operator">(</div><div class="ident">storageConfiguration</div><div class="operator">)</div><div class="operator"></div>
+	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
+		<div class="ident">log</div><div class="operator">.</div><div class="ident">Err</div><div class="operator">(</div><div class="ident">err</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="ident">operationFailedMessage</div><div class="operator">)</div><div class="operator"></div>
+		<div class="keyword">return</div> <div class="ident">ExitStatusStorageError</div><div class="operator">,</div> <div class="ident">err</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+
+	<div class="ident">minioClient</div><div class="operator">,</div> <div class="ident">context</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">NewS3Connection</div><div class="operator">(</div><div class="ident">configuration</div><div class="operator">)</div><div class="operator"></div>
+	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
+		<div class="keyword">return</div> <div class="ident">ExitStatusS3Error</div><div class="operator">,</div> <div class="ident">err</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+
+	<div class="ident">tableNames</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">storage</div><div class="operator">.</div><div class="ident">ReadListOfTables</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
+		<div class="ident">log</div><div class="operator">.</div><div class="ident">Err</div><div class="operator">(</div><div class="ident">err</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="ident">operationFailedMessage</div><div class="operator">)</div><div class="operator"></div>
+		<div class="keyword">return</div> <div class="ident">ExitStatusStorageError</div><div class="operator">,</div> <div class="ident">err</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+
+	<div class="ident">log</div><div class="operator">.</div><div class="ident">Info</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Int</div><div class="operator">(</div><div class="literal">&#34;count&#34;</div><div class="operator">,</div> <div class="ident">len</div><div class="operator">(</div><div class="ident">tableNames</div><div class="operator">)</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;List of tables&#34;</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">printTables</div><div class="operator">(</div><div class="ident">tableNames</div><div class="operator">)</div><div class="operator"></div>
+	<div class="keyword">for</div> <div class="ident">_</div><div class="operator">,</div> <div class="ident">tableName</div> <div class="operator">:=</div> <div class="keyword">range</div> <div class="ident">tableNames</div> <div class="operator">{</div>
+		<div class="ident">_</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">=</div> <div class="ident">storage</div><div class="operator">.</div><div class="ident">ReadTable</div><div class="operator">(</div><div class="ident">tableName</div><div class="operator">)</div><div class="operator"></div>
+		<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
+			<div class="ident">log</div><div class="operator">.</div><div class="ident">Err</div><div class="operator">(</div><div class="ident">err</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="ident">readTableContentFailed</div><div class="operator">)</div><div class="operator"></div>
+			<div class="keyword">return</div> <div class="ident">ExitStatusStorageError</div><div class="operator">,</div> <div class="ident">err</div><div class="operator"></div>
+		<div class="operator">}</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+
+	<div class="ident">bucket</div> <div class="operator">:=</div> <div class="ident">GetS3Configuration</div><div class="operator">(</div><div class="ident">configuration</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Bucket</div><div class="operator"></div>
+
+	<div class="ident">err</div> <div class="operator">=</div> <div class="ident">storeTableNames</div><div class="operator">(</div><div class="ident">context</div><div class="operator">,</div> <div class="ident">minioClient</div><div class="operator">,</div>
+		<div class="ident">bucket</div><div class="operator">,</div> <div class="literal">&#34;tables.csv&#34;</div><div class="operator">,</div> <div class="ident">tableNames</div><div class="operator">)</div><div class="operator"></div>
+	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
+		<div class="ident">log</div><div class="operator">.</div><div class="ident">Err</div><div class="operator">(</div><div class="ident">err</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;Store table list failed&#34;</div><div class="operator">)</div><div class="operator"></div>
+		<div class="keyword">return</div> <div class="ident">ExitStatusStorageError</div><div class="operator">,</div> <div class="ident">err</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+
+	<div class="keyword">for</div> <div class="ident">_</div><div class="operator">,</div> <div class="ident">tableName</div> <div class="operator">:=</div> <div class="keyword">range</div> <div class="ident">tableNames</div> <div class="operator">{</div>
+		<div class="ident">err</div> <div class="operator">=</div> <div class="ident">storage</div><div class="operator">.</div><div class="ident">StoreTable</div><div class="operator">(</div><div class="ident">context</div><div class="operator">,</div> <div class="ident">minioClient</div><div class="operator">,</div> <div class="ident">bucket</div><div class="operator">,</div> <div class="ident">tableName</div><div class="operator">)</div><div class="operator"></div>
+		<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
+			<div class="ident">log</div><div class="operator">.</div><div class="ident">Err</div><div class="operator">(</div><div class="ident">err</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Str</div><div class="operator">(</div><div class="literal">&#34;Table name&#34;</div><div class="operator">,</div> <div class="ident">string</div><div class="operator">(</div><div class="ident">tableName</div><div class="operator">)</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;Store table failed&#34;</div><div class="operator">)</div><div class="operator"></div>
+			<div class="keyword">return</div> <div class="ident">ExitStatusStorageError</div><div class="operator">,</div> <div class="ident">err</div><div class="operator"></div>
+		<div class="operator">}</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>we have finished, let's close the connection to database</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">err</div> <div class="operator">=</div> <div class="ident">storage</div><div class="operator">.</div><div class="ident">Close</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
+		<div class="ident">log</div><div class="operator">.</div><div class="ident">Err</div><div class="operator">(</div><div class="ident">err</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="ident">operationFailedMessage</div><div class="operator">)</div><div class="operator"></div>
+		<div class="keyword">return</div> <div class="ident">ExitStatusStorageError</div><div class="operator">,</div> <div class="ident">err</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>default exit value + no error</p>
+</td>
+	<td class="code"><pre><code>	<div class="keyword">return</div> <div class="ident">ExitStatusOK</div><div class="operator">,</div> <div class="ident">nil</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+<div class="keyword">func</div> <div class="ident">printTables</div><div class="operator">(</div><div class="ident">tableNames</div> <div class="operator">[</div><div class="operator">]</div><div class="ident">TableName</div><div class="operator">)</div> <div class="operator">{</div>
+	<div class="keyword">for</div> <div class="ident">i</div><div class="operator">,</div> <div class="ident">tableName</div> <div class="operator">:=</div> <div class="keyword">range</div> <div class="ident">tableNames</div> <div class="operator">{</div>
+		<div class="ident">log</div><div class="operator">.</div><div class="ident">Info</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Int</div><div class="operator">(</div><div class="literal">&#34;#&#34;</div><div class="operator">,</div> <div class="ident">i</div><div class="operator">&#43;</div><div class="literal">1</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Str</div><div class="operator">(</div><div class="literal">&#34;table&#34;</div><div class="operator">,</div> <div class="ident">string</div><div class="operator">(</div><div class="ident">tableName</div><div class="operator">)</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;Table in database&#34;</div><div class="operator">)</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>checkS3Connection checks if connection to S3 is possible</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">checkS3Connection</div><div class="operator">(</div><div class="ident">configuration</div> <div class="ident">ConfigStruct</div><div class="operator">)</div> <div class="operator">(</div><div class="ident">int</div><div class="operator">,</div> <div class="ident">error</div><div class="operator">)</div> <div class="operator">{</div>
+	<div class="ident">log</div><div class="operator">.</div><div class="ident">Info</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;Checking connection to S3&#34;</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">minioClient</div><div class="operator">,</div> <div class="ident">context</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">NewS3Connection</div><div class="operator">(</div><div class="ident">configuration</div><div class="operator">)</div><div class="operator"></div>
+	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
+		<div class="keyword">return</div> <div class="ident">ExitStatusS3Error</div><div class="operator">,</div> <div class="ident">err</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+
+	<div class="ident">exists</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">s3BucketExists</div><div class="operator">(</div><div class="ident">context</div><div class="operator">,</div> <div class="ident">minioClient</div><div class="operator">,</div> <div class="ident">GetS3Configuration</div><div class="operator">(</div><div class="ident">configuration</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Bucket</div><div class="operator">)</div><div class="operator"></div>
+	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
+		<div class="keyword">return</div> <div class="ident">ExitStatusS3Error</div><div class="operator">,</div> <div class="ident">err</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+
+	<div class="keyword">if</div> <div class="operator">!</div><div class="ident">exists</div> <div class="operator">{</div>
+		<div class="ident">log</div><div class="operator">.</div><div class="ident">Error</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;Can not find expected bucket&#34;</div><div class="operator">)</div><div class="operator"></div>
+	<div class="operator">}</div> <div class="keyword">else</div> <div class="operator">{</div>
+		<div class="ident">log</div><div class="operator">.</div><div class="ident">Info</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;Bucket has been found&#34;</div><div class="operator">)</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+
+	<div class="ident">log</div><div class="operator">.</div><div class="ident">Info</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;Connection to S3 seems to be ok&#34;</div><div class="operator">)</div><div class="operator"></div>
+	<div class="keyword">return</div> <div class="ident">ExitStatusOK</div><div class="operator">,</div> <div class="ident">nil</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>doSelectedOperation function perform operation selected on command line.
+When no operation is specified, the Notification writer service is started
+instead.</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">doSelectedOperation</div><div class="operator">(</div><div class="ident">configuration</div> <div class="ident">ConfigStruct</div><div class="operator">,</div> <div class="ident">cliFlags</div> <div class="ident">CliFlags</div><div class="operator">)</div> <div class="operator">(</div><div class="ident">int</div><div class="operator">,</div> <div class="ident">error</div><div class="operator">)</div> <div class="operator">{</div>
+	<div class="keyword">switch</div> <div class="operator">{</div>
+	<div class="keyword">case</div> <div class="ident">cliFlags</div><div class="operator">.</div><div class="ident">ShowVersion</div><div class="operator">:</div>
+		<div class="ident">showVersion</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+		<div class="keyword">return</div> <div class="ident">ExitStatusOK</div><div class="operator">,</div> <div class="ident">nil</div><div class="operator"></div>
+	<div class="keyword">case</div> <div class="ident">cliFlags</div><div class="operator">.</div><div class="ident">ShowAuthors</div><div class="operator">:</div>
+		<div class="ident">showAuthors</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+		<div class="keyword">return</div> <div class="ident">ExitStatusOK</div><div class="operator">,</div> <div class="ident">nil</div><div class="operator"></div>
+	<div class="keyword">case</div> <div class="ident">cliFlags</div><div class="operator">.</div><div class="ident">ShowConfiguration</div><div class="operator">:</div>
+		<div class="ident">showConfiguration</div><div class="operator">(</div><div class="ident">configuration</div><div class="operator">)</div><div class="operator"></div>
+		<div class="keyword">return</div> <div class="ident">ExitStatusOK</div><div class="operator">,</div> <div class="ident">nil</div><div class="operator"></div>
+	<div class="keyword">case</div> <div class="ident">cliFlags</div><div class="operator">.</div><div class="ident">CheckS3Connection</div><div class="operator">:</div>
+		<div class="keyword">return</div> <div class="ident">checkS3Connection</div><div class="operator">(</div><div class="ident">configuration</div><div class="operator">)</div><div class="operator"></div>
+	<div class="keyword">default</div><div class="operator">:</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>default operation - data export</p>
+</td>
+	<td class="code"><pre><code>		<div class="keyword">return</div> <div class="ident">performDataExport</div><div class="operator">(</div><div class="ident">configuration</div><div class="operator">,</div> <div class="ident">cliFlags</div><div class="operator">)</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>this can not happen: return ExitStatusOK, nil</p>
+</td>
+	<td class="code"><pre><code><div class="operator">}</div><div class="operator"></div>
+
 <div class="keyword">func</div> <div class="ident">main</div><div class="operator">(</div><div class="operator">)</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>command line flags</p>
+</td>
+	<td class="code"><pre><code>	<div class="keyword">var</div> <div class="ident">cliFlags</div> <div class="ident">CliFlags</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>define and parse all command line options</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">flag</div><div class="operator">.</div><div class="ident">BoolVar</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">cliFlags</div><div class="operator">.</div><div class="ident">ShowVersion</div><div class="operator">,</div> <div class="literal">&#34;version&#34;</div><div class="operator">,</div> <div class="ident">false</div><div class="operator">,</div> <div class="literal">&#34;show version&#34;</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">flag</div><div class="operator">.</div><div class="ident">BoolVar</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">cliFlags</div><div class="operator">.</div><div class="ident">ShowAuthors</div><div class="operator">,</div> <div class="literal">&#34;authors&#34;</div><div class="operator">,</div> <div class="ident">false</div><div class="operator">,</div> <div class="literal">&#34;show authors&#34;</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">flag</div><div class="operator">.</div><div class="ident">BoolVar</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">cliFlags</div><div class="operator">.</div><div class="ident">ShowConfiguration</div><div class="operator">,</div> <div class="literal">&#34;show-configuration&#34;</div><div class="operator">,</div> <div class="ident">false</div><div class="operator">,</div> <div class="literal">&#34;show configuration&#34;</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">flag</div><div class="operator">.</div><div class="ident">BoolVar</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">cliFlags</div><div class="operator">.</div><div class="ident">PrintSummaryTable</div><div class="operator">,</div> <div class="literal">&#34;summary&#34;</div><div class="operator">,</div> <div class="ident">false</div><div class="operator">,</div> <div class="literal">&#34;print summary table after export&#34;</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">flag</div><div class="operator">.</div><div class="ident">StringVar</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">cliFlags</div><div class="operator">.</div><div class="ident">Output</div><div class="operator">,</div> <div class="literal">&#34;output&#34;</div><div class="operator">,</div> <div class="literal">&#34;&#34;</div><div class="operator">,</div> <div class="literal">&#34;output to: CSV, S3&#34;</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">flag</div><div class="operator">.</div><div class="ident">BoolVar</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">cliFlags</div><div class="operator">.</div><div class="ident">CheckS3Connection</div><div class="operator">,</div> <div class="literal">&#34;check-s3-connection&#34;</div><div class="operator">,</div> <div class="ident">false</div><div class="operator">,</div> <div class="literal">&#34;check S3 connection and exit&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>parse all command line flags</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">flag</div><div class="operator">.</div><div class="ident">Parse</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>config has exactly the same structure as *.toml file</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">config</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">LoadConfiguration</div><div class="operator">(</div><div class="ident">configFileEnvVariableName</div><div class="operator">,</div> <div class="ident">defaultConfigFileName</div><div class="operator">)</div><div class="operator"></div>
+	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
+		<div class="ident">log</div><div class="operator">.</div><div class="ident">Err</div><div class="operator">(</div><div class="ident">err</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;Load configuration&#34;</div><div class="operator">)</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+
+	<div class="keyword">if</div> <div class="ident">config</div><div class="operator">.</div><div class="ident">Logging</div><div class="operator">.</div><div class="ident">Debug</div> <div class="operator">{</div>
+		<div class="ident">log</div><div class="operator">.</div><div class="ident">Logger</div> <div class="operator">=</div> <div class="ident">log</div><div class="operator">.</div><div class="ident">Output</div><div class="operator">(</div><div class="ident">zerolog</div><div class="operator">.</div><div class="ident">ConsoleWriter</div><div class="operator">{</div><div class="ident">Out</div><div class="operator">:</div> <div class="ident">os</div><div class="operator">.</div><div class="ident">Stderr</div><div class="operator">}</div><div class="operator">)</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>perform selected operation</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">exitStatus</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">doSelectedOperation</div><div class="operator">(</div><div class="ident">config</div><div class="operator">,</div> <div class="ident">cliFlags</div><div class="operator">)</div><div class="operator"></div>
+	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
+		<div class="ident">log</div><div class="operator">.</div><div class="ident">Err</div><div class="operator">(</div><div class="ident">err</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;Do selected operation&#34;</div><div class="operator">)</div><div class="operator"></div>
+		<div class="ident">os</div><div class="operator">.</div><div class="ident">Exit</div><div class="operator">(</div><div class="ident">exitStatus</div><div class="operator">)</div><div class="operator"></div>
+		<div class="keyword">return</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+
+	<div class="ident">log</div><div class="operator">.</div><div class="ident">Debug</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;Started&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="ident">log</div><div class="operator">.</div><div class="ident">Debug</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;Finished&#34;</div><div class="operator">)</div><div class="operator"></div>
 <div class="operator">}</div><div class="operator"></div>
 
 </code></pre></td>

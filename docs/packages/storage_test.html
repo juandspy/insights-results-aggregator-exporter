@@ -135,6 +135,112 @@ limitations under the License.
 
 <div class="keyword">package</div> <div class="ident">main_test</div><div class="operator"></div>
 
+<div class="keyword">import</div> <div class="operator">(</div>
+	<div class="literal">&#34;testing&#34;</div><div class="operator"></div>
+
+	<div class="literal">&#34;github.com/stretchr/testify/assert&#34;</div><div class="operator"></div>
+
+	<div class="ident">main</div> <div class="literal">&#34;github.com/RedHatInsights/insights-results-aggregator-exporter&#34;</div><div class="operator"></div>
+<div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>TestNewStorage checks whether constructor for new storage returns error for improper storage configuration</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">TestNewStorageError</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+	<div class="ident">_</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">NewStorage</div><div class="operator">(</div><div class="ident">main</div><div class="operator">.</div><div class="ident">StorageConfiguration</div><div class="operator">{</div>
+		<div class="ident">Driver</div><div class="operator">:</div> <div class="literal">&#34;non existing driver&#34;</div><div class="operator">,</div>
+	<div class="operator">}</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">EqualError</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">,</div> <div class="literal">&#34;driver non existing driver is not supported&#34;</div><div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>TestNewStoragePostgreSQL function tests creating new storage with logs</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">TestNewStoragePostgreSQL</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+	<div class="ident">_</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">NewStorage</div><div class="operator">(</div><div class="ident">main</div><div class="operator">.</div><div class="ident">StorageConfiguration</div><div class="operator">{</div>
+		<div class="ident">Driver</div><div class="operator">:</div>        <div class="literal">&#34;postgres&#34;</div><div class="operator">,</div>
+		<div class="ident">PGUsername</div><div class="operator">:</div>    <div class="literal">&#34;user&#34;</div><div class="operator">,</div>
+		<div class="ident">PGPassword</div><div class="operator">:</div>    <div class="literal">&#34;password&#34;</div><div class="operator">,</div>
+		<div class="ident">PGHost</div><div class="operator">:</div>        <div class="literal">&#34;nowhere&#34;</div><div class="operator">,</div>
+		<div class="ident">PGPort</div><div class="operator">:</div>        <div class="literal">1234</div><div class="operator">,</div>
+		<div class="ident">PGDBName</div><div class="operator">:</div>      <div class="literal">&#34;test&#34;</div><div class="operator">,</div>
+		<div class="ident">PGParams</div><div class="operator">:</div>      <div class="literal">&#34;&#34;</div><div class="operator">,</div>
+		<div class="ident">LogSQLQueries</div><div class="operator">:</div> <div class="ident">true</div><div class="operator">,</div>
+	<div class="operator">}</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>we just happen to make connection without trying to actually connect</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Nil</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>TestNewStorageSQLite3 function tests creating new storage with logs</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">TestNewStorageSQLite3</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+	<div class="ident">_</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">NewStorage</div><div class="operator">(</div><div class="ident">main</div><div class="operator">.</div><div class="ident">StorageConfiguration</div><div class="operator">{</div>
+		<div class="ident">Driver</div><div class="operator">:</div>        <div class="literal">&#34;sqlite3&#34;</div><div class="operator">,</div>
+		<div class="ident">LogSQLQueries</div><div class="operator">:</div> <div class="ident">true</div><div class="operator">,</div>
+	<div class="operator">}</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>we just happen to make connection without trying to actually connect</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Nil</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>TestClose function tests database close operation.</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">TestClose</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+	<div class="ident">storage</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">NewStorage</div><div class="operator">(</div><div class="ident">main</div><div class="operator">.</div><div class="ident">StorageConfiguration</div><div class="operator">{</div>
+		<div class="ident">Driver</div><div class="operator">:</div>        <div class="literal">&#34;sqlite3&#34;</div><div class="operator">,</div>
+		<div class="ident">LogSQLQueries</div><div class="operator">:</div> <div class="ident">true</div><div class="operator">,</div>
+	<div class="operator">}</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>we just happen to make connection without trying to actually connect</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Nil</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>try to close the storage</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">err</div> <div class="operator">=</div> <div class="ident">storage</div><div class="operator">.</div><div class="ident">Close</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>it should not fail</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Nil</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
 </code></pre></td>
       </tr>
       
