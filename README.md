@@ -16,6 +16,7 @@ Exporter for Insights Results data stored by Insights Results Aggregator
     * [Building](#building)
 * [Makefile targets](#makefile-targets)
     * [Configuration](#configuration)
+* [Package manifest](#package-manifest)
 
 <!-- vim-markdown-toc -->
 
@@ -122,3 +123,7 @@ INSIGHTS_RESULTS_AGGREGATOR_EXPORTER__STORAGE__PG_PARAMS
 INSIGHTS_RESULTS_AGGREGATOR_EXPORTER__LOGGING__DEBUG
 INSIGHTS_RESULTS_AGGREGATOR_EXPORTER__LOGGING__LOG_DEVEL
 ```
+
+## Package manifest
+
+Package manifest is available at [docs/manifest.txt](docs/manifest.txt).
