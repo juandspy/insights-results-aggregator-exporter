@@ -52,6 +52,13 @@ Go version 1.14 or newer is required to build this tool.
 make build
 ```
 
+You can build a container image as well; make sure your current working directory 
+is the project root, then run
+
+```
+docker build -t insights-results-aggregator-exporter .
+```
+
 ## Makefile targets
 
 ```
