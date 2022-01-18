@@ -1,5 +1,5 @@
 /*
-Copyright © 2021 Red Hat, Inc.
+Copyright © 2021, 2022 Red Hat, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -116,18 +116,18 @@ func NewFromConnection(connection *sql.DB, dbDriverType DBDriver) *DBStorage {
 
 // initAndGetDriver initializes driver(with logs if logSQLQueries is true),
 // checks if it's supported and returns driver type, driver name, dataSource and error
-func initAndGetDriver(configuration StorageConfiguration) (driverType DBDriver, driverName string, dataSource string, err error) {
-	//var driver sql_driver.Driver
+func initAndGetDriver(configuration StorageConfiguration) (driverType DBDriver, driverName, dataSource string, err error) {
+	// var driver sql_driver.Driver
 	driverName = configuration.Driver
 
 	switch driverName {
 	case "sqlite3":
 		driverType = DBDriverSQLite3
-		//driver = &sqlite3.SQLiteDriver{}
+		// driver = &sqlite3.SQLiteDriver{}
 		// dataSource = configuration.SQLiteDataSource
 	case "postgres":
 		driverType = DBDriverPostgres
-		//driver = &pq.Driver{}
+		// driver = &pq.Driver{}
 		dataSource = fmt.Sprintf(
 			"postgresql://%v:%v@%v:%v/%v?%v",
 			configuration.PGUsername,
@@ -353,7 +353,7 @@ func (storage DBStorage) ReadTable(tableName TableName) ([]M, error) {
 // StoreTable function stores specified table into S3/Minio
 // TODO: Really needs refactoring!!!
 // TODO: refactor retrieving column types info function
-func (storage DBStorage) StoreTable(context context.Context,
+func (storage DBStorage) StoreTable(ctx context.Context,
 	minioClient *minio.Client, bucketName string, tableName TableName) error {
 	sqlStatement := select1FromTable(tableName)
 
@@ -418,7 +418,7 @@ func (storage DBStorage) StoreTable(context context.Context,
 	reader := io.Reader(buffer)
 
 	options := minio.PutObjectOptions{ContentType: "text/csv"}
-	_, err = minioClient.PutObject(context, bucketName, string(tableName), reader, -1, options)
+	_, err = minioClient.PutObject(ctx, bucketName, string(tableName), reader, -1, options)
 	if err != nil {
 		return err
 	}
