@@ -1,5 +1,5 @@
 /*
-Copyright © 2021 Red Hat, Inc.
+Copyright © 2021, 2022 Red Hat, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -67,7 +67,7 @@ func s3BucketExists(ctx context.Context, minioClient *minio.Client, bucketName s
 	return found, nil
 }
 
-func storeTableNames(context context.Context, minioClient *minio.Client,
+func storeTableNames(ctx context.Context, minioClient *minio.Client,
 	bucketName string, objectName string, tableNames []TableName) error {
 	buffer := new(bytes.Buffer)
 
@@ -91,7 +91,7 @@ func storeTableNames(context context.Context, minioClient *minio.Client,
 	reader := io.Reader(buffer)
 
 	options := minio.PutObjectOptions{ContentType: "text/csv"}
-	_, err = minioClient.PutObject(context, bucketName, objectName, reader, -1, options)
+	_, err = minioClient.PutObject(ctx, bucketName, objectName, reader, -1, options)
 	if err != nil {
 		return err
 	}
