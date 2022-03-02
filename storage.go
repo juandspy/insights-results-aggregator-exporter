@@ -45,10 +45,10 @@ const (
 
 // Error messages
 const (
-	unableToCloseDBRowsHandle         = "Unable to close the DB rows handle"
-	sqlStatementExecutionError        = "SQL statement execution error"
-	unableToRetrieveColumnTypes       = "Unable to retrieve column types"
-	readTableContentFailed            = "Read table content failed"
+	unableToCloseDBRowsHandle   = "Unable to close the DB rows handle"
+	sqlStatementExecutionError  = "SQL statement execution error"
+	unableToRetrieveColumnTypes = "Unable to retrieve column types"
+	readTableContentFailed      = "Read table content failed"
 )
 
 // SQL statements
