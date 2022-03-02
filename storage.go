@@ -45,7 +45,6 @@ const (
 
 // Error messages
 const (
-	canNotConnectToDataStorageMessage = "Can not connect to data storage"
 	unableToCloseDBRowsHandle         = "Unable to close the DB rows handle"
 	sqlStatementExecutionError        = "SQL statement execution error"
 	unableToRetrieveColumnTypes       = "Unable to retrieve column types"
