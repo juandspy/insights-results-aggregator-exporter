@@ -1,5 +1,5 @@
 /*
-Copyright © 2021 Red Hat, Inc.
+Copyright © 2021, 2022 Red Hat, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -35,21 +35,6 @@ func mustLoadConfiguration(envVar string) {
 	_, err := main.LoadConfiguration(envVar, "tests/config1")
 	if err != nil {
 		panic(err)
-	}
-}
-
-func mustFailLoadingConfigurationIfWrongEnvVar(envVar string) {
-	_, err := main.LoadConfiguration(envVar, "ANonExistingDefaultConfigPath")
-	if err == nil {
-		panic(err)
-	}
-}
-
-func removeFile(t *testing.T, filename string) {
-	err := os.Remove(filename)
-	assert.NoError(t, err)
-	if err != nil {
-		t.Fatal(err)
 	}
 }
 

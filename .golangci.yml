@@ -1,0 +1,4 @@
+run:
+    skip-files:
+        - export_test.go
+        - storage.go

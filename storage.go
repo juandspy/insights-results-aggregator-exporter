@@ -39,17 +39,14 @@ const (
 	DBDriverSQLite3 DBDriver = iota
 	// DBDriverPostgres shows that db driver is postgres
 	DBDriverPostgres
-	// DBDriverGeneral general sql(used for mock now)
-	DBDriverGeneral
 )
 
 // Error messages
 const (
-	canNotConnectToDataStorageMessage = "Can not connect to data storage"
-	unableToCloseDBRowsHandle         = "Unable to close the DB rows handle"
-	sqlStatementExecutionError        = "SQL statement execution error"
-	unableToRetrieveColumnTypes       = "Unable to retrieve column types"
-	readTableContentFailed            = "Read table content failed"
+	unableToCloseDBRowsHandle   = "Unable to close the DB rows handle"
+	sqlStatementExecutionError  = "SQL statement execution error"
+	unableToRetrieveColumnTypes = "Unable to retrieve column types"
+	readTableContentFailed      = "Read table content failed"
 )
 
 // SQL statements
@@ -222,13 +219,10 @@ func fillInScanArgs(columnTypes []*sql.ColumnType) []interface{} {
 		switch v.DatabaseTypeName() {
 		case "VARCHAR", "TEXT", "UUID", "TIMESTAMP":
 			scanArgs[i] = new(sql.NullString)
-			break
 		case "BOOL":
 			scanArgs[i] = new(sql.NullBool)
-			break
 		case "INT4":
 			scanArgs[i] = new(sql.NullInt64)
-			break
 		default:
 			scanArgs[i] = new(sql.NullString)
 		}
