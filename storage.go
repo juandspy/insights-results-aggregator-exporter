@@ -39,8 +39,6 @@ const (
 	DBDriverSQLite3 DBDriver = iota
 	// DBDriverPostgres shows that db driver is postgres
 	DBDriverPostgres
-	// DBDriverGeneral general sql(used for mock now)
-	DBDriverGeneral
 )
 
 // Error messages
@@ -221,13 +219,10 @@ func fillInScanArgs(columnTypes []*sql.ColumnType) []interface{} {
 		switch v.DatabaseTypeName() {
 		case "VARCHAR", "TEXT", "UUID", "TIMESTAMP":
 			scanArgs[i] = new(sql.NullString)
-			break
 		case "BOOL":
 			scanArgs[i] = new(sql.NullBool)
-			break
 		case "INT4":
 			scanArgs[i] = new(sql.NullInt64)
-			break
 		default:
 			scanArgs[i] = new(sql.NullString)
 		}
