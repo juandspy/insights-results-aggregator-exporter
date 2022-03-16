@@ -114,17 +114,13 @@ func NewFromConnection(connection *sql.DB, dbDriverType DBDriver) *DBStorage {
 // initAndGetDriver initializes driver(with logs if logSQLQueries is true),
 // checks if it's supported and returns driver type, driver name, dataSource and error
 func initAndGetDriver(configuration StorageConfiguration) (driverType DBDriver, driverName, dataSource string, err error) {
-	// var driver sql_driver.Driver
 	driverName = configuration.Driver
 
 	switch driverName {
 	case "sqlite3":
 		driverType = DBDriverSQLite3
-		// driver = &sqlite3.SQLiteDriver{}
-		// dataSource = configuration.SQLiteDataSource
 	case "postgres":
 		driverType = DBDriverPostgres
-		// driver = &pq.Driver{}
 		dataSource = fmt.Sprintf(
 			"postgresql://%v:%v@%v:%v/%v?%v",
 			configuration.PGUsername,
