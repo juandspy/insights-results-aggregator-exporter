@@ -30,7 +30,7 @@ import (
 )
 
 // NewS3Connection function initializes connection to S3/Minio storage.
-func NewS3Connection(configuration ConfigStruct) (*minio.Client, context.Context, error) {
+func NewS3Connection(configuration *ConfigStruct) (*minio.Client, context.Context, error) {
 	s3Configuration := GetS3Configuration(configuration)
 
 	endpoint := fmt.Sprintf("%s:%d",
