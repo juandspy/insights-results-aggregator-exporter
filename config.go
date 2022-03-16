@@ -205,17 +205,17 @@ func LoadConfiguration(configFileEnvVariableName, defaultConfigFile string) (Con
 }
 
 // GetStorageConfiguration returns storage configuration
-func GetStorageConfiguration(config ConfigStruct) StorageConfiguration {
+func GetStorageConfiguration(config *ConfigStruct) StorageConfiguration {
 	return config.Storage
 }
 
 // GetLoggingConfiguration returns logging configuration
-func GetLoggingConfiguration(config ConfigStruct) LoggingConfiguration {
+func GetLoggingConfiguration(config *ConfigStruct) LoggingConfiguration {
 	return config.Logging
 }
 
 // GetS3Configuration returns S3/Minio configuration
-func GetS3Configuration(config ConfigStruct) S3Configuration {
+func GetS3Configuration(config *ConfigStruct) S3Configuration {
 	return config.S3
 }
 
