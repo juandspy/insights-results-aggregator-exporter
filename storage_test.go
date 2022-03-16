@@ -1,5 +1,5 @@
 /*
-Copyright © 2021 Red Hat, Inc.
+Copyright © 2021, 2022 Red Hat, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ import (
 
 // TestNewStorage checks whether constructor for new storage returns error for improper storage configuration
 func TestNewStorageError(t *testing.T) {
-	_, err := main.NewStorage(main.StorageConfiguration{
+	_, err := main.NewStorage(&main.StorageConfiguration{
 		Driver: "non existing driver",
 	})
 	assert.EqualError(t, err, "driver non existing driver is not supported")
@@ -34,7 +34,7 @@ func TestNewStorageError(t *testing.T) {
 
 // TestNewStoragePostgreSQL function tests creating new storage with logs
 func TestNewStoragePostgreSQL(t *testing.T) {
-	_, err := main.NewStorage(main.StorageConfiguration{
+	_, err := main.NewStorage(&main.StorageConfiguration{
 		Driver:        "postgres",
 		PGUsername:    "user",
 		PGPassword:    "password",
@@ -51,7 +51,7 @@ func TestNewStoragePostgreSQL(t *testing.T) {
 
 // TestNewStorageSQLite3 function tests creating new storage with logs
 func TestNewStorageSQLite3(t *testing.T) {
-	_, err := main.NewStorage(main.StorageConfiguration{
+	_, err := main.NewStorage(&main.StorageConfiguration{
 		Driver:        "sqlite3",
 		LogSQLQueries: true,
 	})
@@ -62,7 +62,7 @@ func TestNewStorageSQLite3(t *testing.T) {
 
 // TestClose function tests database close operation.
 func TestClose(t *testing.T) {
-	storage, err := main.NewStorage(main.StorageConfiguration{
+	storage, err := main.NewStorage(&main.StorageConfiguration{
 		Driver:        "sqlite3",
 		LogSQLQueries: true,
 	})

@@ -99,7 +99,7 @@ func TestLoadStorageConfiguration(t *testing.T) {
 	config, err := main.LoadConfiguration(envVar, "")
 	assert.Nil(t, err, "Failed loading configuration file from env var!")
 
-	storageCfg := main.GetStorageConfiguration(config)
+	storageCfg := main.GetStorageConfiguration(&config)
 
 	assert.Equal(t, "sqlite3", storageCfg.Driver)
 	assert.Equal(t, "user", storageCfg.PGUsername)
@@ -118,7 +118,7 @@ func TestLoadLoggingConfiguration(t *testing.T) {
 	config, err := main.LoadConfiguration(envVar, "")
 	assert.Nil(t, err, "Failed loading configuration file from env var!")
 
-	loggingCfg := main.GetLoggingConfiguration(config)
+	loggingCfg := main.GetLoggingConfiguration(&config)
 
 	assert.Equal(t, true, loggingCfg.Debug)
 	assert.Equal(t, "", loggingCfg.LogLevel)
@@ -131,7 +131,7 @@ func TestLoadS3Configuration(t *testing.T) {
 	config, err := main.LoadConfiguration(envVar, "")
 	assert.Nil(t, err, "Failed loading configuration file from env var!")
 
-	S3Cfg := main.GetS3Configuration(config)
+	S3Cfg := main.GetS3Configuration(&config)
 
 	assert.Equal(t, "minio", S3Cfg.Type)
 	assert.Equal(t, false, S3Cfg.UseSSL)

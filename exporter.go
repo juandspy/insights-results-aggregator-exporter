@@ -62,7 +62,7 @@ func showAuthors() {
 }
 
 // showConfiguration function displays actual configuration.
-func showConfiguration(config ConfigStruct) {
+func showConfiguration(config *ConfigStruct) {
 	storageConfig := GetStorageConfiguration(config)
 	log.Info().
 		Str("Driver", storageConfig.Driver).
@@ -92,10 +92,10 @@ func showConfiguration(config ConfigStruct) {
 }
 
 // performDataExport function exports all data into selected output
-func performDataExport(configuration ConfigStruct, cliFlags CliFlags) (int, error) {
+func performDataExport(configuration *ConfigStruct, cliFlags CliFlags) (int, error) {
 	// prepare the storage
 	storageConfiguration := GetStorageConfiguration(configuration)
-	storage, err := NewStorage(storageConfiguration)
+	storage, err := NewStorage(&storageConfiguration)
 	if err != nil {
 		log.Err(err).Msg(operationFailedMessage)
 		return ExitStatusStorageError, err
@@ -157,7 +157,7 @@ func printTables(tableNames []TableName) {
 }
 
 // checkS3Connection checks if connection to S3 is possible
-func checkS3Connection(configuration ConfigStruct) (int, error) {
+func checkS3Connection(configuration *ConfigStruct) (int, error) {
 	log.Info().Msg("Checking connection to S3")
 	minioClient, context, err := NewS3Connection(configuration)
 	if err != nil {
@@ -182,7 +182,7 @@ func checkS3Connection(configuration ConfigStruct) (int, error) {
 // doSelectedOperation function perform operation selected on command line.
 // When no operation is specified, the Notification writer service is started
 // instead.
-func doSelectedOperation(configuration ConfigStruct, cliFlags CliFlags) (int, error) {
+func doSelectedOperation(configuration *ConfigStruct, cliFlags CliFlags) (int, error) {
 	switch {
 	case cliFlags.ShowVersion:
 		showVersion()
@@ -228,7 +228,7 @@ func main() {
 	}
 
 	// perform selected operation
-	exitStatus, err := doSelectedOperation(config, cliFlags)
+	exitStatus, err := doSelectedOperation(&config, cliFlags)
 	if err != nil {
 		log.Err(err).Msg("Do selected operation")
 		os.Exit(exitStatus)
