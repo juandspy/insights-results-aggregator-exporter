@@ -23,9 +23,9 @@ Exporter for Insights Results data stored by Insights Results Aggregator
 ## Description
 
 Simple service that is able to read data from selected database (PostgreSQL,
-RDS etc.) and store the data as set of CSV files and into S3 bucket. That
-service can be used to make a database snapshot, even for databases that are
-not directly reachable by user.
+RDS etc.) and store the data as set of CSV files and (optionally) into S3
+bucket. That service can be used to make a database snapshot, even for
+databases that are not directly reachable by user.
 
 ## Usage
 
@@ -46,7 +46,7 @@ Usage of ./irae:
 
 ### Building
 
-Go version 1.14 or newer is required to build this tool.
+Go version 1.16 or newer is required to build this tool.
 
 ```
 make build
