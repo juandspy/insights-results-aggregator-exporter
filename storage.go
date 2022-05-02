@@ -14,6 +14,11 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+// Generated documentation is available at:
+// https://pkg.go.dev/github.com/RedHatInsights/insights-results-aggregator-exporter
+//
+// Documentation in literate-programming-style is available at:
+// https://redhatinsights.github.io/insights-results-aggregator-exporter/packages/storage.html
 package main
 
 import (
@@ -41,7 +46,7 @@ const (
 	DBDriverPostgres
 )
 
-// Error messages
+// Error messages for all database-relevant errors
 const (
 	unableToCloseDBRowsHandle   = "Unable to close the DB rows handle"
 	sqlStatementExecutionError  = "SQL statement execution error"
@@ -81,18 +86,20 @@ type DBStorage struct {
 func NewStorage(configuration *StorageConfiguration) (*DBStorage, error) {
 	log.Info().Msg("Initializing connection to storage")
 
+	// initialize database driver
 	driverType, driverName, dataSource, err := initAndGetDriver(configuration)
 	if err != nil {
 		log.Error().Err(err).Msg("Unsupported driver")
 		return nil, err
 	}
 
+	// print info about initialized driver
 	log.Info().
 		Str("driver", driverName).
 		Str("datasource", dataSource).
 		Msg("Making connection to data storage")
 
-	// prepare connection
+	// prepare connection to database
 	connection, err := sql.Open(driverName, dataSource)
 	if err != nil {
 		log.Error().Err(err).Msg("Can not connect to data storage")
@@ -142,6 +149,8 @@ func initAndGetDriver(configuration *StorageConfiguration) (driverType DBDriver,
 // end of application lifecycle.
 func (storage DBStorage) Close() error {
 	log.Info().Msg("Closing connection to data storage")
+
+	// try to close the connection
 	if storage.connection != nil {
 		err := storage.connection.Close()
 		if err != nil {
@@ -407,8 +416,14 @@ func (storage DBStorage) StoreTable(ctx context.Context,
 
 	reader := io.Reader(buffer)
 
+	// set MIME content type for object stored in S3 or Minio
 	options := minio.PutObjectOptions{ContentType: "text/csv"}
-	_, err = minioClient.PutObject(ctx, bucketName, string(tableName), reader, -1, options)
+
+	// name of object stored in S3 or Minio
+	objectName := string(tableName) + ".csv"
+
+	// perform write into S3 or Minio with common error check
+	_, err = minioClient.PutObject(ctx, bucketName, objectName, reader, -1, options)
 	if err != nil {
 		return err
 	}
