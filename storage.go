@@ -401,7 +401,7 @@ func (storage DBStorage) StoreTableIntoFile(tableName TableName) error {
 
 	// open new CSV file to be filled in
 	// disable "G304 (CWE-22): Potential file inclusion via variable"
-	fout, err := os.Create(fileName)
+	fout, err := os.Create(fileName) // #nosec G304
 	if err != nil {
 		return err
 	}
