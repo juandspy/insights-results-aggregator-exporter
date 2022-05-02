@@ -387,6 +387,53 @@ func (storage DBStorage) StoreTable(ctx context.Context,
 	return nil
 }
 
+// StoreTableIntoFile function stores specified table into selected file
+func (storage DBStorage) StoreTableIntoFile(tableName TableName) error {
+	columnTypes, err := storage.RetrieveColumnTypes(tableName)
+	if err != nil {
+		return err
+	}
+
+	colNames := getColumnNames(columnTypes)
+
+	fileName := string(tableName) + ".csv"
+
+	// open new CSV file to be filled in
+	fout, err := os.Create(fileName)
+	if err != nil {
+		return err
+	}
+
+	// initialize CSV writer
+	writer := csv.NewWriter(fout)
+
+	err = writeColumnNames(writer, colNames)
+	if err != nil {
+		return err
+	}
+
+	err = storage.WriteTableContent(writer, tableName, colNames)
+	if err != nil {
+		return err
+	}
+
+	writer.Flush()
+
+	// check for any error during export to CSV
+	err = writer.Error()
+	if err != nil {
+		return err
+	}
+
+	// close the file and check if close operation was ok
+	err = fout.Close()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // RetrieveColumnTypes read column types from given table
 func (storage DBStorage) RetrieveColumnTypes(tableName TableName) ([]*sql.ColumnType, error) {
 	sqlStatement := select1FromTable(tableName)
