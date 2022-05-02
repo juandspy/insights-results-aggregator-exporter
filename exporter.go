@@ -1,5 +1,5 @@
 /*
-Copyright © 2021 Red Hat, Inc.
+Copyright © 2021, 2022 Red Hat, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -30,6 +30,8 @@ const (
 	versionMessage         = "Insights Results Aggregator Cleaner version 1.0"
 	authorsMessage         = "Pavel Tisnovsky, Red Hat Inc."
 	operationFailedMessage = "Operation failed"
+	listOfTablesMsg        = "List of tables"
+	tableNameMsg           = "Table name"
 )
 
 // Exit codes
@@ -44,11 +46,18 @@ const (
 	// ExitStatusS3Error is returned in case of any error related with
 	// S3/Minio connection
 	ExitStatusS3Error
+
+	// ExitStatusConfigurationError is returned in case user provide wrong
+	// configuration on command line or in configuration file
+	ExitStatusConfigurationError
 )
 
 const (
 	configFileEnvVariableName = "INSIGHTS_RESULTS_AGGREGATOR_EXPORTER_CONFIG_FILE"
 	defaultConfigFileName     = "config"
+
+	// output files or objects containing metadata
+	listOfTables = "_tables.csv"
 )
 
 // showVersion function displays version information.
@@ -87,7 +96,7 @@ func showConfiguration(config *ConfigStruct) {
 		Str("AccessKeyID", s3Configuration.AccessKeyID).
 		Str("SecretAccessKey", s3Configuration.SecretAccessKey).
 		Bool("Use SSL", s3Configuration.UseSSL).
-		Str("Bucket", s3Configuration.Bucket).
+		Str("Bucket name", s3Configuration.Bucket).
 		Msg("S3 configuration")
 }
 
@@ -101,6 +110,19 @@ func performDataExport(configuration *ConfigStruct, cliFlags CliFlags) (int, err
 		return ExitStatusStorageError, err
 	}
 
+	switch cliFlags.Output {
+	case "S3":
+		return performDataExportToS3(configuration, storage)
+	case "file":
+		return performDataExportToFiles(configuration, storage)
+	default:
+		return ExitStatusConfigurationError, fmt.Errorf("Unknown output type: %s", cliFlags.Output)
+	}
+}
+
+// performDataExportToS3 exports all tables and metadata info configured S3
+// bucket
+func performDataExportToS3(configuration *ConfigStruct, storage *DBStorage) (int, error) {
 	minioClient, context, err := NewS3Connection(configuration)
 	if err != nil {
 		return ExitStatusS3Error, err
@@ -112,29 +134,60 @@ func performDataExport(configuration *ConfigStruct, cliFlags CliFlags) (int, err
 		return ExitStatusStorageError, err
 	}
 
-	log.Info().Int("count", len(tableNames)).Msg("List of tables")
+	log.Info().Int("tables count", len(tableNames)).Msg(listOfTablesMsg)
 	printTables(tableNames)
-	for _, tableName := range tableNames {
-		_, err = storage.ReadTable(tableName)
-		if err != nil {
-			log.Err(err).Msg(readTableContentFailed)
-			return ExitStatusStorageError, err
-		}
-	}
 
 	bucket := GetS3Configuration(configuration).Bucket
+	log.Info().Str("bucket name", bucket).Msg("S3 bucket to write to")
 
 	err = storeTableNames(context, minioClient,
-		bucket, "tables.csv", tableNames)
+		bucket, listOfTables, tableNames)
 	if err != nil {
-		log.Err(err).Msg("Store table list failed")
+		log.Err(err).Msg("Store table list to S3 failed")
 		return ExitStatusStorageError, err
 	}
 
 	for _, tableName := range tableNames {
 		err = storage.StoreTable(context, minioClient, bucket, tableName)
 		if err != nil {
-			log.Err(err).Str("Table name", string(tableName)).Msg("Store table failed")
+			log.Err(err).Str(tableNameMsg, string(tableName)).Msg("Store table into S3 failed")
+			return ExitStatusStorageError, err
+		}
+	}
+
+	// we have finished, let's close the connection to database
+	err = storage.Close()
+	if err != nil {
+		log.Err(err).Msg(operationFailedMessage)
+		return ExitStatusStorageError, err
+	}
+
+	// default exit value + no error
+	return ExitStatusOK, nil
+}
+
+// performDataExportToFiles exports all tables and metadata info files
+func performDataExportToFiles(configuration *ConfigStruct, storage *DBStorage) (int, error) {
+	tableNames, err := storage.ReadListOfTables()
+	if err != nil {
+		log.Err(err).Msg(operationFailedMessage)
+		return ExitStatusStorageError, err
+	}
+
+	log.Info().Int("count", len(tableNames)).Msg(listOfTablesMsg)
+	printTables(tableNames)
+
+	// export list of all tables into CSV file
+	err = storeTableNamesIntoFile(listOfTables, tableNames)
+	if err != nil {
+		log.Err(err).Msg("Store table list to file failed")
+		return ExitStatusStorageError, err
+	}
+
+	for _, tableName := range tableNames {
+		err = storage.StoreTableIntoFile(tableName)
+		if err != nil {
+			log.Err(err).Str(tableNameMsg, string(tableName)).Msg("Store table into file failed")
 			return ExitStatusStorageError, err
 		}
 	}
@@ -211,7 +264,7 @@ func main() {
 	flag.BoolVar(&cliFlags.ShowAuthors, "authors", false, "show authors")
 	flag.BoolVar(&cliFlags.ShowConfiguration, "show-configuration", false, "show configuration")
 	flag.BoolVar(&cliFlags.PrintSummaryTable, "summary", false, "print summary table after export")
-	flag.StringVar(&cliFlags.Output, "output", "", "output to: CSV, S3")
+	flag.StringVar(&cliFlags.Output, "output", "S3", "output to: file, S3")
 	flag.BoolVar(&cliFlags.CheckS3Connection, "check-s3-connection", false, "check S3 connection and exit")
 
 	// parse all command line flags
