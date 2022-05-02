@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--
- Copyright 2021 Red Hat, Inc
+ Copyright 2022 Red Hat, Inc
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -118,7 +118,7 @@
       <tr class="section">
 	<td class="doc"></td>
 	<td class="code"><pre><code><div class="comment">/*
-Copyright © 2021 Red Hat, Inc.
+Copyright © 2021, 2022 Red Hat, Inc.
 
 Licensed under the Apache License, Version 2.0 (the &#34;License&#34;);
 you may not use this file except in compliance with the License.
@@ -154,21 +154,6 @@ limitations under the License.
 	<div class="ident">_</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">LoadConfiguration</div><div class="operator">(</div><div class="ident">envVar</div><div class="operator">,</div> <div class="literal">&#34;tests/config1&#34;</div><div class="operator">)</div><div class="operator"></div>
 	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
 		<div class="ident">panic</div><div class="operator">(</div><div class="ident">err</div><div class="operator">)</div><div class="operator"></div>
-	<div class="operator">}</div><div class="operator"></div>
-<div class="operator">}</div><div class="operator"></div>
-
-<div class="keyword">func</div> <div class="ident">mustFailLoadingConfigurationIfWrongEnvVar</div><div class="operator">(</div><div class="ident">envVar</div> <div class="ident">string</div><div class="operator">)</div> <div class="operator">{</div>
-	<div class="ident">_</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">LoadConfiguration</div><div class="operator">(</div><div class="ident">envVar</div><div class="operator">,</div> <div class="literal">&#34;ANonExistingDefaultConfigPath&#34;</div><div class="operator">)</div><div class="operator"></div>
-	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">==</div> <div class="ident">nil</div> <div class="operator">{</div>
-		<div class="ident">panic</div><div class="operator">(</div><div class="ident">err</div><div class="operator">)</div><div class="operator"></div>
-	<div class="operator">}</div><div class="operator"></div>
-<div class="operator">}</div><div class="operator"></div>
-
-<div class="keyword">func</div> <div class="ident">removeFile</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">,</div> <div class="ident">filename</div> <div class="ident">string</div><div class="operator">)</div> <div class="operator">{</div>
-	<div class="ident">err</div> <div class="operator">:=</div> <div class="ident">os</div><div class="operator">.</div><div class="ident">Remove</div><div class="operator">(</div><div class="ident">filename</div><div class="operator">)</div><div class="operator"></div>
-	<div class="ident">assert</div><div class="operator">.</div><div class="ident">NoError</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">)</div><div class="operator"></div>
-	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
-		<div class="ident">t</div><div class="operator">.</div><div class="ident">Fatal</div><div class="operator">(</div><div class="ident">err</div><div class="operator">)</div><div class="operator"></div>
 	<div class="operator">}</div><div class="operator"></div>
 <div class="operator">}</div><div class="operator"></div>
 
@@ -268,7 +253,7 @@ limitations under the License.
 	<div class="ident">config</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">LoadConfiguration</div><div class="operator">(</div><div class="ident">envVar</div><div class="operator">,</div> <div class="literal">&#34;&#34;</div><div class="operator">)</div><div class="operator"></div>
 	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Nil</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">,</div> <div class="literal">&#34;Failed loading configuration file from env var!&#34;</div><div class="operator">)</div><div class="operator"></div>
 
-	<div class="ident">storageCfg</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">GetStorageConfiguration</div><div class="operator">(</div><div class="ident">config</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">storageCfg</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">GetStorageConfiguration</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">config</div><div class="operator">)</div><div class="operator"></div>
 
 	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="literal">&#34;sqlite3&#34;</div><div class="operator">,</div> <div class="ident">storageCfg</div><div class="operator">.</div><div class="ident">Driver</div><div class="operator">)</div><div class="operator"></div>
 	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="literal">&#34;user&#34;</div><div class="operator">,</div> <div class="ident">storageCfg</div><div class="operator">.</div><div class="ident">PGUsername</div><div class="operator">)</div><div class="operator"></div>
@@ -292,7 +277,7 @@ limitations under the License.
 	<div class="ident">config</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">LoadConfiguration</div><div class="operator">(</div><div class="ident">envVar</div><div class="operator">,</div> <div class="literal">&#34;&#34;</div><div class="operator">)</div><div class="operator"></div>
 	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Nil</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">,</div> <div class="literal">&#34;Failed loading configuration file from env var!&#34;</div><div class="operator">)</div><div class="operator"></div>
 
-	<div class="ident">loggingCfg</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">GetLoggingConfiguration</div><div class="operator">(</div><div class="ident">config</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">loggingCfg</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">GetLoggingConfiguration</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">config</div><div class="operator">)</div><div class="operator"></div>
 
 	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">true</div><div class="operator">,</div> <div class="ident">loggingCfg</div><div class="operator">.</div><div class="ident">Debug</div><div class="operator">)</div><div class="operator"></div>
 	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="literal">&#34;&#34;</div><div class="operator">,</div> <div class="ident">loggingCfg</div><div class="operator">.</div><div class="ident">LogLevel</div><div class="operator">)</div><div class="operator"></div>
@@ -310,7 +295,7 @@ limitations under the License.
 	<div class="ident">config</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">LoadConfiguration</div><div class="operator">(</div><div class="ident">envVar</div><div class="operator">,</div> <div class="literal">&#34;&#34;</div><div class="operator">)</div><div class="operator"></div>
 	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Nil</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">,</div> <div class="literal">&#34;Failed loading configuration file from env var!&#34;</div><div class="operator">)</div><div class="operator"></div>
 
-	<div class="ident">S3Cfg</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">GetS3Configuration</div><div class="operator">(</div><div class="ident">config</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">S3Cfg</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">GetS3Configuration</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">config</div><div class="operator">)</div><div class="operator"></div>
 
 	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="literal">&#34;minio&#34;</div><div class="operator">,</div> <div class="ident">S3Cfg</div><div class="operator">.</div><div class="ident">Type</div><div class="operator">)</div><div class="operator"></div>
 	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">false</div><div class="operator">,</div> <div class="ident">S3Cfg</div><div class="operator">.</div><div class="ident">UseSSL</div><div class="operator">)</div><div class="operator"></div>
