@@ -183,6 +183,15 @@ pg<em>port = 5432
 pg</em>db<em>name = &quot;aggregator&quot;
 pg</em>params = &quot;sslmode=disable&quot;</p>
 
+<p>[s3]
+type = &quot;minio&quot;
+endpoint<em>url = &quot;127.0.0.1&quot;
+endpoint</em>port = 9000
+access<em>key</em>id = &quot;foobar&quot;
+secret<em>access</em>key = &quot;foobar&quot;
+use_ssl = false
+bucket = &quot;test&quot;</p>
+
 <p>[logging]
 debug = true
 log_level = &quot;&quot;</p>
@@ -195,7 +204,14 @@ INSIGHTS</em>RESULTS<em>AGGREGATOR</em>EXPORTER<strong>STORAGE</strong>PG<em>HOS
 INSIGHTS</em>RESULTS<em>AGGREGATOR</em>EXPORTER<strong>STORAGE</strong>PG<em>PORT
 INSIGHTS</em>RESULTS<em>AGGREGATOR</em>EXPORTER<strong>STORAGE</strong>PG<em>DB</em>NAME
 INSIGHTS<em>RESULTS</em>AGGREGATOR_EXPORTER<strong>STORAGE</strong>PG<em>PARAMS
-INSIGHTS</em>RESULTS<em>AGGREGATOR</em>EXPORTER<strong>LOGGING</strong>DEBUG
+INSIGHTS</em>RESULTS<em>AGGREGATOR</em>EXPORTER<strong>S3</strong>TYPE
+INSIGHTS<em>RESULTS</em>AGGREGATOR_EXPORTER<strong>S3</strong>ENDPOINT<em>URL
+INSIGHTS</em>RESULTS<em>AGGREGATOR</em>EXPORTER<strong>S3</strong>ENDPOINT<em>PORT
+INSIGHTS</em>RESULTS<em>AGGREGATOR</em>EXPORTER<strong>S3</strong>ACCESS<em>KEY</em>ID
+INSIGHTS<em>RESULTS</em>AGGREGATOR_EXPORTER<strong>S3</strong>SECRET<em>ACCESS</em>KEY
+INSIGHTS<em>RESULTS</em>AGGREGATOR_EXPORTER<strong>S3</strong>USE<em>SSL
+INSIGHTS</em>RESULTS<em>AGGREGATOR</em>EXPORTER<strong>S3</strong>BUCKET
+INSIGHTS<em>RESULTS</em>AGGREGATOR_EXPORTER<strong>LOGGING</strong>DEBUG
 INSIGHTS<em>RESULTS</em>AGGREGATOR_EXPORTER<strong>LOGGING</strong>LOG_DEVEL</p>
 </td>
 	<td class="code"><pre><code>
@@ -214,7 +230,13 @@ INSIGHTS<em>RESULTS</em>AGGREGATOR_EXPORTER<strong>LOGGING</strong>LOG_DEVEL</p>
 	<div class="literal">&#34;github.com/spf13/viper&#34;</div><div class="operator"></div>
 <div class="operator">)</div><div class="operator"></div>
 
-<div class="keyword">const</div> <div class="operator">(</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>Common constants used for during logging and error reporting</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">const</div> <div class="operator">(</div>
 	<div class="ident">filenameAttribute</div>               <div class="operator">=</div> <div class="literal">&#34;filename&#34;</div><div class="operator"></div>
 	<div class="ident">parsingConfigurationFileMessage</div> <div class="operator">=</div> <div class="literal">&#34;parsing configuration file&#34;</div><div class="operator"></div>
 <div class="operator">)</div><div class="operator"></div>
@@ -429,7 +451,7 @@ itself, so we need to read fake config file</p>
       <tr class="section">
 	<td class="doc"><p>GetStorageConfiguration returns storage configuration</p>
 </td>
-	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">GetStorageConfiguration</div><div class="operator">(</div><div class="ident">config</div> <div class="ident">ConfigStruct</div><div class="operator">)</div> <div class="ident">StorageConfiguration</div> <div class="operator">{</div>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">GetStorageConfiguration</div><div class="operator">(</div><div class="ident">config</div> <div class="operator">*</div><div class="ident">ConfigStruct</div><div class="operator">)</div> <div class="ident">StorageConfiguration</div> <div class="operator">{</div>
 	<div class="keyword">return</div> <div class="ident">config</div><div class="operator">.</div><div class="ident">Storage</div><div class="operator"></div>
 <div class="operator">}</div><div class="operator"></div>
 
@@ -439,7 +461,7 @@ itself, so we need to read fake config file</p>
       <tr class="section">
 	<td class="doc"><p>GetLoggingConfiguration returns logging configuration</p>
 </td>
-	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">GetLoggingConfiguration</div><div class="operator">(</div><div class="ident">config</div> <div class="ident">ConfigStruct</div><div class="operator">)</div> <div class="ident">LoggingConfiguration</div> <div class="operator">{</div>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">GetLoggingConfiguration</div><div class="operator">(</div><div class="ident">config</div> <div class="operator">*</div><div class="ident">ConfigStruct</div><div class="operator">)</div> <div class="ident">LoggingConfiguration</div> <div class="operator">{</div>
 	<div class="keyword">return</div> <div class="ident">config</div><div class="operator">.</div><div class="ident">Logging</div><div class="operator"></div>
 <div class="operator">}</div><div class="operator"></div>
 
@@ -449,7 +471,7 @@ itself, so we need to read fake config file</p>
       <tr class="section">
 	<td class="doc"><p>GetS3Configuration returns S3/Minio configuration</p>
 </td>
-	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">GetS3Configuration</div><div class="operator">(</div><div class="ident">config</div> <div class="ident">ConfigStruct</div><div class="operator">)</div> <div class="ident">S3Configuration</div> <div class="operator">{</div>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">GetS3Configuration</div><div class="operator">(</div><div class="ident">config</div> <div class="operator">*</div><div class="ident">ConfigStruct</div><div class="operator">)</div> <div class="ident">S3Configuration</div> <div class="operator">{</div>
 	<div class="keyword">return</div> <div class="ident">config</div><div class="operator">.</div><div class="ident">S3</div><div class="operator"></div>
 <div class="operator">}</div><div class="operator"></div>
 
