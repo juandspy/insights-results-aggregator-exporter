@@ -45,6 +45,15 @@ package main
 // pg_db_name = "aggregator"
 // pg_params = "sslmode=disable"
 //
+// [s3]
+// type = "minio"
+// endpoint_url = "127.0.0.1"
+// endpoint_port = 9000
+// access_key_id = "foobar"
+// secret_access_key = "foobar"
+// use_ssl = false
+// bucket = "test"
+//
 // [logging]
 // debug = true
 // log_level = ""
@@ -57,6 +66,13 @@ package main
 // INSIGHTS_RESULTS_AGGREGATOR_EXPORTER__STORAGE__PG_PORT
 // INSIGHTS_RESULTS_AGGREGATOR_EXPORTER__STORAGE__PG_DB_NAME
 // INSIGHTS_RESULTS_AGGREGATOR_EXPORTER__STORAGE__PG_PARAMS
+// INSIGHTS_RESULTS_AGGREGATOR_EXPORTER__S3__TYPE
+// INSIGHTS_RESULTS_AGGREGATOR_EXPORTER__S3__ENDPOINT_URL
+// INSIGHTS_RESULTS_AGGREGATOR_EXPORTER__S3__ENDPOINT_PORT
+// INSIGHTS_RESULTS_AGGREGATOR_EXPORTER__S3__ACCESS_KEY_ID
+// INSIGHTS_RESULTS_AGGREGATOR_EXPORTER__S3__SECRET_ACCESS_KEY
+// INSIGHTS_RESULTS_AGGREGATOR_EXPORTER__S3__USE_SSL
+// INSIGHTS_RESULTS_AGGREGATOR_EXPORTER__S3__BUCKET
 // INSIGHTS_RESULTS_AGGREGATOR_EXPORTER__LOGGING__DEBUG
 // INSIGHTS_RESULTS_AGGREGATOR_EXPORTER__LOGGING__LOG_DEVEL
 
@@ -75,6 +91,7 @@ import (
 	"github.com/spf13/viper"
 )
 
+// Common constants used for during logging and error reporting
 const (
 	filenameAttribute               = "filename"
 	parsingConfigurationFileMessage = "parsing configuration file"
