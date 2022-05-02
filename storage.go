@@ -341,47 +341,76 @@ func (storage DBStorage) ReadTable(tableName TableName) ([]M, error) {
 }
 
 // StoreTable function stores specified table into S3/Minio
-// TODO: Really needs refactoring!!!
-// TODO: refactor retrieving column types info function
 func (storage DBStorage) StoreTable(ctx context.Context,
 	minioClient *minio.Client, bucketName string, tableName TableName) error {
+	columnTypes, err := storage.RetrieveColumnTypes(tableName)
+	if err != nil {
+		return err
+	}
+
+	colNames := getColumnNames(columnTypes)
+
+	buffer := new(bytes.Buffer)
+
+	// initialize CSV writer
+	writer := csv.NewWriter(buffer)
+
+	err = writeColumnNames(writer, colNames)
+	if err != nil {
+		return err
+	}
+
+	err = storage.WriteTableContent(writer, tableName, colNames)
+	if err != nil {
+		return err
+	}
+
+	writer.Flush()
+
+	reader := io.Reader(buffer)
+
+	options := minio.PutObjectOptions{ContentType: "text/csv"}
+	objectName := string(tableName) + ".csv"
+	_, err = minioClient.PutObject(ctx, bucketName, objectName, reader, -1, options)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// RetrieveColumnTypes read column types from given table
+func (storage DBStorage) RetrieveColumnTypes(tableName TableName) ([]*sql.ColumnType, error) {
 	sqlStatement := select1FromTable(tableName)
 
+	// try to query DB
 	rows, err := storage.connection.Query(sqlStatement)
 	if err != nil {
 		log.Error().Err(err).Msg(sqlStatementExecutionError)
-		return err
+		return nil, err
 	}
 
 	// try to retrieve column types
 	columnTypes, err := rows.ColumnTypes()
-
 	if err != nil {
 		log.Error().Err(err).Msg(unableToRetrieveColumnTypes)
-		return err
+		return nil, err
 	}
 
+	// close query
 	err = rows.Close()
 	if err != nil {
 		log.Error().Err(err).Msg(unableToCloseDBRowsHandle)
+		return nil, err
 	}
 
+	// everything seems to be ok
 	logColumnTypes(tableName, columnTypes)
-	buffer := new(bytes.Buffer)
+	return columnTypes, nil
+}
 
-	writer := csv.NewWriter(buffer)
-	var colNames []string
-
-	for _, columnType := range columnTypes {
-		colNames = append(colNames, columnType.Name())
-	}
-
-	err = writer.Write(colNames)
-	if err != nil {
-		log.Error().Err(err).Msg("Write column names to CSV")
-		return err
-	}
-
+// WriteTableContent method writes content of whole table into given CSV
+// writera (may be file or S3 bucke)
+func (storage DBStorage) WriteTableContent(writer *csv.Writer, tableName TableName, colNames []string) error {
 	// now we know column types, time to perform export
 	finalRows, err := storage.ReadTable(tableName)
 	if err != nil {
@@ -402,14 +431,22 @@ func (storage DBStorage) StoreTable(ctx context.Context,
 			return err
 		}
 	}
+	return nil
+}
 
-	writer.Flush()
+func getColumnNames(columnTypes []*sql.ColumnType) []string {
+	var colNames []string
+	for _, columnType := range columnTypes {
+		colNames = append(colNames, columnType.Name())
+	}
 
-	reader := io.Reader(buffer)
+	return colNames
+}
 
-	options := minio.PutObjectOptions{ContentType: "text/csv"}
-	_, err = minioClient.PutObject(ctx, bucketName, string(tableName), reader, -1, options)
+func writeColumnNames(writer *csv.Writer, colNames []string) error {
+	err := writer.Write(colNames)
 	if err != nil {
+		log.Error().Err(err).Msg("Write column names to CSV")
 		return err
 	}
 	return nil
