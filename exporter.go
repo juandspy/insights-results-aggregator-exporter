@@ -30,6 +30,8 @@ const (
 	versionMessage         = "Insights Results Aggregator Cleaner version 1.0"
 	authorsMessage         = "Pavel Tisnovsky, Red Hat Inc."
 	operationFailedMessage = "Operation failed"
+	listOfTablesMsg        = "List of tables"
+	tableNameMsg           = "Table name"
 )
 
 // Exit codes
@@ -94,7 +96,7 @@ func showConfiguration(config *ConfigStruct) {
 		Str("AccessKeyID", s3Configuration.AccessKeyID).
 		Str("SecretAccessKey", s3Configuration.SecretAccessKey).
 		Bool("Use SSL", s3Configuration.UseSSL).
-		Str("Bucket", s3Configuration.Bucket).
+		Str("Bucket name", s3Configuration.Bucket).
 		Msg("S3 configuration")
 }
 
@@ -132,11 +134,11 @@ func performDataExportToS3(configuration *ConfigStruct, storage *DBStorage) (int
 		return ExitStatusStorageError, err
 	}
 
-	log.Info().Int("count", len(tableNames)).Msg("List of tables")
+	log.Info().Int("tables count", len(tableNames)).Msg(listOfTablesMsg)
 	printTables(tableNames)
 
 	bucket := GetS3Configuration(configuration).Bucket
-	log.Info().Str("bucket", bucket).Msg("S3 bucket to write to")
+	log.Info().Str("bucket name", bucket).Msg("S3 bucket to write to")
 
 	err = storeTableNames(context, minioClient,
 		bucket, listOfTables, tableNames)
@@ -148,7 +150,7 @@ func performDataExportToS3(configuration *ConfigStruct, storage *DBStorage) (int
 	for _, tableName := range tableNames {
 		err = storage.StoreTable(context, minioClient, bucket, tableName)
 		if err != nil {
-			log.Err(err).Str("Table name", string(tableName)).Msg("Store table into S3 failed")
+			log.Err(err).Str(tableNameMsg, string(tableName)).Msg("Store table into S3 failed")
 			return ExitStatusStorageError, err
 		}
 	}
@@ -172,7 +174,7 @@ func performDataExportToFiles(configuration *ConfigStruct, storage *DBStorage) (
 		return ExitStatusStorageError, err
 	}
 
-	log.Info().Int("count", len(tableNames)).Msg("List of tables")
+	log.Info().Int("count", len(tableNames)).Msg(listOfTablesMsg)
 	printTables(tableNames)
 
 	// export list of all tables into CSV file
@@ -185,7 +187,7 @@ func performDataExportToFiles(configuration *ConfigStruct, storage *DBStorage) (
 	for _, tableName := range tableNames {
 		err = storage.StoreTableIntoFile(tableName)
 		if err != nil {
-			log.Err(err).Str("Table name", string(tableName)).Msg("Store table into file failed")
+			log.Err(err).Str(tableNameMsg, string(tableName)).Msg("Store table into file failed")
 			return ExitStatusStorageError, err
 		}
 	}

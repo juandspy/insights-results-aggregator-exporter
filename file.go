@@ -46,7 +46,7 @@ func storeTableNamesIntoFile(fileName string, tableNames []TableName) error {
 	for _, tableName := range tableNames {
 		err := writer.Write([]string{string(tableName)})
 		if err != nil {
-			log.Error().Err(err).Msg("Write to CSV")
+			log.Error().Err(err).Msg("Write table name to CSV")
 		}
 	}
 
