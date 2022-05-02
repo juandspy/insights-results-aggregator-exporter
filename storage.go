@@ -454,17 +454,7 @@ func getColumnNames(columnTypes []*sql.ColumnType) []string {
 
 func writeColumnNames(writer *csv.Writer, colNames []string) error {
 	err := writer.Write(colNames)
-
-  // set MIME content type for object stored in S3 or Minio
-	options := minio.PutObjectOptions{ContentType: "text/csv"}
-
-	// name of object stored in S3 or Minio
-	objectName := string(tableName) + ".csv"
-
-	// perform write into S3 or Minio with common error check
-	_, err = minioClient.PutObject(ctx, bucketName, objectName, reader, -1, options)
-
-  if err != nil {
+	if err != nil {
 		log.Error().Err(err).Msg("Write column names to CSV")
 		return err
 	}
