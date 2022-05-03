@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Copyright 2021 Red Hat, Inc
+# Copyright 2021, 2022 Red Hat, Inc
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ echo -e "${BLUE}Finding all unchecked errors${NC}"
 if ! [ -x "$(command -v errcheck)" ]
 then
     echo -e "${BLUE}Installing errcheck ${NC}"
-    GO111MODULE=off go get github.com/kisielk/errcheck
+    go install github.com/kisielk/errcheck@latest
 fi
 
 
