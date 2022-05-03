@@ -548,32 +548,14 @@ func (storage DBStorage) StoreTableMetadataIntoFile(fileName string, tableNames 
 		return err
 	}
 
-	// initialize CSV writer
-	writer := csv.NewWriter(fout)
-
-	err = writer.Write([]string{"Table name", "Records"})
+	err = storage.storeTableMetadataAsCSV(tableNames, fout)
 	if err != nil {
-		log.Error().Err(err).Msg(writeOneRowToCSV)
+		// logging has been performed already
 		return err
 	}
 
-	for _, tableName := range tableNames {
-		cnt, err := storage.ReadRecordsCount(tableName)
-		if err != nil {
-			log.Error().Err(err).Msg(readListOfRecordsFailed)
-			return err
-		}
-
-		columns := []string{string(tableName), strconv.Itoa(cnt)}
-
-		err = writer.Write(columns)
-		if err != nil {
-			log.Error().Err(err).Msg(writeOneRowToCSV)
-			return err
-		}
-	}
-
-	writer.Flush()
+	// initialize CSV writer
+	writer := csv.NewWriter(fout)
 
 	// check for any error during export to CSV
 	err = writer.Error()
@@ -598,7 +580,26 @@ func (storage DBStorage) StoreTableMetadataIntoS3(ctx context.Context,
 
 	buffer := new(bytes.Buffer)
 
-	// initialize CSV writer
+	err := storage.storeTableMetadataAsCSV(tableNames, buffer)
+	if err != nil {
+		// logging has been performed already
+		return err
+	}
+
+	// write CSV data into S3 bucket or Minio bucket
+	reader := io.Reader(buffer)
+
+	options := minio.PutObjectOptions{ContentType: "text/csv"}
+	_, err = minioClient.PutObject(ctx, bucketName, objectName, reader, -1, options)
+	if err != nil {
+		return err
+	}
+
+	// everything look ok
+	return nil
+}
+
+func (storage DBStorage) storeTableMetadataAsCSV(tableNames []TableName, buffer io.Writer) error {
 	writer := csv.NewWriter(buffer)
 
 	err := writer.Write([]string{"Table name", "Records"})
@@ -624,17 +625,6 @@ func (storage DBStorage) StoreTableMetadataIntoS3(ctx context.Context,
 	}
 
 	writer.Flush()
-
-	// write CSV data into S3 bucket or Minio bucket
-	reader := io.Reader(buffer)
-
-	options := minio.PutObjectOptions{ContentType: "text/csv"}
-	_, err = minioClient.PutObject(ctx, bucketName, objectName, reader, -1, options)
-	if err != nil {
-		return err
-	}
-
-	// everything look ok
 	return nil
 }
 
