@@ -1,0 +1,79 @@
+@startuml
+namespace main {
+    class CliFlags << (S,Aquamarine) >> {
+        + ShowVersion bool
+        + ShowAuthors bool
+        + ShowConfiguration bool
+        + PrintSummaryTable bool
+        + Output string
+        + CheckS3Connection bool
+
+    }
+    class ConfigStruct << (S,Aquamarine) >> {
+        + Storage StorageConfiguration
+        + S3 S3Configuration
+        + Logging LoggingConfiguration
+
+    }
+    class DBStorage << (S,Aquamarine) >> {
+        - connection *sql.DB
+        - dbDriverType DBDriver
+
+        + Close() error
+        + ReadListOfTables() ([]TableName, error)
+        + ReadTable(tableName TableName) ([]M, error)
+        + StoreTable(ctx context.Context, minioClient *minio.Client, bucketName string, tableName TableName) error
+        + StoreTableIntoFile(tableName TableName) error
+        + ReadRecordsCount(tableName TableName) (int, error)
+        + RetrieveColumnTypes(tableName TableName) ([]*sql.ColumnType, error)
+        + WriteTableContent(writer *csv.Writer, tableName TableName, colNames []string) error
+        + StoreTableMetadataIntoFile(fileName string, tableNames []TableName) error
+
+    }
+    class LoggingConfiguration << (S,Aquamarine) >> {
+        + Debug bool
+        + LogLevel string
+        + LoggingToCloudWatchEnabled bool
+
+    }
+    class S3Configuration << (S,Aquamarine) >> {
+        + Type string
+        + EndpointURL string
+        + EndpointPort uint
+        + AccessKeyID string
+        + SecretAccessKey string
+        + UseSSL bool
+        + Bucket string
+
+    }
+    interface Storage  {
+        + Close() error
+        + ReadListOfTables() ([]TableName, error)
+        + ReadTable(tableName string) error
+
+    }
+    class StorageConfiguration << (S,Aquamarine) >> {
+        + Driver string
+        + SQLiteDataSource string
+        + PGUsername string
+        + PGPassword string
+        + PGHost string
+        + PGPort int
+        + PGDBName string
+        + PGParams string
+        + LogSQLQueries bool
+
+    }
+    class main.DBDriver << (T, #FF7700) >>  {
+    }
+    class main.M << (T, #FF7700) >>  {
+    }
+    class main.TableName << (T, #FF7700) >>  {
+    }
+}
+
+
+"__builtin__.int" #.. "main.DBDriver"
+"__builtin__.string" #.. "main.TableName"
+"main.<font color=blue>map</font>[string]<font color=blue>interface</font>{}" #.. "main.M"
+@enduml
