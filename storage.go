@@ -28,6 +28,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strconv"
 
 	"database/sql"
 
@@ -53,6 +54,7 @@ const (
 	sqlStatementExecutionError  = "SQL statement execution error"
 	unableToRetrieveColumnTypes = "Unable to retrieve column types"
 	readTableContentFailed      = "Read table content failed"
+	readListOfRecordsFailed     = "Unable to read list of records"
 )
 
 // SQL statements
@@ -200,7 +202,10 @@ func (storage DBStorage) ReadListOfTables() ([]TableName, error) {
 // logColumnTypes is helper function to print column names and types for
 // selected table.
 func logColumnTypes(tableName TableName, columnTypes []*sql.ColumnType) {
-	log.Info().Str("table columns", string(tableName)).Int("columns", len(columnTypes)).Msg("table metadata")
+	log.Info().
+		Str("table columns", string(tableName)).
+		Int("columns", len(columnTypes)).
+		Msg("table metadata")
 
 	for i, columnType := range columnTypes {
 		log.Info().
@@ -208,6 +213,15 @@ func logColumnTypes(tableName TableName, columnTypes []*sql.ColumnType) {
 			Str("type", columnType.DatabaseTypeName()).
 			Int("column", i+1).Msg("column type")
 	}
+}
+
+// logRecordCount is helper function to print number of records stored in
+// given database table.
+func logRecordCount(tableName TableName, count int) {
+	log.Info().
+		Str("table", string(tableName)).
+		Int("count", count).
+		Msg("records in table")
 }
 
 // fillInScanArgs prepares arguments for the Scan method to retrieve row from
@@ -279,11 +293,22 @@ func fillInMasterData(columnTypes []*sql.ColumnType, scanArgs []interface{}) map
 	return masterData
 }
 
+// select1FromTable is helper function to construct query to database - read
+// one record from given table.
 func select1FromTable(tableName TableName) string {
 	// it is not possible to use parameter for table name or a key
 	// disable "G201 (CWE-89): SQL string formatting (Confidence: HIGH, Severity: MEDIUM)"
 	// #nosec G201
 	return fmt.Sprintf("SELECT * FROM %s LIMIT 1", string(tableName))
+}
+
+// selectAllFromTable is helper function to construct query to database - read
+// number of records in table.
+func selectCountFromTable(tableName TableName) string {
+	// it is not possible to use parameter for table name or a key
+	// disable "G201 (CWE-89): SQL string formatting (Confidence: HIGH, Severity: MEDIUM)"
+	// #nosec G201
+	return fmt.Sprintf("SELECT count(*) FROM %s", string(tableName))
 }
 
 func selectAllFromTable(tableName TableName) string {
@@ -436,6 +461,26 @@ func (storage DBStorage) StoreTableIntoFile(tableName TableName) error {
 	return nil
 }
 
+// ReadRecordsCount method reads number of records stored in given database
+// table.
+func (storage DBStorage) ReadRecordsCount(tableName TableName) (int, error) {
+	sqlStatement := selectCountFromTable(tableName)
+
+	// try to query DB
+	row := storage.connection.QueryRow(sqlStatement)
+
+	var count int
+
+	err := row.Scan(&count)
+	if err != nil {
+		return -1, err
+	}
+
+	// everything seems to be ok
+	logRecordCount(tableName, count)
+	return count, nil
+}
+
 // RetrieveColumnTypes read column types from given table
 func (storage DBStorage) RetrieveColumnTypes(tableName TableName) ([]*sql.ColumnType, error) {
 	sqlStatement := select1FromTable(tableName)
@@ -489,6 +534,57 @@ func (storage DBStorage) WriteTableContent(writer *csv.Writer, tableName TableNa
 			return err
 		}
 	}
+	return nil
+}
+
+// StoreTableMetadataIntoFile method stores metadata about given tables into
+// file.
+func (storage DBStorage) StoreTableMetadataIntoFile(fileName string, tableNames []TableName) error {
+	// open new CSV file to be filled in
+	fout, err := os.Create(fileName)
+	if err != nil {
+		return err
+	}
+
+	// initialize CSV writer
+	writer := csv.NewWriter(fout)
+
+	err = writer.Write([]string{"Table name", "Records"})
+	if err != nil {
+		log.Error().Err(err).Msg("Write one row to CSV")
+		return err
+	}
+
+	for _, tableName := range tableNames {
+		cnt, err := storage.ReadRecordsCount(tableName)
+		if err != nil {
+			log.Error().Err(err).Msg(readListOfRecordsFailed)
+			return err
+		}
+
+		columns := []string{string(tableName), strconv.Itoa(cnt)}
+
+		err = writer.Write(columns)
+		if err != nil {
+			log.Error().Err(err).Msg("Write one row to CSV")
+			return err
+		}
+	}
+
+	writer.Flush()
+
+	// check for any error during export to CSV
+	err = writer.Error()
+	if err != nil {
+		return err
+	}
+
+	// close the file and check if close operation was ok
+	err = fout.Close()
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
