@@ -25,11 +25,11 @@ echo -e "${BLUE}Finding all unchecked errors${NC}"
 if ! [ -x "$(command -v errcheck)" ]
 then
     echo -e "${BLUE}Installing errcheck ${NC}"
-    GO111MODULE=off go get github.com/kisielk/errcheck
+    go install github.com/kisielk/errcheck@latest
 fi
 
 
-if ! ~/go/bin/errcheck ./...
+if ! errcheck ./...
 then
     echo -e "${RED_BG}[FAIL]${NC} Code with unchecked errors detected"
     exit 1
