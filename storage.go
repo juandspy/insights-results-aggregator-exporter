@@ -548,10 +548,61 @@ func (storage DBStorage) StoreTableMetadataIntoFile(fileName string, tableNames 
 		return err
 	}
 
+	err = storage.storeTableMetadataAsCSV(tableNames, fout)
+	if err != nil {
+		// logging has been performed already
+		return err
+	}
+
 	// initialize CSV writer
 	writer := csv.NewWriter(fout)
 
-	err = writer.Write([]string{"Table name", "Records"})
+	// check for any error during export to CSV
+	err = writer.Error()
+	if err != nil {
+		return err
+	}
+
+	// close the file and check if close operation was ok
+	err = fout.Close()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// StoreTableMetadataIntoS3 method stores metadata about given tables into
+// S3 or Minio.
+func (storage DBStorage) StoreTableMetadataIntoS3(ctx context.Context,
+	minioClient *minio.Client, bucketName string, objectName string,
+	tableNames []TableName) error {
+
+	buffer := new(bytes.Buffer)
+
+	err := storage.storeTableMetadataAsCSV(tableNames, buffer)
+	if err != nil {
+		// logging has been performed already
+		return err
+	}
+
+	// write CSV data into S3 bucket or Minio bucket
+	reader := io.Reader(buffer)
+
+	options := minio.PutObjectOptions{ContentType: "text/csv"}
+	_, err = minioClient.PutObject(ctx, bucketName, objectName, reader, -1, options)
+	if err != nil {
+		return err
+	}
+
+	// everything look ok
+	return nil
+}
+
+func (storage DBStorage) storeTableMetadataAsCSV(tableNames []TableName, buffer io.Writer) error {
+	writer := csv.NewWriter(buffer)
+
+	err := writer.Write([]string{"Table name", "Records"})
 	if err != nil {
 		log.Error().Err(err).Msg(writeOneRowToCSV)
 		return err
@@ -574,19 +625,6 @@ func (storage DBStorage) StoreTableMetadataIntoFile(fileName string, tableNames 
 	}
 
 	writer.Flush()
-
-	// check for any error during export to CSV
-	err = writer.Error()
-	if err != nil {
-		return err
-	}
-
-	// close the file and check if close operation was ok
-	err = fout.Close()
-	if err != nil {
-		return err
-	}
-
 	return nil
 }
 
