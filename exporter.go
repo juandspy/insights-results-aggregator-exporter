@@ -184,6 +184,13 @@ func performDataExportToFiles(configuration *ConfigStruct, storage *DBStorage) (
 		return ExitStatusStorageError, err
 	}
 
+	// export tables metadata into CSV file
+	err = storage.StoreTableMetadataIntoFile("_metadata.csv", tableNames)
+	if err != nil {
+		log.Err(err).Msg("Store tables metadata to file failed")
+		return ExitStatusStorageError, err
+	}
+
 	for _, tableName := range tableNames {
 		err = storage.StoreTableIntoFile(tableName)
 		if err != nil {
