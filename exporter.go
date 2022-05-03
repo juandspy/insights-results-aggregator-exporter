@@ -140,6 +140,7 @@ func performDataExportToS3(configuration *ConfigStruct, storage *DBStorage) (int
 	bucket := GetS3Configuration(configuration).Bucket
 	log.Info().Str("bucket name", bucket).Msg("S3 bucket to write to")
 
+	// export list of all tables into S3
 	err = storeTableNames(context, minioClient,
 		bucket, listOfTables, tableNames)
 	if err != nil {
@@ -147,6 +148,15 @@ func performDataExportToS3(configuration *ConfigStruct, storage *DBStorage) (int
 		return ExitStatusStorageError, err
 	}
 
+	// export tables metadata into S3
+	err = storage.StoreTableMetadataIntoS3(context, minioClient,
+		bucket, "_metadata.csv", tableNames)
+	if err != nil {
+		log.Err(err).Msg("Store tables metadata to S3 failed")
+		return ExitStatusStorageError, err
+	}
+
+	// read content of all tables and perform export
 	for _, tableName := range tableNames {
 		err = storage.StoreTable(context, minioClient, bucket, tableName)
 		if err != nil {
@@ -191,6 +201,7 @@ func performDataExportToFiles(configuration *ConfigStruct, storage *DBStorage) (
 		return ExitStatusStorageError, err
 	}
 
+	// read content of all tables and perform export
 	for _, tableName := range tableNames {
 		err = storage.StoreTableIntoFile(tableName)
 		if err != nil {
