@@ -55,6 +55,7 @@ const (
 	unableToRetrieveColumnTypes = "Unable to retrieve column types"
 	readTableContentFailed      = "Read table content failed"
 	readListOfRecordsFailed     = "Unable to read list of records"
+	writeOneRowToCSV            = "Write one row to CSV"
 )
 
 // SQL statements
@@ -219,8 +220,8 @@ func logColumnTypes(tableName TableName, columnTypes []*sql.ColumnType) {
 // given database table.
 func logRecordCount(tableName TableName, count int) {
 	log.Info().
-		Str("table", string(tableName)).
-		Int("count", count).
+		Str("table name", string(tableName)).
+		Int("record count", count).
 		Msg("records in table")
 }
 
@@ -530,7 +531,7 @@ func (storage DBStorage) WriteTableContent(writer *csv.Writer, tableName TableNa
 		}
 		err = writer.Write(columns)
 		if err != nil {
-			log.Error().Err(err).Msg("Write one row to CSV")
+			log.Error().Err(err).Msg(writeOneRowToCSV)
 			return err
 		}
 	}
@@ -552,7 +553,7 @@ func (storage DBStorage) StoreTableMetadataIntoFile(fileName string, tableNames 
 
 	err = writer.Write([]string{"Table name", "Records"})
 	if err != nil {
-		log.Error().Err(err).Msg("Write one row to CSV")
+		log.Error().Err(err).Msg(writeOneRowToCSV)
 		return err
 	}
 
@@ -567,7 +568,7 @@ func (storage DBStorage) StoreTableMetadataIntoFile(fileName string, tableNames 
 
 		err = writer.Write(columns)
 		if err != nil {
-			log.Error().Err(err).Msg("Write one row to CSV")
+			log.Error().Err(err).Msg(writeOneRowToCSV)
 			return err
 		}
 	}
