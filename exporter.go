@@ -57,7 +57,8 @@ const (
 	defaultConfigFileName     = "config"
 
 	// output files or objects containing metadata
-	listOfTables = "_tables.csv"
+	listOfTables  = "_tables.csv"
+	metadataTable = "_metadata.csv"
 )
 
 // showVersion function displays version information.
@@ -150,7 +151,7 @@ func performDataExportToS3(configuration *ConfigStruct, storage *DBStorage) (int
 
 	// export tables metadata into S3
 	err = storage.StoreTableMetadataIntoS3(context, minioClient,
-		bucket, "_metadata.csv", tableNames)
+		bucket, metadataTable, tableNames)
 	if err != nil {
 		log.Err(err).Msg("Store tables metadata to S3 failed")
 		return ExitStatusStorageError, err
@@ -185,6 +186,8 @@ func performDataExportToFiles(configuration *ConfigStruct, storage *DBStorage) (
 	}
 
 	log.Info().Int("count", len(tableNames)).Msg(listOfTablesMsg)
+
+	// log into terminal
 	printTables(tableNames)
 
 	// export list of all tables into CSV file
@@ -195,7 +198,7 @@ func performDataExportToFiles(configuration *ConfigStruct, storage *DBStorage) (
 	}
 
 	// export tables metadata into CSV file
-	err = storage.StoreTableMetadataIntoFile("_metadata.csv", tableNames)
+	err = storage.StoreTableMetadataIntoFile(metadataTable, tableNames)
 	if err != nil {
 		log.Err(err).Msg("Store tables metadata to file failed")
 		return ExitStatusStorageError, err

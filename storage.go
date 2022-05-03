@@ -590,6 +590,54 @@ func (storage DBStorage) StoreTableMetadataIntoFile(fileName string, tableNames 
 	return nil
 }
 
+// StoreTableMetadataIntoS3 method stores metadata about given tables into
+// S3 or Minio.
+func (storage DBStorage) StoreTableMetadataIntoS3(ctx context.Context,
+	minioClient *minio.Client, bucketName string, objectName string,
+	tableNames []TableName) error {
+
+	buffer := new(bytes.Buffer)
+
+	// initialize CSV writer
+	writer := csv.NewWriter(buffer)
+
+	err := writer.Write([]string{"Table name", "Records"})
+	if err != nil {
+		log.Error().Err(err).Msg(writeOneRowToCSV)
+		return err
+	}
+
+	for _, tableName := range tableNames {
+		cnt, err := storage.ReadRecordsCount(tableName)
+		if err != nil {
+			log.Error().Err(err).Msg(readListOfRecordsFailed)
+			return err
+		}
+
+		columns := []string{string(tableName), strconv.Itoa(cnt)}
+
+		err = writer.Write(columns)
+		if err != nil {
+			log.Error().Err(err).Msg(writeOneRowToCSV)
+			return err
+		}
+	}
+
+	writer.Flush()
+
+	// write CSV data into S3 bucket or Minio bucket
+	reader := io.Reader(buffer)
+
+	options := minio.PutObjectOptions{ContentType: "text/csv"}
+	_, err = minioClient.PutObject(ctx, bucketName, objectName, reader, -1, options)
+	if err != nil {
+		return err
+	}
+
+	// everything look ok
+	return nil
+}
+
 func getColumnNames(columnTypes []*sql.ColumnType) []string {
 	var colNames []string
 	for _, columnType := range columnTypes {
