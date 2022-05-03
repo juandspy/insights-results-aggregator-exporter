@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Copyright 2021 Red Hat, Inc
+# Copyright 2021, 2022 Red Hat, Inc
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ then
 fi
 
 
-if ! errcheck ./...
+if ! ~/go/bin/errcheck ./...
 then
     echo -e "${RED_BG}[FAIL]${NC} Code with unchecked errors detected"
     exit 1
