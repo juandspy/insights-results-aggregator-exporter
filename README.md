@@ -12,6 +12,8 @@ Exporter for Insights Results data stored by Insights Results Aggregator
 <!-- vim-markdown-toc GFM -->
 
 * [Description](#description)
+* [Documentation](#documentation)
+* [Contribution](#contribution)
 * [Usage](#usage)
     * [Building](#building)
 * [Makefile targets](#makefile-targets)
@@ -22,10 +24,24 @@ Exporter for Insights Results data stored by Insights Results Aggregator
 
 ## Description
 
-Simple service that is able to read data from selected database (PostgreSQL,
-RDS etc.) and store the data as set of CSV files and (optionally) into S3
-bucket. That service can be used to make a database snapshot, even for
-databases that are not directly reachable by user.
+Insights Results Aggregator is simple service that is able to read data from
+selected database (PostgreSQL, RDS etc.) and store the data as set of CSV files
+and (optionally) into S3 bucket. It can also store metadata about the database
+- list of tables, number of records stored in tables etc. That service can be
+used to make a database snapshot, even for databases that are not directly
+reachable by user.
+
+## Documentation
+
+Documentation is hosted on Github Pages <https://redhatinsights.github.io/insights-results-aggregator-exporter/>.
+Sources are located in [docs](https://github.com/RedHatInsights/insights-results-aggregator-exporter/tree/master/docs).
+
+
+## Contribution
+
+Please look into document [CONTRIBUTING.md](CONTRIBUTING.md) that contains all information about how to
+contribute to this project.
+
 
 ## Usage
 
@@ -48,18 +64,23 @@ Usage of ./irae:
 
 Go version 1.16 or newer is required to build this tool.
 
+Executable binary file with this tool can be produced by using the following
+command:
+
 ```
 make build
 ```
 
-You can build a container image as well; make sure your current working directory 
-is the project root, then run
+You can build a container image as well; make sure your current working
+directory is the project root, then run
 
 ```
 docker build -t insights-results-aggregator-exporter .
 ```
 
 ## Makefile targets
+
+List of all Makefile targets currently supported:
 
 ```
 Usage: make <OPTIONS> ... <TARGETS>
