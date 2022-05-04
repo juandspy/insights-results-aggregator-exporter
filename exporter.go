@@ -113,9 +113,9 @@ func performDataExport(configuration *ConfigStruct, cliFlags CliFlags) (int, err
 
 	switch cliFlags.Output {
 	case "S3":
-		return performDataExportToS3(configuration, storage)
+		return performDataExportToS3(configuration, storage, cliFlags.ExportMetadata)
 	case "file":
-		return performDataExportToFiles(configuration, storage)
+		return performDataExportToFiles(configuration, storage, cliFlags.ExportMetadata)
 	default:
 		return ExitStatusConfigurationError, fmt.Errorf("Unknown output type: %s", cliFlags.Output)
 	}
@@ -123,7 +123,8 @@ func performDataExport(configuration *ConfigStruct, cliFlags CliFlags) (int, err
 
 // performDataExportToS3 exports all tables and metadata info configured S3
 // bucket
-func performDataExportToS3(configuration *ConfigStruct, storage *DBStorage) (int, error) {
+func performDataExportToS3(configuration *ConfigStruct,
+	storage *DBStorage, exportMetadata bool) (int, error) {
 	minioClient, context, err := NewS3Connection(configuration)
 	if err != nil {
 		return ExitStatusS3Error, err
@@ -141,20 +142,22 @@ func performDataExportToS3(configuration *ConfigStruct, storage *DBStorage) (int
 	bucket := GetS3Configuration(configuration).Bucket
 	log.Info().Str("bucket name", bucket).Msg("S3 bucket to write to")
 
-	// export list of all tables into S3
-	err = storeTableNames(context, minioClient,
-		bucket, listOfTables, tableNames)
-	if err != nil {
-		log.Err(err).Msg("Store table list to S3 failed")
-		return ExitStatusStorageError, err
-	}
+	if exportMetadata {
+		// export list of all tables into S3
+		err = storeTableNames(context, minioClient,
+			bucket, listOfTables, tableNames)
+		if err != nil {
+			log.Err(err).Msg("Store table list to S3 failed")
+			return ExitStatusStorageError, err
+		}
 
-	// export tables metadata into S3
-	err = storage.StoreTableMetadataIntoS3(context, minioClient,
-		bucket, metadataTable, tableNames)
-	if err != nil {
-		log.Err(err).Msg("Store tables metadata to S3 failed")
-		return ExitStatusStorageError, err
+		// export tables metadata into S3
+		err = storage.StoreTableMetadataIntoS3(context, minioClient,
+			bucket, metadataTable, tableNames)
+		if err != nil {
+			log.Err(err).Msg("Store tables metadata to S3 failed")
+			return ExitStatusStorageError, err
+		}
 	}
 
 	// read content of all tables and perform export
@@ -178,7 +181,8 @@ func performDataExportToS3(configuration *ConfigStruct, storage *DBStorage) (int
 }
 
 // performDataExportToFiles exports all tables and metadata info files
-func performDataExportToFiles(configuration *ConfigStruct, storage *DBStorage) (int, error) {
+func performDataExportToFiles(configuration *ConfigStruct,
+	storage *DBStorage, exportMetadata bool) (int, error) {
 	tableNames, err := storage.ReadListOfTables()
 	if err != nil {
 		log.Err(err).Msg(operationFailedMessage)
@@ -190,18 +194,20 @@ func performDataExportToFiles(configuration *ConfigStruct, storage *DBStorage) (
 	// log into terminal
 	printTables(tableNames)
 
-	// export list of all tables into CSV file
-	err = storeTableNamesIntoFile(listOfTables, tableNames)
-	if err != nil {
-		log.Err(err).Msg("Store table list to file failed")
-		return ExitStatusStorageError, err
-	}
+	if exportMetadata {
+		// export list of all tables into CSV file
+		err = storeTableNamesIntoFile(listOfTables, tableNames)
+		if err != nil {
+			log.Err(err).Msg("Store table list to file failed")
+			return ExitStatusStorageError, err
+		}
 
-	// export tables metadata into CSV file
-	err = storage.StoreTableMetadataIntoFile(metadataTable, tableNames)
-	if err != nil {
-		log.Err(err).Msg("Store tables metadata to file failed")
-		return ExitStatusStorageError, err
+		// export tables metadata into CSV file
+		err = storage.StoreTableMetadataIntoFile(metadataTable, tableNames)
+		if err != nil {
+			log.Err(err).Msg("Store tables metadata to file failed")
+			return ExitStatusStorageError, err
+		}
 	}
 
 	// read content of all tables and perform export
@@ -286,6 +292,7 @@ func main() {
 	flag.BoolVar(&cliFlags.ShowConfiguration, "show-configuration", false, "show configuration")
 	flag.BoolVar(&cliFlags.PrintSummaryTable, "summary", false, "print summary table after export")
 	flag.StringVar(&cliFlags.Output, "output", "S3", "output to: file, S3")
+	flag.BoolVar(&cliFlags.ExportMetadata, "metadata", false, "export metadata")
 	flag.BoolVar(&cliFlags.CheckS3Connection, "check-s3-connection", false, "check S3 connection and exit")
 
 	// parse all command line flags

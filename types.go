@@ -1,5 +1,5 @@
 /*
-Copyright © 2021 Red Hat, Inc.
+Copyright © 2021, 2022 Red Hat, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -30,6 +30,7 @@ type CliFlags struct {
 	PrintSummaryTable bool
 	Output            string
 	CheckS3Connection bool
+	ExportMetadata    bool
 }
 
 // M represents a map with string keys and any value

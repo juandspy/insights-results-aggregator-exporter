@@ -51,6 +51,8 @@ Usage of ./irae:
         show authors
   -output string
         output to: CSV, S3
+  -metadata
+        export metadata
   -show-configuration
         show configuration
   -summary
