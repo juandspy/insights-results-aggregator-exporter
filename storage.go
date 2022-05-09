@@ -303,8 +303,8 @@ func select1FromTable(tableName TableName) string {
 	return fmt.Sprintf("SELECT * FROM %s LIMIT 1", string(tableName))
 }
 
-// selectAllFromTable is helper function to construct query to database - read
-// number of records in table.
+// selectCountFromTable is helper function to construct query to database -
+// read number of records in table.
 func selectCountFromTable(tableName TableName) string {
 	// it is not possible to use parameter for table name or a key
 	// disable "G201 (CWE-89): SQL string formatting (Confidence: HIGH, Severity: MEDIUM)"
