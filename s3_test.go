@@ -171,3 +171,86 @@ func TestS3BucketExists(t *testing.T) {
 	}
 
 }
+
+// Test case specification structure for function main.storeTableNames
+type storeTableTestSpecification struct {
+	description   string
+	minioClient   *minio.Client
+	bucketName    string
+	objectName    string
+	tableNames    []main.TableName
+	shouldFail    bool
+	expectedError string
+}
+
+// TestStoreTableNamesNoClient checks the function storeTableNames
+func TestStoreTable(t *testing.T) {
+	ctx := context.Background()
+
+	// all test cases
+	testCases := []storeTableTestSpecification{
+		storeTableTestSpecification{
+			description:   "NoMinioClient",
+			minioClient:   nil,
+			bucketName:    "",
+			objectName:    "",
+			tableNames:    []main.TableName{},
+			shouldFail:    true,
+			expectedError: "Minio Client is nil",
+		},
+		storeTableTestSpecification{
+			description:   "EmptyBucketName",
+			minioClient:   mustConstructMinioClient(t),
+			bucketName:    "",
+			objectName:    "",
+			tableNames:    []main.TableName{},
+			shouldFail:    true,
+			expectedError: "Bucket name is not set",
+		},
+		storeTableTestSpecification{
+			description:   "EmptyObjectName",
+			minioClient:   mustConstructMinioClient(t),
+			bucketName:    "bucket",
+			objectName:    "",
+			tableNames:    []main.TableName{},
+			shouldFail:    true,
+			expectedError: "Object name is not set",
+		},
+		storeTableTestSpecification{
+			description:   "NotAccessibleClient",
+			minioClient:   mustConstructMinioClient(t),
+			bucketName:    "bucket",
+			objectName:    "object",
+			tableNames:    []main.TableName{},
+			shouldFail:    true,
+			expectedError: "Get http://localhost:1234/bucket/?location=: dial tcp [::1]:1234: connect: connection refused",
+		},
+		storeTableTestSpecification{
+			description:   "NotAccessibleClient",
+			minioClient:   mustConstructMinioClient(t),
+			bucketName:    "bucket",
+			objectName:    "object",
+			tableNames:    []main.TableName{main.TableName("first"), main.TableName("second")},
+			shouldFail:    true,
+			expectedError: "Get http://localhost:1234/bucket/?location=: dial tcp [::1]:1234: connect: connection refused",
+		}}
+
+	// run all specified test cases
+	for _, testCase := range testCases {
+		t.Run(testCase.description, func(t *testing.T) {
+			err := main.StoreTableNames(ctx, testCase.minioClient,
+				testCase.bucketName, testCase.objectName,
+				testCase.tableNames)
+
+			// check for error
+			if testCase.shouldFail {
+				assert.Error(t, err)
+				assert.Contains(t, err.Error(), testCase.expectedError)
+			} else {
+				assert.NoError(t, err)
+			}
+		})
+
+	}
+
+}
