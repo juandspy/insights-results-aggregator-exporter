@@ -115,3 +115,59 @@ func TestNewS3Connection(t *testing.T) {
 
 	}
 }
+
+// Test case specification structure for function main.s3BucketExists
+type s3BucketExistsTestSpecification struct {
+	description   string
+	minioClient   *minio.Client
+	bucketName    string
+	shouldFail    bool
+	expectedError string
+}
+
+// TestS3BucketExists checks the function s3BucketExists
+func TestS3BucketExists(t *testing.T) {
+	ctx := context.Background()
+
+	// all test cases
+	testCases := []s3BucketExistsTestSpecification{
+		s3BucketExistsTestSpecification{
+			description:   "NoMinioClient",
+			minioClient:   nil,
+			bucketName:    "",
+			shouldFail:    true,
+			expectedError: "Minio Client is nil",
+		},
+		s3BucketExistsTestSpecification{
+			description:   "EmptyBucketName",
+			minioClient:   mustConstructMinioClient(t),
+			bucketName:    "",
+			shouldFail:    true,
+			expectedError: "Bucket name is not set",
+		},
+		s3BucketExistsTestSpecification{
+			description:   "NotAccessibleClient",
+			minioClient:   mustConstructMinioClient(t),
+			bucketName:    "bucket",
+			shouldFail:    true,
+			expectedError: "Get http://localhost:1234/bucket/?location=: dial tcp [::1]:1234: connect: connection refused",
+		}}
+
+	// run all specified test cases
+	for _, testCase := range testCases {
+		t.Run(testCase.description, func(t *testing.T) {
+			_, err := main.S3BucketExists(ctx,
+				testCase.minioClient, testCase.bucketName)
+
+			// check for error
+			if testCase.shouldFail {
+				assert.Error(t, err)
+				assert.Contains(t, err.Error(), testCase.expectedError)
+			} else {
+				assert.NoError(t, err)
+			}
+		})
+
+	}
+
+}
