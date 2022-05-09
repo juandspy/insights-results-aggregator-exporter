@@ -150,7 +150,7 @@ func TestS3BucketExists(t *testing.T) {
 			minioClient:   mustConstructMinioClient(t),
 			bucketName:    "bucket",
 			shouldFail:    true,
-			expectedError: "Get http://localhost:1234/bucket/?location=: dial tcp [::1]:1234: connect: connection refused",
+			expectedError: "connect: connection refused",
 		}}
 
 	// run all specified test cases
@@ -223,7 +223,7 @@ func TestStoreTable(t *testing.T) {
 			objectName:    "object",
 			tableNames:    []main.TableName{},
 			shouldFail:    true,
-			expectedError: "Get http://localhost:1234/bucket/?location=: dial tcp [::1]:1234: connect: connection refused",
+			expectedError: "connect: connection refused",
 		},
 		storeTableTestSpecification{
 			description:   "NotAccessibleClient",
@@ -232,7 +232,7 @@ func TestStoreTable(t *testing.T) {
 			objectName:    "object",
 			tableNames:    []main.TableName{main.TableName("first"), main.TableName("second")},
 			shouldFail:    true,
-			expectedError: "Get http://localhost:1234/bucket/?location=: dial tcp [::1]:1234: connect: connection refused",
+			expectedError: "connect: connection refused",
 		}}
 
 	// run all specified test cases
