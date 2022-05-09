@@ -39,14 +39,16 @@ const (
 	objectNameIsNotSet           = "Object name is not set"
 	wrongObjectName              = "Wrong object name"
 	bucketNameIsNotSet           = "Bucket name is not set"
+	configurationIsNil           = "Configuration is nil"
+	configurationError           = "Configuration error"
 )
 
 // NewS3Connection function initializes connection to S3/Minio storage.
 func NewS3Connection(configuration *ConfigStruct) (*minio.Client, context.Context, error) {
 	// check if configuration structure has been provided
 	if configuration == nil {
-		err := errors.New("Configuration is nil")
-		log.Error().Err(err).Msg("Configuration error")
+		err := errors.New(configurationIsNil)
+		log.Error().Err(err).Msg(configurationError)
 		return nil, nil, err
 	}
 
