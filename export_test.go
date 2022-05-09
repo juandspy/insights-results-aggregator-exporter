@@ -23,9 +23,6 @@ package main
 
 // Export for testing
 //
-// Documentation in literate-programming-style is available at:
-// https://redhatinsights.github.io/ccx-notification-writer/packages/export_test.html
-//
 // This source file contains name aliases of all package-private functions
 // that need to be called from unit tests. Aliases should start with uppercase
 // letter because unit tests belong to different package.
@@ -34,8 +31,12 @@ package main
 // https://medium.com/@robiplus/golang-trick-export-for-test-aa16cbd7b8cd
 // to see why this trick is needed.
 var (
-	// functions from the ccx_notification_writer.go source file
+	// exported functions from the exporter.go source file
 	ShowVersion       = showVersion
 	ShowAuthors       = showAuthors
 	ShowConfiguration = showConfiguration
+
+	// exported functions from the s3.go source file
+	S3BucketExists  = s3BucketExists
+	StoreTableNames = storeTableNames
 )
