@@ -18,7 +18,6 @@ package main_test
 
 import (
 	"errors"
-	"io/ioutil"
 	"testing"
 
 	"database/sql"
