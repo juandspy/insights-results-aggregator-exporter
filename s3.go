@@ -20,6 +20,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/csv"
+	"errors"
 	"fmt"
 	"io"
 
@@ -29,8 +30,27 @@ import (
 	"github.com/minio/minio-go/v7/pkg/credentials"
 )
 
+// error messages
+const (
+	unableToInitializeConnection = "Unable to initialize connection to S3"
+	minioClientIsNil             = "Minio Client is nil"
+	wrongMinioClientReference    = "Wrong Minio client reference"
+	wrongBucketName              = "Wrong bucket name"
+	objectNameIsNotSet           = "Object name is not set"
+	wrongObjectName              = "Wrong object name"
+	bucketNameIsNotSet           = "Bucket name is not set"
+)
+
 // NewS3Connection function initializes connection to S3/Minio storage.
 func NewS3Connection(configuration *ConfigStruct) (*minio.Client, context.Context, error) {
+	// check if configuration structure has been provided
+	if configuration == nil {
+		err := errors.New("Configuration is nil")
+		log.Error().Err(err).Msg("Configuration error")
+		return nil, nil, err
+	}
+
+	// retrieve S3/Minio configuration
 	s3Configuration := GetS3Configuration(configuration)
 
 	endpoint := fmt.Sprintf("%s:%d",
@@ -40,15 +60,17 @@ func NewS3Connection(configuration *ConfigStruct) (*minio.Client, context.Contex
 
 	ctx := context.Background()
 
-	// Initialize minio client object
+	// initialize Minio client object
 	minioClient, err := minio.New(endpoint, &minio.Options{
 		Creds: credentials.NewStaticV4(
 			s3Configuration.AccessKeyID,
 			s3Configuration.SecretAccessKey, ""),
 		Secure: s3Configuration.UseSSL,
 	})
+
+	// check if client has been constructed properly
 	if err != nil {
-		log.Error().Err(err).Msg("Unable to initialize connection to S3")
+		log.Error().Err(err).Msg(unableToInitializeConnection)
 		return nil, nil, err
 	}
 
@@ -56,19 +78,63 @@ func NewS3Connection(configuration *ConfigStruct) (*minio.Client, context.Contex
 	return minioClient, ctx, nil
 }
 
-// s3BucketExists checks if bucket with given name exists and can be retrieved
-func s3BucketExists(ctx context.Context, minioClient *minio.Client, bucketName string) (bool, error) {
+// s3BucketExists function checks if bucket with given name exists and can be
+// accessed by current client
+func s3BucketExists(ctx context.Context, minioClient *minio.Client,
+	bucketName string) (bool, error) {
+
+	// check if Minio client has been passed to this function
+	if minioClient == nil {
+		err := errors.New(minioClientIsNil)
+		log.Error().Err(err).Msg(wrongMinioClientReference)
+		return false, err
+	}
+
+	// check if proper bucket name has been passed to this function
+	if bucketName == "" {
+		err := errors.New(bucketNameIsNotSet)
+		log.Error().Err(err).Msg(wrongBucketName)
+		return false, err
+	}
+
+	// check bucket existence
 	found, err := minioClient.BucketExists(ctx, bucketName)
 	if err != nil {
 		log.Error().Err(err).Str("bucket", bucketName).Msg("Bucket can not be found")
 		return false, err
 	}
 
+	// everything seems to be ok
 	return found, nil
 }
 
+// storeTableNames function stores all table names passed via tableNames
+// parameter into given bucket under selected object name
 func storeTableNames(ctx context.Context, minioClient *minio.Client,
 	bucketName string, objectName string, tableNames []TableName) error {
+
+	// check if Minio client has been passed to this function
+	if minioClient == nil {
+		err := errors.New(minioClientIsNil)
+		log.Error().Err(err).Msg(wrongMinioClientReference)
+		return err
+	}
+
+	// check if proper bucket name has been passed to this function
+	if bucketName == "" {
+		err := errors.New(bucketNameIsNotSet)
+		log.Error().Err(err).Msg(wrongBucketName)
+		return err
+	}
+
+	// check if proper object name has been passed to this function
+	if objectName == "" {
+		err := errors.New(objectNameIsNotSet)
+		log.Error().Err(err).Msg(wrongObjectName)
+		return err
+	}
+
+	// conversion to CSV
 	buffer := new(bytes.Buffer)
 
 	writer := csv.NewWriter(buffer)
@@ -90,10 +156,13 @@ func storeTableNames(ctx context.Context, minioClient *minio.Client,
 
 	reader := io.Reader(buffer)
 
+	// store CSV data into S3/Minio
 	options := minio.PutObjectOptions{ContentType: "text/csv"}
 	_, err = minioClient.PutObject(ctx, bucketName, objectName, reader, -1, options)
 	if err != nil {
 		return err
 	}
+
+	// everything seems to be ok
 	return nil
 }
