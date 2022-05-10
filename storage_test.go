@@ -219,6 +219,50 @@ func TestReadRecordCountOnError(t *testing.T) {
 }
 
 // check the function ReadDisabledRules
+func TestReadDisabledRules(t *testing.T) {
+	// prepare new mocked connection to database
+	connection, mock := mustCreateMockConnection(t)
+
+	// prepare mocked result for SQL query
+	rows := sqlmock.NewRows([]string{"rule", "count"})
+	rows.AddRow("rule1", 1)
+	rows.AddRow("rule2", 2)
+	rows.AddRow("rule3", 3)
+
+	// expected query performed by tested function
+	mock.ExpectQuery(readDisabledRulesQuery).WillReturnRows(rows)
+	mock.ExpectClose()
+
+	// prepare connection to mocked database
+	storage := main.NewFromConnection(connection, 1)
+
+	// call the tested method
+	results, err := storage.ReadDisabledRules()
+	if err != nil {
+		t.Errorf("error was not expected %s", err)
+	}
+
+	if len(results) != 3 {
+		t.Errorf("wrong number records returned: %d", len(results))
+	}
+
+	// check the list of returned records
+	assert.Equal(t, "rule1", results[0].Rule)
+	assert.Equal(t, "rule2", results[1].Rule)
+	assert.Equal(t, "rule3", results[2].Rule)
+
+	assert.Equal(t, 1, results[0].Count)
+	assert.Equal(t, 2, results[1].Count)
+	assert.Equal(t, 3, results[2].Count)
+
+	// connection to mocked DB needs to be closed properly
+	checkConnectionClose(t, connection)
+
+	// check if all expectations were met
+	checkAllExpectations(t, mock)
+}
+
+// check the function ReadDisabledRules
 func TestReadDisabledRulesOnError(t *testing.T) {
 	// error to be thrown
 	mockedError := errors.New("mocked error")

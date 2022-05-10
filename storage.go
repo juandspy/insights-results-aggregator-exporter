@@ -654,7 +654,7 @@ func writeColumnNames(writer *csv.Writer, colNames []string) error {
 	return nil
 }
 
-// ReadDisabledRules method reads rules disabled by more that one user
+// ReadDisabledRules method reads rules disabled by more than one user
 func (storage DBStorage) ReadDisabledRules() ([]DisabledRuleInfo, error) {
 	// slice to make list of disabled rule
 	var disabledRulesInfo = make([]DisabledRuleInfo, 0)

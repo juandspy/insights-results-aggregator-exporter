@@ -67,7 +67,7 @@ Usage of ./irae:
   -check-s3-connection
         check S3 connection and exit
   -disabled-by-more-users
-         export rules disabled by more users
+         export rules disabled by more than one user
   -metadata
         export metadata
   -output string
