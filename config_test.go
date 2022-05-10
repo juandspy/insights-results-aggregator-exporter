@@ -31,6 +31,8 @@ func init() {
 	zerolog.SetGlobalLevel(zerolog.WarnLevel)
 }
 
+// mustLoadConfiguration function loads configuration file or the actual test
+// will fail
 func mustLoadConfiguration(envVar string) {
 	_, err := main.LoadConfiguration(envVar, "tests/config1")
 	if err != nil {
@@ -38,6 +40,8 @@ func mustLoadConfiguration(envVar string) {
 	}
 }
 
+// mustSetEnv function set specified environemnt variable or the actual test
+// will fail
 func mustSetEnv(t *testing.T, key, val string) {
 	err := os.Setenv(key, val)
 	assert.NoError(t, err)
@@ -46,13 +50,15 @@ func mustSetEnv(t *testing.T, key, val string) {
 	}
 }
 
-// TestLoadDefaultConfiguration loads a configuration file for testing
+// TestLoadDefaultConfiguration test loads a configuration file for testing
+// with check that load was correct
 func TestLoadDefaultConfiguration(t *testing.T) {
 	os.Clearenv()
 	mustLoadConfiguration("nonExistingEnvVar")
 }
 
-// TestLoadConfigurationFromEnvVariable tests loading the config. file for testing from an environment variable
+// TestLoadConfigurationFromEnvVariable tests loading the config. file for
+// testing from an environment variable
 func TestLoadConfigurationFromEnvVariable(t *testing.T) {
 	os.Clearenv()
 
@@ -60,7 +66,8 @@ func TestLoadConfigurationFromEnvVariable(t *testing.T) {
 	mustLoadConfiguration("INSIGHTS_RESULTS_AGGREGATOR_EXPORTER_CONFIG_FILE")
 }
 
-// TestLoadConfigurationNonEnvVarUnknownConfigFile tests loading an unexisting config file when no environment variable is provided
+// TestLoadConfigurationNonEnvVarUnknownConfigFile tests loading an unexisting
+// config file when no environment variable is provided
 func TestLoadConfigurationNonEnvVarUnknownConfigFile(t *testing.T) {
 	_, err := main.LoadConfiguration("", "foobar")
 	assert.Nil(t, err)
