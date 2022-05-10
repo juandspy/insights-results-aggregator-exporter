@@ -166,9 +166,9 @@ func TestDoSelectedOperationShowConfiguration(t *testing.T) {
 	// check the captured text
 	checkCapture(t, err)
 
-	assert.Contains(t, output, expectedConfigurationMesage1)
-	assert.Contains(t, output, expectedConfigurationMesage2)
-	assert.Contains(t, output, expectedConfigurationMesage3)
+	assert.Contains(t, output, expectedConfigurationMessage1)
+	assert.Contains(t, output, expectedConfigurationMessage2)
+	assert.Contains(t, output, expectedConfigurationMessage3)
 }
 
 // TestPrintTables checks the function printTables
