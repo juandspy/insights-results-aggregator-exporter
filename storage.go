@@ -67,6 +67,14 @@ const (
             WHERE schemaname != 'information_schema'
               AND schemaname != 'pg_catalog';
    `
+
+	selectDisabledRules = `
+           SELECT rule_id, count(rule_id) AS rule_count
+	     FROM rule_disable
+	    GROUP BY rule_id
+	   HAVING count(rule_id)>1
+	    ORDER BY rule_count DESC;
+   `
 )
 
 // Storage represents an interface to almost any database or storage system
@@ -644,4 +652,38 @@ func writeColumnNames(writer *csv.Writer, colNames []string) error {
 		return err
 	}
 	return nil
+}
+
+// ReadDisabledRules method reads rules disabled by more that one user
+func (storage DBStorage) ReadDisabledRules() ([]DisabledRuleInfo, error) {
+	// slice to make list of disabled rule
+	var disabledRulesInfo = make([]DisabledRuleInfo, 0)
+
+	rows, err := storage.connection.Query(selectDisabledRules)
+	if err != nil {
+		return disabledRulesInfo, err
+	}
+
+	defer func() {
+		err := rows.Close()
+		if err != nil {
+			log.Error().Err(err).Msg(unableToCloseDBRowsHandle)
+		}
+	}()
+
+	// read all records
+	for rows.Next() {
+		var disabledRuleInfo DisabledRuleInfo
+
+		err := rows.Scan(&disabledRuleInfo.Rule, &disabledRuleInfo.Count)
+		if err != nil {
+			if closeErr := rows.Close(); closeErr != nil {
+				log.Error().Err(closeErr).Msg(unableToCloseDBRowsHandle)
+			}
+			return disabledRulesInfo, err
+		}
+		disabledRulesInfo = append(disabledRulesInfo, disabledRuleInfo)
+	}
+
+	return disabledRulesInfo, nil
 }
