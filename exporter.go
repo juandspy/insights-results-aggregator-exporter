@@ -50,15 +50,22 @@ const (
 	// ExitStatusConfigurationError is returned in case user provide wrong
 	// configuration on command line or in configuration file
 	ExitStatusConfigurationError
+
+	// ExitStatusIOError is returned in case of any I/O error (export data
+	// into file failed etc.)
+	ExitStatusIOError
 )
 
 const (
 	configFileEnvVariableName = "INSIGHTS_RESULTS_AGGREGATOR_EXPORTER_CONFIG_FILE"
 	defaultConfigFileName     = "config"
+)
 
-	// output files or objects containing metadata
+// output files or objects containing metadata
+const (
 	listOfTables  = "_tables.csv"
 	metadataTable = "_metadata.csv"
+	disabledRules = "_disabled_rules.csv"
 )
 
 // showVersion function displays version information.
@@ -113,9 +120,9 @@ func performDataExport(configuration *ConfigStruct, cliFlags CliFlags) (int, err
 
 	switch cliFlags.Output {
 	case "S3":
-		return performDataExportToS3(configuration, storage, cliFlags.ExportMetadata)
+		return performDataExportToS3(configuration, storage, cliFlags.ExportMetadata, cliFlags.ExportDisabledRules)
 	case "file":
-		return performDataExportToFiles(configuration, storage, cliFlags.ExportMetadata)
+		return performDataExportToFiles(configuration, storage, cliFlags.ExportMetadata, cliFlags.ExportDisabledRules)
 	default:
 		return ExitStatusConfigurationError, fmt.Errorf("Unknown output type: %s", cliFlags.Output)
 	}
@@ -124,7 +131,8 @@ func performDataExport(configuration *ConfigStruct, cliFlags CliFlags) (int, err
 // performDataExportToS3 exports all tables and metadata info configured S3
 // bucket
 func performDataExportToS3(configuration *ConfigStruct,
-	storage *DBStorage, exportMetadata bool) (int, error) {
+	storage *DBStorage, exportMetadata bool,
+	ExportDisabledRules bool) (int, error) {
 	minioClient, context, err := NewS3Connection(configuration)
 	if err != nil {
 		return ExitStatusS3Error, err
@@ -160,6 +168,23 @@ func performDataExportToS3(configuration *ConfigStruct,
 		}
 	}
 
+	if ExportDisabledRules {
+		// export rules disabled by more users into CSV file
+		disabledRulesInfo, err := storage.ReadDisabledRules()
+		if err != nil {
+			log.Err(err).Msg("Read disabled rules info failed")
+			return ExitStatusStorageError, err
+		}
+
+		// export list of disabled rules
+		err = storeDisabledRulesIntoS3(context, minioClient, bucket,
+			disabledRules, disabledRulesInfo)
+		if err != nil {
+			log.Err(err).Msg("Store disabled rules into file failed")
+			return ExitStatusIOError, err
+		}
+	}
+
 	// read content of all tables and perform export
 	for _, tableName := range tableNames {
 		err = storage.StoreTable(context, minioClient, bucket, tableName)
@@ -182,7 +207,8 @@ func performDataExportToS3(configuration *ConfigStruct,
 
 // performDataExportToFiles exports all tables and metadata info files
 func performDataExportToFiles(configuration *ConfigStruct,
-	storage *DBStorage, exportMetadata bool) (int, error) {
+	storage *DBStorage, exportMetadata bool,
+	exportDisabledRules bool) (int, error) {
 	tableNames, err := storage.ReadListOfTables()
 	if err != nil {
 		log.Err(err).Msg(operationFailedMessage)
@@ -207,6 +233,22 @@ func performDataExportToFiles(configuration *ConfigStruct,
 		if err != nil {
 			log.Err(err).Msg("Store tables metadata to file failed")
 			return ExitStatusStorageError, err
+		}
+	}
+
+	if exportDisabledRules {
+		// export rules disabled by more users into CSV file
+		disabledRulesInfo, err := storage.ReadDisabledRules()
+		if err != nil {
+			log.Err(err).Msg("Read disabled rules info failed")
+			return ExitStatusStorageError, err
+		}
+
+		// export list of disabled rules
+		err = storeDisabledRulesIntoFile(disabledRules, disabledRulesInfo)
+		if err != nil {
+			log.Err(err).Msg("Store disabled rules into file failed")
+			return ExitStatusIOError, err
 		}
 	}
 
@@ -293,6 +335,7 @@ func main() {
 	flag.BoolVar(&cliFlags.PrintSummaryTable, "summary", false, "print summary table after export")
 	flag.StringVar(&cliFlags.Output, "output", "S3", "output to: file, S3")
 	flag.BoolVar(&cliFlags.ExportMetadata, "metadata", false, "export metadata")
+	flag.BoolVar(&cliFlags.ExportDisabledRules, "disabled-by-more-users", false, "export rules disabled by more users")
 	flag.BoolVar(&cliFlags.CheckS3Connection, "check-s3-connection", false, "check S3 connection and exit")
 
 	// parse all command line flags
