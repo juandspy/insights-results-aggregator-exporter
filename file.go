@@ -23,6 +23,12 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+// Messages
+const (
+	writeTableNameToCSV        = "Write table name to CSV"
+	writeDisabledRuleInfoToCSV = "Write disabled rule info to CSV"
+)
+
 // storeTableNamesIntoFile function stores names of all tables into the
 // specified file
 func storeTableNamesIntoFile(fileName string, tableNames []TableName) error {
@@ -48,7 +54,7 @@ func storeTableNamesIntoFile(fileName string, tableNames []TableName) error {
 	for _, tableName := range tableNames {
 		err := writer.Write([]string{string(tableName)})
 		if err != nil {
-			log.Error().Err(err).Msg("Write table name to CSV")
+			log.Error().Err(err).Msg(writeTableNameToCSV)
 		}
 	}
 
@@ -83,7 +89,7 @@ func storeDisabledRulesIntoFile(fileName string, disabledRulesInfo []DisabledRul
 	// conversion to CSV
 	err = DisabledRulesToCSV(fout, disabledRulesInfo)
 	if err != nil {
-		log.Error().Err(err).Msg("Write table name to CSV")
+		log.Error().Err(err).Msg(writeDisabledRuleInfoToCSV)
 		return err
 	}
 

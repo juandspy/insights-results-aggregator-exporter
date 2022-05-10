@@ -68,6 +68,12 @@ const (
 	disabledRules = "_disabled_rules.csv"
 )
 
+// messages
+const (
+	readDisabledRulesInfoFailed      = "Read disabled rules info failed"
+	storeDisabledRulesIntoFileFailed = "Store disabled rules into file failed"
+)
+
 // showVersion function displays version information.
 func showVersion() {
 	fmt.Println(versionMessage)
@@ -172,7 +178,7 @@ func performDataExportToS3(configuration *ConfigStruct,
 		// export rules disabled by more users into CSV file
 		disabledRulesInfo, err := storage.ReadDisabledRules()
 		if err != nil {
-			log.Err(err).Msg("Read disabled rules info failed")
+			log.Err(err).Msg(readDisabledRulesInfoFailed)
 			return ExitStatusStorageError, err
 		}
 
@@ -180,7 +186,7 @@ func performDataExportToS3(configuration *ConfigStruct,
 		err = storeDisabledRulesIntoS3(context, minioClient, bucket,
 			disabledRules, disabledRulesInfo)
 		if err != nil {
-			log.Err(err).Msg("Store disabled rules into file failed")
+			log.Err(err).Msg(storeDisabledRulesIntoFileFailed)
 			return ExitStatusIOError, err
 		}
 	}
@@ -240,14 +246,14 @@ func performDataExportToFiles(configuration *ConfigStruct,
 		// export rules disabled by more users into CSV file
 		disabledRulesInfo, err := storage.ReadDisabledRules()
 		if err != nil {
-			log.Err(err).Msg("Read disabled rules info failed")
+			log.Err(err).Msg(readDisabledRulesInfoFailed)
 			return ExitStatusStorageError, err
 		}
 
 		// export list of disabled rules
 		err = storeDisabledRulesIntoFile(disabledRules, disabledRulesInfo)
 		if err != nil {
-			log.Err(err).Msg("Store disabled rules into file failed")
+			log.Err(err).Msg(storeDisabledRulesIntoFileFailed)
 			return ExitStatusIOError, err
 		}
 	}

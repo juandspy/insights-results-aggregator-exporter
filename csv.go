@@ -22,6 +22,8 @@ import (
 	"strconv"
 )
 
+// DisabledRulesToCSV function exports list of disabled rules + number of users
+// who disabled rules to CSV file.
 func DisabledRulesToCSV(buffer io.Writer, disabledRulesInfo []DisabledRuleInfo) error {
 	writer := csv.NewWriter(buffer)
 
