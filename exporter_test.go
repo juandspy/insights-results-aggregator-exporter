@@ -31,6 +31,15 @@ import (
 	main "github.com/RedHatInsights/insights-results-aggregator-exporter"
 )
 
+const (
+	expectedVersionMessage       = "Insights Results Aggregator Cleaner version 1.0"
+	expectedAuthorsMessage       = "Pavel Tisnovsky"
+	expectedCopyrightMessage     = "Red Hat Inc."
+	expectedConfigurationMesage1 = "Driver"
+	expectedConfigurationMesage2 = "Username"
+	expectedConfigurationMesage3 = "Host"
+)
+
 func init() {
 	zerolog.SetGlobalLevel(zerolog.InfoLevel)
 }
@@ -45,7 +54,7 @@ func TestShowVersion(t *testing.T) {
 	// check the captured text
 	checkCapture(t, err)
 
-	assert.Contains(t, output, "Insights Results Aggregator Cleaner version 1.0")
+	assert.Contains(t, output, expectedVersionMessage)
 }
 
 // TestShowAuthors checks the function showAuthors
@@ -58,8 +67,8 @@ func TestShowAuthors(t *testing.T) {
 	// check the captured text
 	checkCapture(t, err)
 
-	assert.Contains(t, output, "Pavel Tisnovsky")
-	assert.Contains(t, output, "Red Hat Inc.")
+	assert.Contains(t, output, expectedAuthorsMessage)
+	assert.Contains(t, output, expectedCopyrightMessage)
 }
 
 // TestShowConfiguration checks the function ShowConfiguration
@@ -75,9 +84,9 @@ func TestShowConfiguration(t *testing.T) {
 	// check the captured text
 	checkCapture(t, err)
 
-	assert.Contains(t, output, "Driver")
-	assert.Contains(t, output, "Username")
-	assert.Contains(t, output, "Host")
+	assert.Contains(t, output, expectedConfigurationMesage1)
+	assert.Contains(t, output, expectedConfigurationMesage2)
+	assert.Contains(t, output, expectedConfigurationMesage3)
 }
 
 func checkCapture(t *testing.T, err error) {
