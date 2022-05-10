@@ -32,9 +32,12 @@ package main
 // to see why this trick is needed.
 var (
 	// exported functions from the exporter.go source file
-	ShowVersion       = showVersion
-	ShowAuthors       = showAuthors
-	ShowConfiguration = showConfiguration
+	ShowVersion         = showVersion
+	ShowAuthors         = showAuthors
+	ShowConfiguration   = showConfiguration
+	DoSelectedOperation = doSelectedOperation
+	PrintTables         = printTables
+	ParseFlags          = parseFlags
 
 	// exported functions from the s3.go source file
 	S3BucketExists  = s3BucketExists
