@@ -22,15 +22,22 @@ type DBDriver int
 // TableName type represents table name
 type TableName string
 
+// DisabledRuleInfo contains information about rules disabled by user
+type DisabledRuleInfo struct {
+	Rule  string
+	Count int
+}
+
 // CliFlags represents structure holding all command line arguments and flags.
 type CliFlags struct {
-	ShowVersion       bool
-	ShowAuthors       bool
-	ShowConfiguration bool
-	PrintSummaryTable bool
-	Output            string
-	CheckS3Connection bool
-	ExportMetadata    bool
+	ShowVersion         bool
+	ShowAuthors         bool
+	ShowConfiguration   bool
+	PrintSummaryTable   bool
+	Output              string
+	CheckS3Connection   bool
+	ExportMetadata      bool
+	ExportDisabledRules bool
 }
 
 // M represents a map with string keys and any value
