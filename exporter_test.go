@@ -94,3 +94,106 @@ func checkCapture(t *testing.T, err error) {
 		t.Fatal("Unable to capture standard output", err)
 	}
 }
+
+// TestDoSelectedOperationShowVersion checks the function showVersion called
+// via doSelectedOperation function
+func TestDoSelectedOperationShowVersion(t *testing.T) {
+	// stub for structures needed to call the tested function
+	configuration := main.ConfigStruct{}
+	cliFlags := main.CliFlags{
+		ShowVersion:       true,
+		ShowAuthors:       false,
+		ShowConfiguration: false,
+	}
+
+	// try to call the tested function and capture its output
+	output, err := capture.StandardOutput(func() {
+		code, err := main.DoSelectedOperation(&configuration, cliFlags)
+		assert.Equal(t, code, main.ExitStatusOK)
+		assert.Nil(t, err)
+	})
+
+	// check the captured text
+	checkCapture(t, err)
+
+	assert.Contains(t, output, expectedVersionMessage)
+}
+
+// TestDoSelectedOperationShowAuthors checks the function showAuthors called
+// via doSelectedOperation function
+func TestDoSelectedOperationShowAuthors(t *testing.T) {
+	// stub for structures needed to call the tested function
+	configuration := main.ConfigStruct{}
+	cliFlags := main.CliFlags{
+		ShowVersion:       false,
+		ShowAuthors:       true,
+		ShowConfiguration: false,
+	}
+
+	// try to call the tested function and capture its output
+	output, err := capture.StandardOutput(func() {
+		code, err := main.DoSelectedOperation(&configuration, cliFlags)
+		assert.Equal(t, code, main.ExitStatusOK)
+		assert.Nil(t, err)
+	})
+
+	// check the captured text
+	checkCapture(t, err)
+
+	assert.Contains(t, output, expectedAuthorsMessage)
+	assert.Contains(t, output, expectedCopyrightMessage)
+}
+
+// TestDoSelectedOperationShowConfiguration checks the function
+// showConfiguration called via doSelectedOperation function
+func TestDoSelectedOperationShowConfiguration(t *testing.T) {
+	// stub for structures needed to call the tested function
+	configuration := main.ConfigStruct{}
+	cliFlags := main.CliFlags{
+		ShowVersion:       false,
+		ShowAuthors:       false,
+		ShowConfiguration: true,
+	}
+
+	// try to call the tested function and capture its output
+	output, err := capture.ErrorOutput(func() {
+		log.Logger = log.Output(zerolog.New(os.Stderr))
+		code, err := main.DoSelectedOperation(&configuration, cliFlags)
+		assert.Equal(t, code, main.ExitStatusOK)
+		assert.Nil(t, err)
+	})
+
+	// check the captured text
+	checkCapture(t, err)
+
+	assert.Contains(t, output, expectedConfigurationMesage1)
+	assert.Contains(t, output, expectedConfigurationMesage2)
+	assert.Contains(t, output, expectedConfigurationMesage3)
+}
+
+// TestPrintTables checks the function printTables
+func TestPrintTables(t *testing.T) {
+	tables := []main.TableName{
+		main.TableName("first"),
+		main.TableName("second"),
+		main.TableName("third"),
+	}
+
+	output, err := capture.ErrorOutput(func() {
+		log.Logger = log.Output(zerolog.New(os.Stderr))
+		main.PrintTables(tables)
+	})
+
+	// check the captured text
+	checkCapture(t, err)
+
+	assert.Contains(t, output, "\\\"table\\\":\\\"first\\\"")
+	assert.Contains(t, output, "\\\"table\\\":\\\"second\\\"")
+	assert.Contains(t, output, "\\\"table\\\":\\\"third\\\"")
+}
+
+// TestParseFlags is dummy test for parseFlags function
+func TestParseFlags(t *testing.T) {
+	flags := main.ParseFlags()
+	assert.NotNil(t, flags)
+}
