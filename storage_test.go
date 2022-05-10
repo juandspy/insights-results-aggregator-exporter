@@ -18,6 +18,7 @@ package main_test
 
 import (
 	"errors"
+	"io/ioutil"
 	"testing"
 
 	"database/sql"
@@ -123,6 +124,14 @@ func checkAllExpectations(t *testing.T, mock sqlmock.Sqlmock) {
 const (
 	readRecordCountQuery   = "SELECT count\\(\\*\\) FROM TESTED_TABLE"
 	readDisabledRulesQuery = "SELECT rule_id, count\\(rule_id\\) AS rule_count FROM rule_disable GROUP BY rule_id HAVING count\\(rule_id\\)\\>1 ORDER BY rule_count DESC;"
+	readListOfTablesQuery  = `
+           SELECT tablename
+             FROM pg_catalog.pg_tables
+            WHERE schemaname != 'information_schema'
+              AND schemaname != 'pg_catalog';
+`
+	readTableQuery       = "SELECT \\* FROM table_name"
+	readColumnTypesQuery = "SELECT \\* FROM table_name LIMIT 1"
 )
 
 // check the function ReadRecordCount
@@ -216,6 +225,306 @@ func TestReadRecordCountOnError(t *testing.T) {
 
 	// check if all expectations were met
 	checkAllExpectations(t, mock)
+}
+
+// check the function ReadListOfTables
+func TestReadListOfTables(t *testing.T) {
+	// prepare new mocked connection to database
+	connection, mock := mustCreateMockConnection(t)
+
+	// prepare mocked result for SQL query
+	rows := sqlmock.NewRows([]string{"tablename"})
+	rows.AddRow("foo")
+	rows.AddRow("bar")
+	rows.AddRow("baz")
+
+	// expected query performed by tested function
+	mock.ExpectQuery(readListOfTablesQuery).WillReturnRows(rows)
+	mock.ExpectClose()
+
+	// prepare connection to mocked database
+	storage := main.NewFromConnection(connection, 1)
+
+	// call the tested method
+	tableNames, err := storage.ReadListOfTables()
+	if err != nil {
+		t.Errorf("error was not expected %s", err)
+	}
+
+	if len(tableNames) != 3 {
+		t.Errorf("wrong number records returned: %d", len(tableNames))
+	}
+
+	// connection to mocked DB needs to be closed properly
+	checkConnectionClose(t, connection)
+
+	// check if all expectations were met
+	checkAllExpectations(t, mock)
+}
+
+// check the function ReadListOfTables
+func TestReadListOfTablesOnError(t *testing.T) {
+	// error to be thrown
+	mockedError := errors.New("mocked error")
+
+	// prepare new mocked connection to database
+	connection, mock := mustCreateMockConnection(t)
+
+	// expected query performed by tested function
+	mock.ExpectQuery(readListOfTablesQuery).WillReturnError(mockedError)
+	mock.ExpectClose()
+
+	// prepare connection to mocked database
+	storage := main.NewFromConnection(connection, 1)
+
+	// call the tested method
+	_, err := storage.ReadListOfTables()
+	if err != mockedError {
+		t.Errorf("different error was returned: %v", err)
+	}
+
+	// connection to mocked DB needs to be closed properly
+	checkConnectionClose(t, connection)
+
+	// check if all expectations were met
+	checkAllExpectations(t, mock)
+}
+
+// check the function ReadListOfTables
+func TestReadListOfTablesScanError(t *testing.T) {
+	// prepare new mocked connection to database
+	connection, mock := mustCreateMockConnection(t)
+
+	// prepare mocked result for SQL query
+	rows := sqlmock.NewRows([]string{"tablename"})
+	rows.AddRow(1)
+	rows.AddRow(2)
+	rows.AddRow(3)
+
+	// expected query performed by tested function
+	mock.ExpectQuery(readListOfTablesQuery).WillReturnRows(rows)
+	mock.ExpectClose()
+
+	// prepare connection to mocked database
+	storage := main.NewFromConnection(connection, 1)
+
+	// call the tested method
+	_, err := storage.ReadListOfTables()
+	if err == nil {
+		t.Errorf("error is expected")
+	}
+
+	// connection to mocked DB needs to be closed properly
+	checkConnectionClose(t, connection)
+
+	// check if all expectations were met
+	checkAllExpectations(t, mock)
+}
+
+// check the function ReadTable
+func TestReadTable(t *testing.T) {
+	// prepare new mocked connection to database
+	connection, mock := mustCreateMockConnection(t)
+
+	// prepare mocked result for SQL query
+	column1 := sqlmock.NewColumn("id").OfType("INT4", int64(0))
+	column2 := sqlmock.NewColumn("value").OfType("FLOAT64", float64(0.0))
+	column3 := sqlmock.NewColumn("text").OfType("VARCHAR", "")
+	column4 := sqlmock.NewColumn("valid").OfType("BOOL", false)
+
+	// columns of different types
+	rows := mock.NewRowsWithColumnDefinition(column1, column2, column3, column4)
+
+	rows.AddRow(1, 1.2, "foo", true)
+	rows.AddRow(2, 1.5, "bar", false)
+	rows.AddRow(3, 2.0, "baz", true)
+
+	// expected query performed by tested function
+	mock.ExpectQuery(readTableQuery).WillReturnRows(rows)
+	mock.ExpectClose()
+
+	// prepare connection to mocked database
+	storage := main.NewFromConnection(connection, 1)
+
+	// call the tested method
+	values, err := storage.ReadTable("table_name")
+	if err != nil {
+		t.Errorf("error was not expected %s", err)
+	}
+
+	if len(values) != 3 {
+		t.Errorf("wrong number records returned: %d", len(values))
+	}
+
+	assert.Equal(t, values[0]["id"], int64(1))
+	assert.Equal(t, values[1]["id"], int64(2))
+	assert.Equal(t, values[2]["id"], int64(3))
+	assert.Equal(t, values[0]["text"], "foo")
+	assert.Equal(t, values[1]["text"], "bar")
+	assert.Equal(t, values[2]["text"], "baz")
+
+	// connection to mocked DB needs to be closed properly
+	checkConnectionClose(t, connection)
+
+	// check if all expectations were met
+	checkAllExpectations(t, mock)
+}
+
+// check the function ReadTable in case of error
+func TestReadTableOnError(t *testing.T) {
+	// error to be thrown
+	mockedError := errors.New("mocked error")
+
+	// prepare new mocked connection to database
+	connection, mock := mustCreateMockConnection(t)
+
+	// expected query performed by tested function
+	mock.ExpectQuery(readTableQuery).WillReturnError(mockedError)
+	mock.ExpectClose()
+
+	// prepare connection to mocked database
+	storage := main.NewFromConnection(connection, 1)
+
+	// call the tested method
+	_, err := storage.ReadTable("table_name")
+	if err != mockedError {
+		t.Errorf("different error was returned: %v", err)
+	}
+
+	// connection to mocked DB needs to be closed properly
+	checkConnectionClose(t, connection)
+
+	// check if all expectations were met
+	checkAllExpectations(t, mock)
+}
+
+// check the function RetrieveColumnTypes
+func TestRetrieveColumnTypes(t *testing.T) {
+	// prepare new mocked connection to database
+	connection, mock := mustCreateMockConnection(t)
+
+	// prepare mocked result for SQL query
+	column1 := sqlmock.NewColumn("id").OfType("INT4", int64(0))
+	column2 := sqlmock.NewColumn("value").OfType("FLOAT64", float64(0.0))
+	column3 := sqlmock.NewColumn("text").OfType("VARCHAR", "")
+
+	// columns of different types
+	rows := mock.NewRowsWithColumnDefinition(column1, column2, column3)
+
+	rows.AddRow(1, 1.2, "foo")
+	rows.AddRow(2, 1.5, "bar")
+	rows.AddRow(3, 2.0, "baz")
+
+	// expected query performed by tested function
+	mock.ExpectQuery(readColumnTypesQuery).WillReturnRows(rows)
+	mock.ExpectClose()
+
+	// prepare connection to mocked database
+	storage := main.NewFromConnection(connection, 1)
+
+	// call the tested method
+	types, err := storage.RetrieveColumnTypes("table_name")
+	if err != nil {
+		t.Errorf("error was not expected %s", err)
+	}
+
+	if len(types) != 3 {
+		t.Errorf("wrong number of types returned: %d", len(types))
+	}
+
+	assert.Equal(t, types[0].Name(), "id")
+	assert.Equal(t, types[1].Name(), "value")
+	assert.Equal(t, types[2].Name(), "text")
+
+	// connection to mocked DB needs to be closed properly
+	checkConnectionClose(t, connection)
+
+	// check if all expectations were met
+	checkAllExpectations(t, mock)
+}
+
+// check the function RetrieveColumnTypes
+func TestRetrieveColumnTypesOnError(t *testing.T) {
+	// error to be thrown
+	mockedError := errors.New("mocked error")
+
+	// prepare new mocked connection to database
+	connection, mock := mustCreateMockConnection(t)
+
+	// expected query performed by tested function
+	mock.ExpectQuery(readColumnTypesQuery).WillReturnError(mockedError)
+	mock.ExpectClose()
+
+	// prepare connection to mocked database
+	storage := main.NewFromConnection(connection, 1)
+
+	// call the tested method
+	_, err := storage.RetrieveColumnTypes("table_name")
+
+	if err != mockedError {
+		t.Errorf("different error was returned: %v", err)
+	}
+
+	// connection to mocked DB needs to be closed properly
+	checkConnectionClose(t, connection)
+
+	// check if all expectations were met
+	checkAllExpectations(t, mock)
+}
+
+// check the function StoreTableIntoFile
+func TestStoreTableIntoFile(t *testing.T) {
+	// prepare new mocked connection to database
+	connection, mock := mustCreateMockConnection(t)
+
+	// prepare mocked result for SQL query
+	column1 := sqlmock.NewColumn("id").OfType("INT4", int64(0))
+	column2 := sqlmock.NewColumn("value").OfType("FLOAT64", float64(0.0))
+	column3 := sqlmock.NewColumn("text").OfType("VARCHAR", "")
+
+	// columns of different types
+	rows := mock.NewRowsWithColumnDefinition(column1, column2, column3)
+
+	rows.AddRow(1, 1.2, "foo")
+	rows.AddRow(2, 1.5, "bar")
+	rows.AddRow(3, 2.0, "baz")
+
+	// expected query performed by tested function
+	mock.ExpectQuery(readColumnTypesQuery).WillReturnRows(rows)
+
+	// expected query performed by tested function
+	expectedQuery2 := "SELECT \\* FROM table_name"
+
+	mock.ExpectQuery(expectedQuery2).WillReturnRows(rows)
+	mock.ExpectClose()
+
+	// prepare connection to mocked database
+	storage := main.NewFromConnection(connection, 1)
+
+	// call the tested method
+	err := storage.StoreTableIntoFile("table_name")
+	if err != nil {
+		t.Errorf("error was not expected %s", err)
+	}
+
+	// connection to mocked DB needs to be closed properly
+	checkConnectionClose(t, connection)
+
+	// check if all expectations were met
+	checkAllExpectations(t, mock)
+
+	// check generated file
+	content, err := ioutil.ReadFile("table_name.csv")
+	if err != nil {
+		t.Errorf("error during reading file %s", err)
+	}
+
+	expected := `id,value,text
+1,1.2,foo
+2,1.5,bar
+3,2,baz
+`
+	assert.Equal(t, expected, string(content))
 }
 
 // check the function ReadDisabledRules
