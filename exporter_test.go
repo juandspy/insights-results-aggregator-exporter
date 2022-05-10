@@ -171,6 +171,23 @@ func TestDoSelectedOperationShowConfiguration(t *testing.T) {
 	assert.Contains(t, output, expectedConfigurationMessage3)
 }
 
+// TestDoSelectedOperationCheckS3Connection checks the function
+// checkS3Connection called via doSelectedOperation function
+func TestDoSelectedOperationCheckS3Connection(t *testing.T) {
+	// stub for structures needed to call the tested function
+	configuration := main.ConfigStruct{}
+	cliFlags := main.CliFlags{
+		ShowVersion:       false,
+		ShowAuthors:       false,
+		ShowConfiguration: false,
+		CheckS3Connection: true,
+	}
+
+	code, err := main.DoSelectedOperation(&configuration, cliFlags)
+	assert.Equal(t, code, main.ExitStatusS3Error)
+	assert.Error(t, err)
+}
+
 // TestPrintTables checks the function printTables
 func TestPrintTables(t *testing.T) {
 	tables := []main.TableName{
@@ -196,4 +213,14 @@ func TestPrintTables(t *testing.T) {
 func TestParseFlags(t *testing.T) {
 	flags := main.ParseFlags()
 	assert.NotNil(t, flags)
+}
+
+// TestCheckS3Connection checks the function CheckS3Connection
+func TestCheckS3Connection(t *testing.T) {
+	// fill in configuration structure
+	configuration := main.ConfigStruct{}
+
+	code, err := main.CheckS3Connection(&configuration)
+	assert.Equal(t, code, main.ExitStatusS3Error)
+	assert.Error(t, err)
 }
