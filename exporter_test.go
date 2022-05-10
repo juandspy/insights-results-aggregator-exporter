@@ -31,6 +31,15 @@ import (
 	main "github.com/RedHatInsights/insights-results-aggregator-exporter"
 )
 
+const (
+	expectedVersionMessage        = "Insights Results Aggregator Cleaner version 1.0"
+	expectedAuthorsMessage        = "Pavel Tisnovsky"
+	expectedCopyrightMessage      = "Red Hat Inc."
+	expectedConfigurationMessage1 = "Driver"
+	expectedConfigurationMessage2 = "Username"
+	expectedConfigurationMessage3 = "Host"
+)
+
 func init() {
 	zerolog.SetGlobalLevel(zerolog.InfoLevel)
 }
@@ -45,7 +54,7 @@ func TestShowVersion(t *testing.T) {
 	// check the captured text
 	checkCapture(t, err)
 
-	assert.Contains(t, output, "Insights Results Aggregator Cleaner version 1.0")
+	assert.Contains(t, output, expectedVersionMessage)
 }
 
 // TestShowAuthors checks the function showAuthors
@@ -58,8 +67,8 @@ func TestShowAuthors(t *testing.T) {
 	// check the captured text
 	checkCapture(t, err)
 
-	assert.Contains(t, output, "Pavel Tisnovsky")
-	assert.Contains(t, output, "Red Hat Inc.")
+	assert.Contains(t, output, expectedAuthorsMessage)
+	assert.Contains(t, output, expectedCopyrightMessage)
 }
 
 // TestShowConfiguration checks the function ShowConfiguration
@@ -75,13 +84,116 @@ func TestShowConfiguration(t *testing.T) {
 	// check the captured text
 	checkCapture(t, err)
 
-	assert.Contains(t, output, "Driver")
-	assert.Contains(t, output, "Username")
-	assert.Contains(t, output, "Host")
+	assert.Contains(t, output, expectedConfigurationMessage1)
+	assert.Contains(t, output, expectedConfigurationMessage2)
+	assert.Contains(t, output, expectedConfigurationMessage3)
 }
 
 func checkCapture(t *testing.T, err error) {
 	if err != nil {
 		t.Fatal("Unable to capture standard output", err)
 	}
+}
+
+// TestDoSelectedOperationShowVersion checks the function showVersion called
+// via doSelectedOperation function
+func TestDoSelectedOperationShowVersion(t *testing.T) {
+	// stub for structures needed to call the tested function
+	configuration := main.ConfigStruct{}
+	cliFlags := main.CliFlags{
+		ShowVersion:       true,
+		ShowAuthors:       false,
+		ShowConfiguration: false,
+	}
+
+	// try to call the tested function and capture its output
+	output, err := capture.StandardOutput(func() {
+		code, err := main.DoSelectedOperation(&configuration, cliFlags)
+		assert.Equal(t, code, main.ExitStatusOK)
+		assert.Nil(t, err)
+	})
+
+	// check the captured text
+	checkCapture(t, err)
+
+	assert.Contains(t, output, expectedVersionMessage)
+}
+
+// TestDoSelectedOperationShowAuthors checks the function showAuthors called
+// via doSelectedOperation function
+func TestDoSelectedOperationShowAuthors(t *testing.T) {
+	// stub for structures needed to call the tested function
+	configuration := main.ConfigStruct{}
+	cliFlags := main.CliFlags{
+		ShowVersion:       false,
+		ShowAuthors:       true,
+		ShowConfiguration: false,
+	}
+
+	// try to call the tested function and capture its output
+	output, err := capture.StandardOutput(func() {
+		code, err := main.DoSelectedOperation(&configuration, cliFlags)
+		assert.Equal(t, code, main.ExitStatusOK)
+		assert.Nil(t, err)
+	})
+
+	// check the captured text
+	checkCapture(t, err)
+
+	assert.Contains(t, output, expectedAuthorsMessage)
+	assert.Contains(t, output, expectedCopyrightMessage)
+}
+
+// TestDoSelectedOperationShowConfiguration checks the function
+// showConfiguration called via doSelectedOperation function
+func TestDoSelectedOperationShowConfiguration(t *testing.T) {
+	// stub for structures needed to call the tested function
+	configuration := main.ConfigStruct{}
+	cliFlags := main.CliFlags{
+		ShowVersion:       false,
+		ShowAuthors:       false,
+		ShowConfiguration: true,
+	}
+
+	// try to call the tested function and capture its output
+	output, err := capture.ErrorOutput(func() {
+		log.Logger = log.Output(zerolog.New(os.Stderr))
+		code, err := main.DoSelectedOperation(&configuration, cliFlags)
+		assert.Equal(t, code, main.ExitStatusOK)
+		assert.Nil(t, err)
+	})
+
+	// check the captured text
+	checkCapture(t, err)
+
+	assert.Contains(t, output, expectedConfigurationMessage1)
+	assert.Contains(t, output, expectedConfigurationMessage2)
+	assert.Contains(t, output, expectedConfigurationMessage3)
+}
+
+// TestPrintTables checks the function printTables
+func TestPrintTables(t *testing.T) {
+	tables := []main.TableName{
+		main.TableName("first"),
+		main.TableName("second"),
+		main.TableName("third"),
+	}
+
+	output, err := capture.ErrorOutput(func() {
+		log.Logger = log.Output(zerolog.New(os.Stderr))
+		main.PrintTables(tables)
+	})
+
+	// check the captured text
+	checkCapture(t, err)
+
+	assert.Contains(t, output, "\\\"table\\\":\\\"first\\\"")
+	assert.Contains(t, output, "\\\"table\\\":\\\"second\\\"")
+	assert.Contains(t, output, "\\\"table\\\":\\\"third\\\"")
+}
+
+// TestParseFlags is dummy test for parseFlags function
+func TestParseFlags(t *testing.T) {
+	flags := main.ParseFlags()
+	assert.NotNil(t, flags)
 }

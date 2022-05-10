@@ -330,10 +330,7 @@ func doSelectedOperation(configuration *ConfigStruct, cliFlags CliFlags) (int, e
 	// this can not happen: return ExitStatusOK, nil
 }
 
-func main() {
-	// command line flags
-	var cliFlags CliFlags
-
+func parseFlags() (cliFlags CliFlags) {
 	// define and parse all command line options
 	flag.BoolVar(&cliFlags.ShowVersion, "version", false, "show version")
 	flag.BoolVar(&cliFlags.ShowAuthors, "authors", false, "show authors")
@@ -346,6 +343,13 @@ func main() {
 
 	// parse all command line flags
 	flag.Parse()
+
+	return
+}
+
+func main() {
+	// parse all command line flags
+	cliFlags := parseFlags()
 
 	// config has exactly the same structure as *.toml file
 	config, err := LoadConfiguration(configFileEnvVariableName, defaultConfigFileName)
