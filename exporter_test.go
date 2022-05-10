@@ -32,12 +32,12 @@ import (
 )
 
 const (
-	expectedVersionMessage       = "Insights Results Aggregator Cleaner version 1.0"
-	expectedAuthorsMessage       = "Pavel Tisnovsky"
-	expectedCopyrightMessage     = "Red Hat Inc."
-	expectedConfigurationMesage1 = "Driver"
-	expectedConfigurationMesage2 = "Username"
-	expectedConfigurationMesage3 = "Host"
+	expectedVersionMessage        = "Insights Results Aggregator Cleaner version 1.0"
+	expectedAuthorsMessage        = "Pavel Tisnovsky"
+	expectedCopyrightMessage      = "Red Hat Inc."
+	expectedConfigurationMessage1 = "Driver"
+	expectedConfigurationMessage2 = "Username"
+	expectedConfigurationMessage3 = "Host"
 )
 
 func init() {
@@ -84,9 +84,9 @@ func TestShowConfiguration(t *testing.T) {
 	// check the captured text
 	checkCapture(t, err)
 
-	assert.Contains(t, output, expectedConfigurationMesage1)
-	assert.Contains(t, output, expectedConfigurationMesage2)
-	assert.Contains(t, output, expectedConfigurationMesage3)
+	assert.Contains(t, output, expectedConfigurationMessage1)
+	assert.Contains(t, output, expectedConfigurationMessage2)
+	assert.Contains(t, output, expectedConfigurationMessage3)
 }
 
 func checkCapture(t *testing.T, err error) {
