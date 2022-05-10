@@ -168,3 +168,50 @@ func storeTableNames(ctx context.Context, minioClient *minio.Client,
 	// everything seems to be ok
 	return nil
 }
+
+// storeDisabledRulesIntoS3 function stores info about disabled rules into S3
+// into given bucket under selected object name
+func storeDisabledRulesIntoS3(ctx context.Context, minioClient *minio.Client,
+	bucketName string, objectName string, disabledRulesInfo []DisabledRuleInfo) error {
+
+	// check if Minio client has been passed to this function
+	if minioClient == nil {
+		err := errors.New(minioClientIsNil)
+		log.Error().Err(err).Msg(wrongMinioClientReference)
+		return err
+	}
+
+	// check if proper bucket name has been passed to this function
+	if bucketName == "" {
+		err := errors.New(bucketNameIsNotSet)
+		log.Error().Err(err).Msg(wrongBucketName)
+		return err
+	}
+
+	// check if proper object name has been passed to this function
+	if objectName == "" {
+		err := errors.New(objectNameIsNotSet)
+		log.Error().Err(err).Msg(wrongObjectName)
+		return err
+	}
+
+	// conversion to CSV
+	buffer := new(bytes.Buffer)
+	err := DisabledRulesToCSV(buffer, disabledRulesInfo)
+	if err != nil {
+		log.Error().Err(err).Msg("Write table name to CSV")
+		return err
+	}
+
+	reader := io.Reader(buffer)
+
+	// store CSV data into S3/Minio
+	options := minio.PutObjectOptions{ContentType: "text/csv"}
+	_, err = minioClient.PutObject(ctx, bucketName, objectName, reader, -1, options)
+	if err != nil {
+		return err
+	}
+
+	// everything seems to be ok
+	return nil
+}

@@ -64,17 +64,20 @@ contribute to this project.
 Usage of ./irae:
   -authors
         show authors
-  -output string
-        output to: CSV, S3
+  -check-s3-connection
+        check S3 connection and exit
+  -disabled-by-more-users
+         export rules disabled by more than one user
   -metadata
         export metadata
+  -output string
+        output to: CSV, S3
   -show-configuration
         show configuration
   -summary
         print summary table after export
   -version
         show version
-
 ```
 
 ### Building

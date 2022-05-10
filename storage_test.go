@@ -121,7 +121,8 @@ func checkAllExpectations(t *testing.T, mock sqlmock.Sqlmock) {
 
 // Expected queries
 const (
-	readRecordCountQuery = "SELECT count\\(\\*\\) FROM TESTED_TABLE"
+	readRecordCountQuery   = "SELECT count\\(\\*\\) FROM TESTED_TABLE"
+	readDisabledRulesQuery = "SELECT rule_id, count\\(rule_id\\) AS rule_count FROM rule_disable GROUP BY rule_id HAVING count\\(rule_id\\)\\>1 ORDER BY rule_count DESC;"
 )
 
 // check the function ReadRecordCount
@@ -208,6 +209,111 @@ func TestReadRecordCountOnError(t *testing.T) {
 
 	if count != -1 {
 		t.Errorf("wrong number records returned: %d", count)
+	}
+
+	// connection to mocked DB needs to be closed properly
+	checkConnectionClose(t, connection)
+
+	// check if all expectations were met
+	checkAllExpectations(t, mock)
+}
+
+// check the function ReadDisabledRules
+func TestReadDisabledRules(t *testing.T) {
+	// prepare new mocked connection to database
+	connection, mock := mustCreateMockConnection(t)
+
+	// prepare mocked result for SQL query
+	rows := sqlmock.NewRows([]string{"rule", "count"})
+	rows.AddRow("rule1", 1)
+	rows.AddRow("rule2", 2)
+	rows.AddRow("rule3", 3)
+
+	// expected query performed by tested function
+	mock.ExpectQuery(readDisabledRulesQuery).WillReturnRows(rows)
+	mock.ExpectClose()
+
+	// prepare connection to mocked database
+	storage := main.NewFromConnection(connection, 1)
+
+	// call the tested method
+	results, err := storage.ReadDisabledRules()
+	if err != nil {
+		t.Errorf("error was not expected %s", err)
+	}
+
+	if len(results) != 3 {
+		t.Errorf("wrong number records returned: %d", len(results))
+	}
+
+	// check the list of returned records
+	assert.Equal(t, "rule1", results[0].Rule)
+	assert.Equal(t, "rule2", results[1].Rule)
+	assert.Equal(t, "rule3", results[2].Rule)
+
+	assert.Equal(t, 1, results[0].Count)
+	assert.Equal(t, 2, results[1].Count)
+	assert.Equal(t, 3, results[2].Count)
+
+	// connection to mocked DB needs to be closed properly
+	checkConnectionClose(t, connection)
+
+	// check if all expectations were met
+	checkAllExpectations(t, mock)
+}
+
+// check the function ReadDisabledRules
+func TestReadDisabledRulesOnError(t *testing.T) {
+	// error to be thrown
+	mockedError := errors.New("mocked error")
+
+	// prepare new mocked connection to database
+	connection, mock := mustCreateMockConnection(t)
+
+	// expected query performed by tested function
+	mock.ExpectQuery(readDisabledRulesQuery).WillReturnError(mockedError)
+	mock.ExpectClose()
+
+	// prepare connection to mocked database
+	storage := main.NewFromConnection(connection, 1)
+
+	// call the tested method
+	_, err := storage.ReadDisabledRules()
+
+	if err != mockedError {
+		t.Errorf("different error was returned: %v", err)
+	}
+
+	// connection to mocked DB needs to be closed properly
+	checkConnectionClose(t, connection)
+
+	// check if all expectations were met
+	checkAllExpectations(t, mock)
+}
+
+// check the function ReadDisabledRules
+func TestReadDisabledRulesScanError(t *testing.T) {
+	// prepare new mocked connection to database
+	connection, mock := mustCreateMockConnection(t)
+
+	// prepare mocked result for SQL query
+	rows := sqlmock.NewRows([]string{"rule", "count"})
+	rows.AddRow("rule1", "not count")
+	rows.AddRow("rule2", "not count")
+	rows.AddRow("rule3", "not count")
+
+	// expected query performed by tested function
+	expectedQuery := "SELECT rule_id, count\\(rule_id\\) AS rule_count FROM rule_disable GROUP BY rule_id HAVING count\\(rule_id\\)\\>1 ORDER BY rule_count DESC;"
+	mock.ExpectQuery(expectedQuery).WillReturnRows(rows)
+	mock.ExpectClose()
+
+	// prepare connection to mocked database
+	storage := main.NewFromConnection(connection, 1)
+
+	// call the tested method
+	_, err := storage.ReadDisabledRules()
+	if err == nil {
+		t.Errorf("error was expected")
 	}
 
 	// connection to mocked DB needs to be closed properly

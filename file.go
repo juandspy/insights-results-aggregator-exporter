@@ -23,6 +23,12 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+// Messages
+const (
+	writeTableNameToCSV        = "Write table name to CSV"
+	writeDisabledRuleInfoToCSV = "Write disabled rule info to CSV"
+)
+
 // storeTableNamesIntoFile function stores names of all tables into the
 // specified file
 func storeTableNamesIntoFile(fileName string, tableNames []TableName) error {
@@ -48,7 +54,7 @@ func storeTableNamesIntoFile(fileName string, tableNames []TableName) error {
 	for _, tableName := range tableNames {
 		err := writer.Write([]string{string(tableName)})
 		if err != nil {
-			log.Error().Err(err).Msg("Write table name to CSV")
+			log.Error().Err(err).Msg(writeTableNameToCSV)
 		}
 	}
 
@@ -57,6 +63,33 @@ func storeTableNamesIntoFile(fileName string, tableNames []TableName) error {
 	// check for any error during export to CSV
 	err = writer.Error()
 	if err != nil {
+		return err
+	}
+
+	// close the file and check if close operation was ok
+	err = fout.Close()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// storeDisabledRulesIntoFile function stores info about disabled rules into
+// specified file
+func storeDisabledRulesIntoFile(fileName string, disabledRulesInfo []DisabledRuleInfo) error {
+	// open new CSV file to be filled in
+
+	// disable "G304 (CWE-22): Potential file inclusion via variable"
+	fout, err := os.Create(fileName) // #nosec G304
+	if err != nil {
+		return err
+	}
+
+	// conversion to CSV
+	err = DisabledRulesToCSV(fout, disabledRulesInfo)
+	if err != nil {
+		log.Error().Err(err).Msg(writeDisabledRuleInfoToCSV)
 		return err
 	}
 
