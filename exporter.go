@@ -340,6 +340,7 @@ func parseFlags() (cliFlags CliFlags) {
 	flag.BoolVar(&cliFlags.ExportMetadata, "metadata", false, "export metadata")
 	flag.BoolVar(&cliFlags.ExportDisabledRules, "disabled-by-more-users", false, "export rules disabled by more users")
 	flag.BoolVar(&cliFlags.CheckS3Connection, "check-s3-connection", false, "check S3 connection and exit")
+	flag.BoolVar(&cliFlags.ExportLog, "export-log", false, "export log")
 
 	// parse all command line flags
 	flag.Parse()
