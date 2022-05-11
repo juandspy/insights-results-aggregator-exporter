@@ -215,3 +215,10 @@ func storeDisabledRulesIntoS3(ctx context.Context, minioClient *minio.Client,
 	// everything seems to be ok
 	return nil
 }
+
+func storeBufferToS3(ctx context.Context, minioClient *minio.Client,
+	bucketName string, objectName string, buffer bytes.Buffer) error {
+	options := minio.PutObjectOptions{ContentType: "text/plain"}
+	_, err := minioClient.PutObject(ctx, bucketName, objectName, &buffer, -1, options)
+	return err
+}

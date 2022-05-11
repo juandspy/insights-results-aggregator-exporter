@@ -17,6 +17,7 @@ limitations under the License.
 package main
 
 import (
+	"bytes"
 	"flag"
 	"fmt"
 	"os"
@@ -66,12 +67,26 @@ const (
 	listOfTables  = "_tables.csv"
 	metadataTable = "_metadata.csv"
 	disabledRules = "_disabled_rules.csv"
+	logFile       = "_logs.txt"
 )
 
 // messages
 const (
 	readDisabledRulesInfoFailed      = "Read disabled rules info failed"
 	storeDisabledRulesIntoFileFailed = "Store disabled rules into file failed"
+	readingListOfTables              = "Reading list of tables"
+	exportingDisabledRules           = "Exporting disabled rules"
+	closingConnectionToStorage       = "Closing connection to storage"
+	exportingTables                  = "Exporting tables"
+	exportingTable                   = "Exporting table"
+	exportingMetadata                = "Exporting metadata"
+	unknownOutputType                = "Unknown output type: %s"
+)
+
+// flags
+const (
+	s3Output   = "S3"
+	fileOutput = "file"
 )
 
 // showVersion function displays version information.
@@ -115,22 +130,31 @@ func showConfiguration(config *ConfigStruct) {
 }
 
 // performDataExport function exports all data into selected output
-func performDataExport(configuration *ConfigStruct, cliFlags CliFlags) (int, error) {
+func performDataExport(configuration *ConfigStruct, cliFlags CliFlags, operationLogger zerolog.Logger) (int, error) {
+	operationLogger.Info().Msg("Retrieving connection to storage")
+
 	// prepare the storage
 	storageConfiguration := GetStorageConfiguration(configuration)
 	storage, err := NewStorage(&storageConfiguration)
 	if err != nil {
 		log.Err(err).Msg(operationFailedMessage)
+		operationLogger.Err(err).Msg("Unable to retrieve connection to storage")
 		return ExitStatusStorageError, err
 	}
 
 	switch cliFlags.Output {
-	case "S3":
-		return performDataExportToS3(configuration, storage, cliFlags.ExportMetadata, cliFlags.ExportDisabledRules)
-	case "file":
-		return performDataExportToFiles(configuration, storage, cliFlags.ExportMetadata, cliFlags.ExportDisabledRules)
+	case s3Output:
+		return performDataExportToS3(configuration, storage,
+			cliFlags.ExportMetadata, cliFlags.ExportDisabledRules,
+			operationLogger)
+	case fileOutput:
+		return performDataExportToFiles(configuration, storage,
+			cliFlags.ExportMetadata, cliFlags.ExportDisabledRules,
+			operationLogger)
 	default:
-		return ExitStatusConfigurationError, fmt.Errorf("Unknown output type: %s", cliFlags.Output)
+		err := fmt.Errorf(unknownOutputType, cliFlags.Output)
+		operationLogger.Err(err).Msg("Wrong output type selected")
+		return ExitStatusConfigurationError, err
 	}
 }
 
@@ -138,7 +162,13 @@ func performDataExport(configuration *ConfigStruct, cliFlags CliFlags) (int, err
 // bucket
 func performDataExportToS3(configuration *ConfigStruct,
 	storage *DBStorage, exportMetadata bool,
-	ExportDisabledRules bool) (int, error) {
+	ExportDisabledRules bool,
+	operationLogger zerolog.Logger) (int, error) {
+
+	operationLogger.Info().Msg("Exporting to S3")
+
+	operationLogger.Info().Msg(readingListOfTables)
+
 	minioClient, context, err := NewS3Connection(configuration)
 	if err != nil {
 		return ExitStatusS3Error, err
@@ -147,21 +177,28 @@ func performDataExportToS3(configuration *ConfigStruct,
 	tableNames, err := storage.ReadListOfTables()
 	if err != nil {
 		log.Err(err).Msg(operationFailedMessage)
+		operationLogger.Err(err).Msg(operationFailedMessage)
 		return ExitStatusStorageError, err
 	}
 
 	log.Info().Int("tables count", len(tableNames)).Msg(listOfTablesMsg)
+
+	// log into terminal
 	printTables(tableNames)
 
 	bucket := GetS3Configuration(configuration).Bucket
 	log.Info().Str("bucket name", bucket).Msg("S3 bucket to write to")
 
 	if exportMetadata {
+		operationLogger.Info().Msg(exportingMetadata)
+
 		// export list of all tables into S3
 		err = storeTableNames(context, minioClient,
 			bucket, listOfTables, tableNames)
 		if err != nil {
-			log.Err(err).Msg("Store table list to S3 failed")
+			const msg = "Store table list to S3 failed"
+			log.Err(err).Msg(msg)
+			operationLogger.Err(err).Msg(msg)
 			return ExitStatusStorageError, err
 		}
 
@@ -169,16 +206,20 @@ func performDataExportToS3(configuration *ConfigStruct,
 		err = storage.StoreTableMetadataIntoS3(context, minioClient,
 			bucket, metadataTable, tableNames)
 		if err != nil {
-			log.Err(err).Msg("Store tables metadata to S3 failed")
+			const msg = "Store tables metadata to S3 failed"
+			log.Err(err).Msg(msg)
 			return ExitStatusStorageError, err
 		}
 	}
 
 	if ExportDisabledRules {
+		operationLogger.Info().Msg(exportingDisabledRules)
+
 		// export rules disabled by more users into CSV file
 		disabledRulesInfo, err := storage.ReadDisabledRules()
 		if err != nil {
 			log.Err(err).Msg(readDisabledRulesInfoFailed)
+			operationLogger.Err(err).Msg(readDisabledRulesInfoFailed)
 			return ExitStatusStorageError, err
 		}
 
@@ -187,23 +228,36 @@ func performDataExportToS3(configuration *ConfigStruct,
 			disabledRules, disabledRulesInfo)
 		if err != nil {
 			log.Err(err).Msg(storeDisabledRulesIntoFileFailed)
+			operationLogger.Err(err).Msg(storeDisabledRulesIntoFileFailed)
 			return ExitStatusIOError, err
 		}
 	}
 
+	operationLogger.Info().Msg(exportingTables)
+
 	// read content of all tables and perform export
 	for _, tableName := range tableNames {
+		operationLogger.Info().
+			Str(tableNameMsg, string(tableName)).
+			Msg(exportingTable)
 		err = storage.StoreTable(context, minioClient, bucket, tableName)
 		if err != nil {
-			log.Err(err).Str(tableNameMsg, string(tableName)).Msg("Store table into S3 failed")
+			const msg = "Store table into S3 failed"
+			log.Err(err).Str(tableNameMsg, string(tableName)).
+				Msg(msg)
+			operationLogger.Err(err).Str(tableNameMsg, string(tableName)).
+				Msg(msg)
 			return ExitStatusStorageError, err
 		}
 	}
+
+	operationLogger.Info().Msg(closingConnectionToStorage)
 
 	// we have finished, let's close the connection to database
 	err = storage.Close()
 	if err != nil {
 		log.Err(err).Msg(operationFailedMessage)
+		operationLogger.Err(err).Msg(operationFailedMessage)
 		return ExitStatusStorageError, err
 	}
 
@@ -214,10 +268,17 @@ func performDataExportToS3(configuration *ConfigStruct,
 // performDataExportToFiles exports all tables and metadata info files
 func performDataExportToFiles(configuration *ConfigStruct,
 	storage *DBStorage, exportMetadata bool,
-	exportDisabledRules bool) (int, error) {
+	exportDisabledRules bool,
+	operationLogger zerolog.Logger) (int, error) {
+
+	operationLogger.Info().Msg("Exporting to file")
+
+	operationLogger.Info().Msg(readingListOfTables)
+
 	tableNames, err := storage.ReadListOfTables()
 	if err != nil {
 		log.Err(err).Msg(operationFailedMessage)
+		operationLogger.Err(err).Msg(operationFailedMessage)
 		return ExitStatusStorageError, err
 	}
 
@@ -227,26 +288,35 @@ func performDataExportToFiles(configuration *ConfigStruct,
 	printTables(tableNames)
 
 	if exportMetadata {
+		operationLogger.Info().Msg(exportingMetadata)
+
 		// export list of all tables into CSV file
 		err = storeTableNamesIntoFile(listOfTables, tableNames)
 		if err != nil {
-			log.Err(err).Msg("Store table list to file failed")
+			const msg = "Store table list to file failed"
+			log.Err(err).Msg(msg)
+			operationLogger.Err(err).Msg(msg)
 			return ExitStatusStorageError, err
 		}
 
 		// export tables metadata into CSV file
 		err = storage.StoreTableMetadataIntoFile(metadataTable, tableNames)
 		if err != nil {
-			log.Err(err).Msg("Store tables metadata to file failed")
+			const msg = "Store tables metadata to file failed"
+			log.Err(err).Msg(msg)
+			operationLogger.Err(err).Msg(msg)
 			return ExitStatusStorageError, err
 		}
 	}
 
 	if exportDisabledRules {
+		operationLogger.Info().Msg(exportingDisabledRules)
+
 		// export rules disabled by more users into CSV file
 		disabledRulesInfo, err := storage.ReadDisabledRules()
 		if err != nil {
 			log.Err(err).Msg(readDisabledRulesInfoFailed)
+			operationLogger.Err(err).Msg(readDisabledRulesInfoFailed)
 			return ExitStatusStorageError, err
 		}
 
@@ -254,23 +324,36 @@ func performDataExportToFiles(configuration *ConfigStruct,
 		err = storeDisabledRulesIntoFile(disabledRules, disabledRulesInfo)
 		if err != nil {
 			log.Err(err).Msg(storeDisabledRulesIntoFileFailed)
+			operationLogger.Err(err).Msg(storeDisabledRulesIntoFileFailed)
 			return ExitStatusIOError, err
 		}
 	}
 
+	operationLogger.Info().Msg(exportingTables)
+
 	// read content of all tables and perform export
 	for _, tableName := range tableNames {
+		operationLogger.Info().
+			Str(tableNameMsg, string(tableName)).
+			Msg(exportingTable)
 		err = storage.StoreTableIntoFile(tableName)
 		if err != nil {
-			log.Err(err).Str(tableNameMsg, string(tableName)).Msg("Store table into file failed")
+			const msg = "Store table into file failed"
+			log.Err(err).Str(tableNameMsg, string(tableName)).
+				Msg(msg)
+			operationLogger.Err(err).Str(tableNameMsg, string(tableName)).
+				Msg(msg)
 			return ExitStatusStorageError, err
 		}
 	}
+
+	operationLogger.Info().Msg(closingConnectionToStorage)
 
 	// we have finished, let's close the connection to database
 	err = storage.Close()
 	if err != nil {
 		log.Err(err).Msg(operationFailedMessage)
+		operationLogger.Err(err).Msg(operationFailedMessage)
 		return ExitStatusStorageError, err
 	}
 
@@ -307,10 +390,22 @@ func checkS3Connection(configuration *ConfigStruct) (int, error) {
 	return ExitStatusOK, nil
 }
 
+func storeOpertionLogIntoS3(configuration *ConfigStruct,
+	buffer bytes.Buffer) error {
+	minioClient, context, err := NewS3Connection(configuration)
+	if err != nil {
+		return err
+	}
+
+	bucketName := GetS3Configuration(configuration).Bucket
+	return storeBufferToS3(context, minioClient, bucketName, logFile, buffer)
+}
+
 // doSelectedOperation function perform operation selected on command line.
 // When no operation is specified, the Notification writer service is started
 // instead.
-func doSelectedOperation(configuration *ConfigStruct, cliFlags CliFlags) (int, error) {
+func doSelectedOperation(configuration *ConfigStruct, cliFlags CliFlags,
+	operationLogger zerolog.Logger) (int, error) {
 	switch {
 	case cliFlags.ShowVersion:
 		showVersion()
@@ -325,7 +420,7 @@ func doSelectedOperation(configuration *ConfigStruct, cliFlags CliFlags) (int, e
 		return checkS3Connection(configuration)
 	default:
 		// default operation - data export
-		return performDataExport(configuration, cliFlags)
+		return performDataExport(configuration, cliFlags, operationLogger)
 	}
 	// this can not happen: return ExitStatusOK, nil
 }
@@ -340,6 +435,7 @@ func parseFlags() (cliFlags CliFlags) {
 	flag.BoolVar(&cliFlags.ExportMetadata, "metadata", false, "export metadata")
 	flag.BoolVar(&cliFlags.ExportDisabledRules, "disabled-by-more-users", false, "export rules disabled by more users")
 	flag.BoolVar(&cliFlags.CheckS3Connection, "check-s3-connection", false, "check S3 connection and exit")
+	flag.BoolVar(&cliFlags.ExportLog, "export-log", false, "export log")
 
 	// parse all command line flags
 	flag.Parse()
@@ -347,7 +443,44 @@ func parseFlags() (cliFlags CliFlags) {
 	return
 }
 
+// DummyWriter satisfies Writer interface, but with noop write
+type DummyWriter struct{}
+
+// Write method satisfies noop io.Write
+func (w DummyWriter) Write(p []byte) (n int, err error) {
+	return 0, nil
+}
+
+// createOperationLog function constructs operation log instance
+func createOperationLog(cliFlags CliFlags, buffer *bytes.Buffer) (zerolog.Logger, error) {
+	dummyLogger := zerolog.New(DummyWriter{}).With().Logger()
+
+	if cliFlags.ExportLog {
+		switch cliFlags.Output {
+		case s3Output:
+			memoryLogger := zerolog.New(buffer).With().Logger()
+			memoryLogger.Info().Msg("Memory logger initialized")
+			return memoryLogger, nil
+		case fileOutput:
+			logFile, err := os.Create(logFile)
+			if err != nil {
+				return dummyLogger, err
+			}
+			fileLogger := zerolog.New(logFile).With().Logger()
+			fileLogger.Info().Msg("File logger initialized")
+			return fileLogger, nil
+		default:
+			return dummyLogger, fmt.Errorf(unknownOutputType, cliFlags.Output)
+		}
+	}
+
+	return dummyLogger, nil
+
+}
+
 func main() {
+	log.Debug().Msg("Started")
+
 	// parse all command line flags
 	cliFlags := parseFlags()
 
@@ -361,15 +494,30 @@ func main() {
 		log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
 	}
 
+	var buffer bytes.Buffer
+	operationLogger, err := createOperationLog(cliFlags, &buffer)
+	if err != nil {
+		log.Err(err).Msg("Create operation log")
+		os.Exit(ExitStatusIOError)
+		return
+	}
+
 	// perform selected operation
-	exitStatus, err := doSelectedOperation(&config, cliFlags)
+	exitStatus, err := doSelectedOperation(&config, cliFlags, operationLogger)
 	if err != nil {
 		log.Err(err).Msg("Do selected operation")
 		os.Exit(exitStatus)
 		return
 	}
 
-	log.Debug().Msg("Started")
+	if cliFlags.ExportLog && cliFlags.Output == s3Output {
+		err := storeOpertionLogIntoS3(&config, buffer)
+		if err != nil {
+			log.Err(err).Msg("Storing log into S3 failed")
+			os.Exit(exitStatus)
+			return
+		}
+	}
 
 	log.Debug().Msg("Finished")
 }

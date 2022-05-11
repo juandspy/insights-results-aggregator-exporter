@@ -38,6 +38,7 @@ type CliFlags struct {
 	CheckS3Connection   bool
 	ExportMetadata      bool
 	ExportDisabledRules bool
+	ExportLog           bool
 }
 
 // M represents a map with string keys and any value
