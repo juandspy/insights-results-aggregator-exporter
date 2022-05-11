@@ -390,6 +390,17 @@ func checkS3Connection(configuration *ConfigStruct) (int, error) {
 	return ExitStatusOK, nil
 }
 
+func storeOpertionLogIntoS3(configuration *ConfigStruct,
+	buffer bytes.Buffer) error {
+	minioClient, context, err := NewS3Connection(configuration)
+	if err != nil {
+		return err
+	}
+
+	bucketName := GetS3Configuration(configuration).Bucket
+	return storeBufferToS3(context, minioClient, bucketName, logFile, buffer)
+}
+
 // doSelectedOperation function perform operation selected on command line.
 // When no operation is specified, the Notification writer service is started
 // instead.
@@ -482,7 +493,7 @@ func main() {
 		log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
 	}
 
-	operationLogger, _, err := createOperationLog(cliFlags)
+	operationLogger, buffer, err := createOperationLog(cliFlags)
 	if err != nil {
 		log.Err(err).Msg("Create operation log")
 		os.Exit(ExitStatusIOError)
@@ -495,6 +506,10 @@ func main() {
 		log.Err(err).Msg("Do selected operation")
 		os.Exit(exitStatus)
 		return
+	}
+
+	if cliFlags.ExportLog && cliFlags.Output == s3Output {
+		storeOpertionLogIntoS3(&config, buffer)
 	}
 
 	log.Debug().Msg("Finished")
