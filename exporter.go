@@ -74,6 +74,19 @@ const (
 const (
 	readDisabledRulesInfoFailed      = "Read disabled rules info failed"
 	storeDisabledRulesIntoFileFailed = "Store disabled rules into file failed"
+	readingListOfTables              = "Reading list of tables"
+	exportingDisabledRules           = "Exporting disabled rules"
+	closingConnectionToStorage       = "Closing connection to storage"
+	exportingTables                  = "Exporting tables"
+	exportingTable                   = "Exporting table"
+	exportingMetadata                = "Exporting metadata"
+	unknownOutputType                = "Unknown output type: %s"
+)
+
+// flags
+const (
+	s3Output   = "S3"
+	fileOutput = "file"
 )
 
 // showVersion function displays version information.
@@ -130,16 +143,16 @@ func performDataExport(configuration *ConfigStruct, cliFlags CliFlags, operation
 	}
 
 	switch cliFlags.Output {
-	case "S3":
+	case s3Output:
 		return performDataExportToS3(configuration, storage,
 			cliFlags.ExportMetadata, cliFlags.ExportDisabledRules,
 			operationLogger)
-	case "file":
+	case fileOutput:
 		return performDataExportToFiles(configuration, storage,
 			cliFlags.ExportMetadata, cliFlags.ExportDisabledRules,
 			operationLogger)
 	default:
-		err := fmt.Errorf("Unknown output type: %s", cliFlags.Output)
+		err := fmt.Errorf(unknownOutputType, cliFlags.Output)
 		operationLogger.Err(err).Msg("Wrong output type selected")
 		return ExitStatusConfigurationError, err
 	}
@@ -154,6 +167,8 @@ func performDataExportToS3(configuration *ConfigStruct,
 
 	operationLogger.Info().Msg("Exporting to S3")
 
+	operationLogger.Info().Msg(readingListOfTables)
+
 	minioClient, context, err := NewS3Connection(configuration)
 	if err != nil {
 		return ExitStatusS3Error, err
@@ -162,21 +177,28 @@ func performDataExportToS3(configuration *ConfigStruct,
 	tableNames, err := storage.ReadListOfTables()
 	if err != nil {
 		log.Err(err).Msg(operationFailedMessage)
+		operationLogger.Err(err).Msg(operationFailedMessage)
 		return ExitStatusStorageError, err
 	}
 
 	log.Info().Int("tables count", len(tableNames)).Msg(listOfTablesMsg)
+
+	// log into terminal
 	printTables(tableNames)
 
 	bucket := GetS3Configuration(configuration).Bucket
 	log.Info().Str("bucket name", bucket).Msg("S3 bucket to write to")
 
 	if exportMetadata {
+		operationLogger.Info().Msg(exportingMetadata)
+
 		// export list of all tables into S3
 		err = storeTableNames(context, minioClient,
 			bucket, listOfTables, tableNames)
 		if err != nil {
-			log.Err(err).Msg("Store table list to S3 failed")
+			const msg = "Store table list to S3 failed"
+			log.Err(err).Msg(msg)
+			operationLogger.Err(err).Msg(msg)
 			return ExitStatusStorageError, err
 		}
 
@@ -184,16 +206,20 @@ func performDataExportToS3(configuration *ConfigStruct,
 		err = storage.StoreTableMetadataIntoS3(context, minioClient,
 			bucket, metadataTable, tableNames)
 		if err != nil {
-			log.Err(err).Msg("Store tables metadata to S3 failed")
+			const msg = "Store tables metadata to S3 failed"
+			log.Err(err).Msg(msg)
 			return ExitStatusStorageError, err
 		}
 	}
 
 	if ExportDisabledRules {
+		operationLogger.Info().Msg(exportingDisabledRules)
+
 		// export rules disabled by more users into CSV file
 		disabledRulesInfo, err := storage.ReadDisabledRules()
 		if err != nil {
 			log.Err(err).Msg(readDisabledRulesInfoFailed)
+			operationLogger.Err(err).Msg(readDisabledRulesInfoFailed)
 			return ExitStatusStorageError, err
 		}
 
@@ -202,23 +228,36 @@ func performDataExportToS3(configuration *ConfigStruct,
 			disabledRules, disabledRulesInfo)
 		if err != nil {
 			log.Err(err).Msg(storeDisabledRulesIntoFileFailed)
+			operationLogger.Err(err).Msg(storeDisabledRulesIntoFileFailed)
 			return ExitStatusIOError, err
 		}
 	}
 
+	operationLogger.Info().Msg(exportingTables)
+
 	// read content of all tables and perform export
 	for _, tableName := range tableNames {
+		operationLogger.Info().
+			Str(tableNameMsg, string(tableName)).
+			Msg(exportingTable)
 		err = storage.StoreTable(context, minioClient, bucket, tableName)
 		if err != nil {
-			log.Err(err).Str(tableNameMsg, string(tableName)).Msg("Store table into S3 failed")
+			const msg = "Store table into S3 failed"
+			log.Err(err).Str(tableNameMsg, string(tableName)).
+				Msg(msg)
+			operationLogger.Err(err).Str(tableNameMsg, string(tableName)).
+				Msg(msg)
 			return ExitStatusStorageError, err
 		}
 	}
+
+	operationLogger.Info().Msg(closingConnectionToStorage)
 
 	// we have finished, let's close the connection to database
 	err = storage.Close()
 	if err != nil {
 		log.Err(err).Msg(operationFailedMessage)
+		operationLogger.Err(err).Msg(operationFailedMessage)
 		return ExitStatusStorageError, err
 	}
 
@@ -234,7 +273,7 @@ func performDataExportToFiles(configuration *ConfigStruct,
 
 	operationLogger.Info().Msg("Exporting to file")
 
-	operationLogger.Info().Msg("Reading list of tables")
+	operationLogger.Info().Msg(readingListOfTables)
 
 	tableNames, err := storage.ReadListOfTables()
 	if err != nil {
@@ -249,7 +288,7 @@ func performDataExportToFiles(configuration *ConfigStruct,
 	printTables(tableNames)
 
 	if exportMetadata {
-		operationLogger.Info().Msg("Exporting metadata")
+		operationLogger.Info().Msg(exportingMetadata)
 
 		// export list of all tables into CSV file
 		err = storeTableNamesIntoFile(listOfTables, tableNames)
@@ -271,7 +310,7 @@ func performDataExportToFiles(configuration *ConfigStruct,
 	}
 
 	if exportDisabledRules {
-		operationLogger.Info().Msg("Exporting disabled rules")
+		operationLogger.Info().Msg(exportingDisabledRules)
 
 		// export rules disabled by more users into CSV file
 		disabledRulesInfo, err := storage.ReadDisabledRules()
@@ -290,13 +329,13 @@ func performDataExportToFiles(configuration *ConfigStruct,
 		}
 	}
 
-	operationLogger.Info().Msg("Exporting tables")
+	operationLogger.Info().Msg(exportingTables)
 
 	// read content of all tables and perform export
 	for _, tableName := range tableNames {
 		operationLogger.Info().
 			Str(tableNameMsg, string(tableName)).
-			Msg("Exporting table")
+			Msg(exportingTable)
 		err = storage.StoreTableIntoFile(tableName)
 		if err != nil {
 			const msg = "Store table into file failed"
@@ -308,7 +347,7 @@ func performDataExportToFiles(configuration *ConfigStruct,
 		}
 	}
 
-	operationLogger.Info().Msg("Closing connection to storage")
+	operationLogger.Info().Msg(closingConnectionToStorage)
 
 	// we have finished, let's close the connection to database
 	err = storage.Close()
@@ -406,11 +445,11 @@ func createOperationLog(cliFlags CliFlags) (zerolog.Logger, bytes.Buffer, error)
 
 	if cliFlags.ExportLog {
 		switch cliFlags.Output {
-		case "S3":
+		case s3Output:
 			memoryLogger := zerolog.New(&buffer).With().Logger()
 			memoryLogger.Info().Msg("Memory logger initialized")
 			return memoryLogger, buffer, nil
-		case "file":
+		case fileOutput:
 			logFile, err := os.Create(logFile)
 			if err != nil {
 				return dummyLogger, buffer, err
@@ -419,7 +458,7 @@ func createOperationLog(cliFlags CliFlags) (zerolog.Logger, bytes.Buffer, error)
 			fileLogger.Info().Msg("File logger initialized")
 			return fileLogger, buffer, nil
 		default:
-			return dummyLogger, buffer, fmt.Errorf("Unknown output type: %s", cliFlags.Output)
+			return dummyLogger, buffer, fmt.Errorf(unknownOutputType, cliFlags.Output)
 		}
 	}
 
