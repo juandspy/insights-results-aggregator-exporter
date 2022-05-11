@@ -215,12 +215,156 @@ func TestParseFlags(t *testing.T) {
 	assert.NotNil(t, flags)
 }
 
+// TestPerformDataExportViaDoSelectedOperation checks the function
+// performDataExport.
+func TestPerformDataExportViaDoSelectedOperation(t *testing.T) {
+	// fill in configuration structure w/o specifying S3 connection or DB
+	// connection
+	configuration := main.ConfigStruct{}
+
+	// default operation is export data
+	cliFlags := main.CliFlags{
+		ShowVersion:       false,
+		ShowAuthors:       false,
+		ShowConfiguration: false,
+		CheckS3Connection: false,
+	}
+
+	// the call should fail
+	code, err := main.DoSelectedOperation(&configuration, cliFlags)
+	assert.Equal(t, code, main.ExitStatusStorageError)
+	assert.Error(t, err)
+}
+
 // TestCheckS3Connection checks the function CheckS3Connection
 func TestCheckS3Connection(t *testing.T) {
 	// fill in configuration structure
+	// w/o specifying S3 connection
 	configuration := main.ConfigStruct{}
 
+	// the call should fail
 	code, err := main.CheckS3Connection(&configuration)
 	assert.Equal(t, code, main.ExitStatusS3Error)
+	assert.Error(t, err)
+}
+
+// TestPerformDataExport checks the function performDataExport.
+func TestPerformDataExportNoStorage(t *testing.T) {
+	// fill in configuration structure w/o specifying S3 connection or DB
+	// connection
+	configuration := main.ConfigStruct{}
+
+	// default operation is export data
+	cliFlags := main.CliFlags{
+		ShowVersion:       false,
+		ShowAuthors:       false,
+		ShowConfiguration: false,
+		CheckS3Connection: false,
+	}
+
+	// the call should fail
+	code, err := main.PerformDataExport(&configuration, cliFlags)
+	assert.Equal(t, code, main.ExitStatusStorageError)
+	assert.Error(t, err)
+}
+
+// TestPerformDataExport checks the function performDataExport.
+func TestPerformDataExportConfigError(t *testing.T) {
+	// fill in configuration structure w/o specifying S3 connection
+	// but DB connection is specified
+	configuration := main.ConfigStruct{
+		main.StorageConfiguration{
+			Driver:        "postgres",
+			PGUsername:    "user",
+			PGPassword:    "password",
+			PGHost:        "nowhere",
+			PGPort:        1234,
+			PGDBName:      "test",
+			PGParams:      "",
+			LogSQLQueries: true,
+		},
+		main.S3Configuration{},
+		main.LoggingConfiguration{},
+	}
+
+	// default operation is export data
+	cliFlags := main.CliFlags{
+		ShowVersion:       false,
+		ShowAuthors:       false,
+		ShowConfiguration: false,
+		CheckS3Connection: false,
+	}
+
+	// the call should fail, but now because of improper configuration
+	code, err := main.PerformDataExport(&configuration, cliFlags)
+	assert.Equal(t, code, main.ExitStatusConfigurationError)
+	assert.Error(t, err)
+}
+
+// TestPerformDataExport checks the function performDataExport.
+func TestPerformDataExportToS3(t *testing.T) {
+	// fill in configuration structure w/o specifying S3 connection
+	// but DB connection is specified
+	configuration := main.ConfigStruct{
+		main.StorageConfiguration{
+			Driver:        "postgres",
+			PGUsername:    "user",
+			PGPassword:    "password",
+			PGHost:        "nowhere",
+			PGPort:        1234,
+			PGDBName:      "test",
+			PGParams:      "",
+			LogSQLQueries: true,
+		},
+		main.S3Configuration{},
+		main.LoggingConfiguration{},
+	}
+
+	// default operation is export data
+	cliFlags := main.CliFlags{
+		ShowVersion:       false,
+		ShowAuthors:       false,
+		ShowConfiguration: false,
+		CheckS3Connection: false,
+		Output:            "S3",
+	}
+
+	// the call should fail due to inaccessible S3/Minio
+	code, err := main.PerformDataExport(&configuration, cliFlags)
+	assert.Equal(t, code, main.ExitStatusS3Error)
+	assert.Error(t, err)
+}
+
+// TestPerformDataExport checks the function performDataExport.
+func TestPerformDataExportToFile(t *testing.T) {
+	// fill in configuration structure w/o specifying S3 connection
+	// but DB connection is specified
+	configuration := main.ConfigStruct{
+		main.StorageConfiguration{
+			Driver:        "postgres",
+			PGUsername:    "user",
+			PGPassword:    "password",
+			PGHost:        "nowhere",
+			PGPort:        1234,
+			PGDBName:      "test",
+			PGParams:      "",
+			LogSQLQueries: true,
+		},
+		main.S3Configuration{},
+		main.LoggingConfiguration{},
+	}
+
+	// default operation is export data
+	cliFlags := main.CliFlags{
+		ShowVersion:       false,
+		ShowAuthors:       false,
+		ShowConfiguration: false,
+		CheckS3Connection: false,
+		Output:            "file",
+	}
+
+	// the call should fail due to inaccessible storage (DB)
+	code, err := main.PerformDataExport(&configuration, cliFlags)
+	assert.Equal(t, code, main.ExitStatusStorageError)
 	assert.Error(t, err)
 }
