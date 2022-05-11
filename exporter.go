@@ -509,7 +509,12 @@ func main() {
 	}
 
 	if cliFlags.ExportLog && cliFlags.Output == s3Output {
-		storeOpertionLogIntoS3(&config, buffer)
+		err := storeOpertionLogIntoS3(&config, buffer)
+		if err != nil {
+			log.Err(err).Msg("Storing log into S3 failed")
+			os.Exit(exitStatus)
+			return
+		}
 	}
 
 	log.Debug().Msg("Finished")
