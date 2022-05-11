@@ -450,30 +450,29 @@ func (w DummyWriter) Write(p []byte) (n int, err error) {
 }
 
 // createOperationLog function constructs operation log instance
-func createOperationLog(cliFlags CliFlags) (zerolog.Logger, bytes.Buffer, error) {
+func createOperationLog(cliFlags CliFlags, buffer *bytes.Buffer) (zerolog.Logger, error) {
 	dummyLogger := zerolog.New(DummyWriter{}).With().Logger()
-	var buffer bytes.Buffer
 
 	if cliFlags.ExportLog {
 		switch cliFlags.Output {
 		case s3Output:
-			memoryLogger := zerolog.New(&buffer).With().Logger()
+			memoryLogger := zerolog.New(buffer).With().Logger()
 			memoryLogger.Info().Msg("Memory logger initialized")
-			return memoryLogger, buffer, nil
+			return memoryLogger, nil
 		case fileOutput:
 			logFile, err := os.Create(logFile)
 			if err != nil {
-				return dummyLogger, buffer, err
+				return dummyLogger, err
 			}
 			fileLogger := zerolog.New(logFile).With().Logger()
 			fileLogger.Info().Msg("File logger initialized")
-			return fileLogger, buffer, nil
+			return fileLogger, nil
 		default:
-			return dummyLogger, buffer, fmt.Errorf(unknownOutputType, cliFlags.Output)
+			return dummyLogger, fmt.Errorf(unknownOutputType, cliFlags.Output)
 		}
 	}
 
-	return dummyLogger, buffer, nil
+	return dummyLogger, nil
 
 }
 
@@ -493,7 +492,8 @@ func main() {
 		log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
 	}
 
-	operationLogger, buffer, err := createOperationLog(cliFlags)
+	var buffer bytes.Buffer
+	operationLogger, err := createOperationLog(cliFlags, &buffer)
 	if err != nil {
 		log.Err(err).Msg("Create operation log")
 		os.Exit(ExitStatusIOError)
