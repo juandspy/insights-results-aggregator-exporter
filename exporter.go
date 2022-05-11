@@ -17,6 +17,7 @@ limitations under the License.
 package main
 
 import (
+	"bytes"
 	"flag"
 	"fmt"
 	"os"
@@ -66,6 +67,7 @@ const (
 	listOfTables  = "_tables.csv"
 	metadataTable = "_metadata.csv"
 	disabledRules = "_disabled_rules.csv"
+	logFile       = "_logs.txt"
 )
 
 // messages
@@ -310,7 +312,7 @@ func checkS3Connection(configuration *ConfigStruct) (int, error) {
 // doSelectedOperation function perform operation selected on command line.
 // When no operation is specified, the Notification writer service is started
 // instead.
-func doSelectedOperation(configuration *ConfigStruct, cliFlags CliFlags) (int, error) {
+func doSelectedOperation(configuration *ConfigStruct, cliFlags CliFlags, operationLogger zerolog.Logger) (int, error) {
 	switch {
 	case cliFlags.ShowVersion:
 		showVersion()
@@ -348,7 +350,43 @@ func parseFlags() (cliFlags CliFlags) {
 	return
 }
 
+type DummyWriter struct{}
+
+func (w DummyWriter) Write(p []byte) (n int, err error) {
+	return 0, nil
+}
+
+// createOperationLog function constructs operation log instance
+func createOperationLog(cliFlags CliFlags) (zerolog.Logger, bytes.Buffer, error) {
+	dummyLogger := zerolog.New(DummyWriter{}).With().Logger()
+	var buffer bytes.Buffer
+
+	if cliFlags.ExportLog {
+		switch cliFlags.Output {
+		case "S3":
+			memoryLogger := zerolog.New(&buffer).With().Logger()
+			memoryLogger.Info().Msg("Memory logger initialized")
+			return memoryLogger, buffer, nil
+		case "file":
+			logFile, err := os.Create(logFile)
+			if err != nil {
+				return dummyLogger, buffer, err
+			}
+			fileLogger := zerolog.New(logFile).With().Logger()
+			fileLogger.Info().Msg("File logger initialized")
+			return fileLogger, buffer, nil
+		default:
+			return dummyLogger, buffer, fmt.Errorf("Unknown output type: %s", cliFlags.Output)
+		}
+	}
+
+	return dummyLogger, buffer, nil
+
+}
+
 func main() {
+	log.Debug().Msg("Started")
+
 	// parse all command line flags
 	cliFlags := parseFlags()
 
@@ -362,15 +400,20 @@ func main() {
 		log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
 	}
 
+	operationLogger, buffer, err := createOperationLog(cliFlags)
+	if err != nil {
+		log.Err(err).Msg("Create operation log")
+		os.Exit(ExitStatusIOError)
+		return
+	}
+
 	// perform selected operation
-	exitStatus, err := doSelectedOperation(&config, cliFlags)
+	exitStatus, err := doSelectedOperation(&config, cliFlags, operationLogger)
 	if err != nil {
 		log.Err(err).Msg("Do selected operation")
 		os.Exit(exitStatus)
 		return
 	}
-
-	log.Debug().Msg("Started")
 
 	log.Debug().Msg("Finished")
 }
