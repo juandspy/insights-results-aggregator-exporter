@@ -39,6 +39,7 @@ var (
 	PrintTables         = printTables
 	ParseFlags          = parseFlags
 	CheckS3Connection   = checkS3Connection
+	PerformDataExport   = performDataExport
 
 	// exported functions from the s3.go source file
 	S3BucketExists  = s3BucketExists
