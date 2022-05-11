@@ -443,8 +443,10 @@ func parseFlags() (cliFlags CliFlags) {
 	return
 }
 
+// DummyWriter satisfies Writer interface, but with noop write
 type DummyWriter struct{}
 
+// Write method satisfies noop io.Write
 func (w DummyWriter) Write(p []byte) (n int, err error) {
 	return 0, nil
 }
