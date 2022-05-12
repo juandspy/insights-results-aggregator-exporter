@@ -102,6 +102,7 @@ type ConfigStruct struct {
 	Storage StorageConfiguration `mapstructure:"storage" toml:"storage"`
 	S3      S3Configuration      `mapstructure:"s3" tomp:"s3"`
 	Logging LoggingConfiguration `mapstructure:"logging" toml:"logging"`
+	Sentry  SentryConfiguration  `mapstructure:"sentry" toml:"sentry"`
 }
 
 // LoggingConfiguration represents configuration for logging in general
@@ -147,6 +148,12 @@ type S3Configuration struct {
 	SecretAccessKey string `mapstructure:"secret_access_key" toml:"secret_access_key"`
 	UseSSL          bool   `mapstructure:"use_ssl"           toml:"use_ssl"`
 	Bucket          string `mapstructure:"bucket"            toml:"bucket"`
+}
+
+// SentryConfiguration represents the configuration of Sentry logger
+type SentryConfiguration struct {
+	SentryDSN         string `mapstructure:"dsn" toml:"dsn"`
+	SentryEnvironment string `mapstructure:"environment" toml:"environment"`
 }
 
 // LoadConfiguration function loads configuration from defaultConfigFile, file
@@ -233,6 +240,11 @@ func GetStorageConfiguration(config *ConfigStruct) StorageConfiguration {
 // GetLoggingConfiguration function returns logging configuration
 func GetLoggingConfiguration(config *ConfigStruct) LoggingConfiguration {
 	return config.Logging
+}
+
+// GetSentryConfiguration returns logging configuration
+func GetSentryConfiguration(config *ConfigStruct) SentryConfiguration {
+	return config.Sentry
 }
 
 // GetS3Configuration function returns S3/Minio configuration

@@ -21,3 +21,7 @@ bucket = "test"
 [logging]
 debug = true
 log_level = ""
+
+[sentry]
+dsn = "test_dsn"
+environment = "test_env"

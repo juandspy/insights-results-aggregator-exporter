@@ -285,6 +285,7 @@ func TestPerformDataExportConfigError(t *testing.T) {
 		},
 		main.S3Configuration{},
 		main.LoggingConfiguration{},
+		main.SentryConfiguration{},
 	}
 
 	// default operation is export data
@@ -318,6 +319,7 @@ func TestPerformDataExportToS3(t *testing.T) {
 		},
 		main.S3Configuration{},
 		main.LoggingConfiguration{},
+		main.SentryConfiguration{},
 	}
 
 	// default operation is export data
@@ -352,6 +354,7 @@ func TestPerformDataExportToFile(t *testing.T) {
 		},
 		main.S3Configuration{},
 		main.LoggingConfiguration{},
+		main.SentryConfiguration{},
 	}
 
 	// default operation is export data
