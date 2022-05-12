@@ -40,6 +40,10 @@ const (
 	// ExitStatusOK means that the tool finished with success
 	ExitStatusOK = iota
 
+	// ExitStatusLoggingError is returned in case of any logging initialization
+	// error
+	ExitStatusLoggingError
+
 	// ExitStatusStorageError is returned in case of any consumer-related
 	// error
 	ExitStatusStorageError
@@ -478,7 +482,7 @@ func createOperationLog(cliFlags CliFlags, buffer *bytes.Buffer) (zerolog.Logger
 
 }
 
-func main() {
+func mainWithStatusCode() int {
 	log.Debug().Msg("Started")
 
 	// parse all command line flags
@@ -490,34 +494,41 @@ func main() {
 		log.Err(err).Msg("Load configuration")
 	}
 
-	if config.Logging.Debug {
-		log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
+	loggingCloser, err := InitLogging(&config)
+	if err != nil {
+		log.Err(err).Msg("Init logging")
+		return ExitStatusLoggingError
 	}
+
+	defer loggingCloser()
 
 	var buffer bytes.Buffer
 	operationLogger, err := createOperationLog(cliFlags, &buffer)
 	if err != nil {
 		log.Err(err).Msg("Create operation log")
-		os.Exit(ExitStatusIOError)
-		return
+		return ExitStatusIOError
 	}
 
 	// perform selected operation
 	exitStatus, err := doSelectedOperation(&config, cliFlags, operationLogger)
 	if err != nil {
 		log.Err(err).Msg("Do selected operation")
-		os.Exit(exitStatus)
-		return
+		return exitStatus
 	}
 
 	if cliFlags.ExportLog && cliFlags.Output == s3Output {
 		err := storeOpertionLogIntoS3(&config, buffer)
 		if err != nil {
 			log.Err(err).Msg("Storing log into S3 failed")
-			os.Exit(exitStatus)
-			return
+			return ExitStatusS3Error
 		}
 	}
 
 	log.Debug().Msg("Finished")
+	return ExitStatusOK
+}
+
+func main() {
+	exitStatus := mainWithStatusCode()
+	os.Exit(exitStatus)
 }
