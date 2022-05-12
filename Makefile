@@ -55,9 +55,6 @@ abcgo: ## Run ABC metrics checker
 	@echo "Run ABC metrics checker"
 	./abcgo.sh ${VERBOSE}
 
-openapi-check:
-	./check_openapi.sh
-
 style: fmt vet lint cyclo shellcheck errcheck goconst gosec ineffassign abcgo ## Run all the formatting related commands (fmt, vet, lint, cyclo) + check shell scripts
 
 run: ${BINARY} ## Build the project and executes the binary
@@ -79,7 +76,7 @@ bdd_tests: ## Run BDD tests
 	@echo "Run BDD tests"
 	pushd bdd_tests/ && ./run_tests.sh && popd
 
-before_commit: style test test-postgres integration_tests openapi-check license ## Checks done before commit
+before_commit: style test test-postgres integration_tests license ## Checks done before commit
 	./check_coverage.sh
 
 help: ## Show this help screen
