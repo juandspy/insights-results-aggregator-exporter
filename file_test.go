@@ -47,3 +47,19 @@ func mustReadFile(t *testing.T, filename string) string {
 
 	return string(fileContent)
 }
+
+// checkFileContent helper function checks if file has the expected content
+func checkFileContent(t *testing.T, filename string, expected string) {
+	content := mustReadFile(t, filename)
+	assert.Equal(t, expected, content)
+}
+
+// TestStoreTableNamesIntoFileNoWritableFile checks that error is thrown when
+// file can not be created
+func TestStoreTableNamesIntoFileNoWritableFile(t *testing.T) {
+	const filename = ""
+	tableNames := []main.TableName{}
+
+	err := main.StoreTableNamesIntoFile(filename, tableNames)
+	assert.Error(t, err, "Error should be thrown for empty file name")
+}
