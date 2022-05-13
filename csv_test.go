@@ -72,3 +72,66 @@ func TestDisabledRulesToCSV(t *testing.T) {
 	expected := "Rule,Count\nfirst,1\nsecond,2\nthird,3\n"
 	assert.Equal(t, expected, content)
 }
+
+// mustCreateStorage helper function creates dummy storage
+func mustCreateStorage(t *testing.T) *main.DBStorage {
+	storage, err := main.NewStorage(&main.StorageConfiguration{
+		Driver:        "sqlite3",
+		LogSQLQueries: true,
+	})
+	assert.NoError(t, err, "Storage constructor")
+	return storage
+}
+
+// TestTableMetadataToCSVNilBuffer check how nil buffer is handled by
+// TableMetadataToCSV function
+func TestTableMetadataToCSVNilBuffer(t *testing.T) {
+	// dummy storage
+	storage := mustCreateStorage(t)
+
+	// empty list
+	tableNames := []main.TableName{}
+
+	err := main.TableMetadataToCSV(nil, tableNames, *storage)
+	assert.Error(t, err, "Buffer is nil")
+}
+
+// TestTableMetadataToCSVEmptyListOfRules check exporting empty list of
+// disabled rules into CSV
+func TestTableMetadataToCSVEmptyListOfRules(t *testing.T) {
+	// dummy storage
+	storage := mustCreateStorage(t)
+
+	// buffer
+	buffer := new(bytes.Buffer)
+
+	// empty list
+	tableNames := []main.TableName{}
+
+	err := main.TableMetadataToCSV(buffer, tableNames, *storage)
+	assert.NoError(t, err, "Error not expected")
+
+	content := buffer.String()
+	expected := "Table name,Records\n"
+	assert.Equal(t, expected, content)
+}
+
+// TestTableMetadataToCSVE check exporting non-empty list of disabled rules
+// into CSV
+func TestTableMetadataToCSV(t *testing.T) {
+	// dummy storage
+	storage := mustCreateStorage(t)
+
+	// buffer
+	buffer := new(bytes.Buffer)
+
+	// non-empty list
+	tableNames := []main.TableName{
+		main.TableName("first"),
+		main.TableName("second"),
+		main.TableName("third"),
+	}
+
+	err := main.TableMetadataToCSV(buffer, tableNames, *storage)
+	assert.Error(t, err, "Storage error is not expected")
+}
