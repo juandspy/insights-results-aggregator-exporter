@@ -54,6 +54,15 @@ func checkFileContent(t *testing.T, filename string, expected string) {
 	assert.Equal(t, expected, content)
 }
 
+// mustRemoveTempDirectory helper function make sure the temporary directory is
+// deleted after testing
+func mustRemoveTempDirectory(t *testing.T, directory string) {
+	err := os.RemoveAll(directory)
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
 // TestStoreTableNamesIntoFileNoWritableFile checks that error is thrown when
 // file can not be created
 func TestStoreTableNamesIntoFileNoWritableFile(t *testing.T) {
@@ -68,7 +77,7 @@ func TestStoreTableNamesIntoFileNoWritableFile(t *testing.T) {
 // list of tables is pass into the storeDisabledRulesIntoFile function
 func TestStoreTableNamesIntoFileEmptyListOfTables(t *testing.T) {
 	directory := mustCreateTemporaryDirectory(t)
-	defer os.RemoveAll(directory)
+	defer mustRemoveTempDirectory(t, directory)
 
 	filename := directory + "tables.csv"
 	tableNames := []main.TableName{}
@@ -91,7 +100,7 @@ func TestStoreTableNamesIntoFileEmptyListOfTables(t *testing.T) {
 // storeDisabledRulesIntoFile function
 func TestStoreTableNamesIntoFile(t *testing.T) {
 	directory := mustCreateTemporaryDirectory(t)
-	defer os.RemoveAll(directory)
+	defer mustRemoveTempDirectory(t, directory)
 
 	filename := directory + "tables.csv"
 	tableNames := []main.TableName{
@@ -127,7 +136,7 @@ func TestStoreDisableRulesIntoFile(t *testing.T) {
 // list of disabled rules is pass into the storeDisabledRulesIntoFile function
 func TestStoreDisabledRulesIntoFileEmptyListOfTables(t *testing.T) {
 	directory := mustCreateTemporaryDirectory(t)
-	defer os.RemoveAll(directory)
+	defer mustRemoveTempDirectory(t, directory)
 
 	filename := directory + "disabled_rules.csv"
 	disabledRules := []main.DisabledRuleInfo{}
@@ -150,7 +159,7 @@ func TestStoreDisabledRulesIntoFileEmptyListOfTables(t *testing.T) {
 // storeDisabledRulesIntoFile function
 func TestStoreDisabledRulesIntoFile(t *testing.T) {
 	directory := mustCreateTemporaryDirectory(t)
-	defer os.RemoveAll(directory)
+	defer mustRemoveTempDirectory(t, directory)
 
 	filename := directory + "disabled_rules.csv"
 	disabledRules := []main.DisabledRuleInfo{
