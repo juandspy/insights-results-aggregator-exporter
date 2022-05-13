@@ -21,13 +21,17 @@ import (
 	"errors"
 	"io"
 	"strconv"
+
+	"github.com/rs/zerolog/log"
 )
+
+const bufferIsNil = "Buffer is nil"
 
 // DisabledRulesToCSV function exports list of disabled rules + number of users
 // who disabled rules to CSV file.
 func DisabledRulesToCSV(buffer io.Writer, disabledRulesInfo []DisabledRuleInfo) error {
 	if buffer == nil {
-		err := errors.New("Buffer is nil")
+		err := errors.New(bufferIsNil)
 		return err
 	}
 
@@ -45,6 +49,48 @@ func DisabledRulesToCSV(buffer io.Writer, disabledRulesInfo []DisabledRuleInfo) 
 			disabledRuleInfo.Rule,
 			strconv.Itoa(disabledRuleInfo.Count)})
 		if err != nil {
+			return err
+		}
+	}
+
+	writer.Flush()
+
+	// check for any error during export to CSV
+	err = writer.Error()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// TableMetadataToCSV function exports list of table names into CSV file.
+func TableMetadataToCSV(buffer io.Writer, tableNames []TableName, storage DBStorage) error {
+	if buffer == nil {
+		err := errors.New(bufferIsNil)
+		return err
+	}
+
+	writer := csv.NewWriter(buffer)
+
+	err := writer.Write([]string{"Table name", "Records"})
+	if err != nil {
+		log.Error().Err(err).Msg(writeOneRowToCSV)
+		return err
+	}
+
+	for _, tableName := range tableNames {
+		cnt, err := storage.ReadRecordsCount(tableName)
+		if err != nil {
+			log.Error().Err(err).Msg(readListOfRecordsFailed)
+			return err
+		}
+
+		columns := []string{string(tableName), strconv.Itoa(cnt)}
+
+		err = writer.Write(columns)
+		if err != nil {
+			log.Error().Err(err).Msg(writeOneRowToCSV)
 			return err
 		}
 	}

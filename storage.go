@@ -28,7 +28,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"strconv"
 
 	"database/sql"
 
@@ -556,7 +555,7 @@ func (storage DBStorage) StoreTableMetadataIntoFile(fileName string, tableNames 
 		return err
 	}
 
-	err = storage.storeTableMetadataAsCSV(tableNames, fout)
+	err = TableMetadataToCSV(fout, tableNames, storage)
 	if err != nil {
 		// logging has been performed already
 		return err
@@ -588,7 +587,7 @@ func (storage DBStorage) StoreTableMetadataIntoS3(ctx context.Context,
 
 	buffer := new(bytes.Buffer)
 
-	err := storage.storeTableMetadataAsCSV(tableNames, buffer)
+	err := TableMetadataToCSV(buffer, tableNames, storage)
 	if err != nil {
 		// logging has been performed already
 		return err
@@ -604,35 +603,6 @@ func (storage DBStorage) StoreTableMetadataIntoS3(ctx context.Context,
 	}
 
 	// everything look ok
-	return nil
-}
-
-func (storage DBStorage) storeTableMetadataAsCSV(tableNames []TableName, buffer io.Writer) error {
-	writer := csv.NewWriter(buffer)
-
-	err := writer.Write([]string{"Table name", "Records"})
-	if err != nil {
-		log.Error().Err(err).Msg(writeOneRowToCSV)
-		return err
-	}
-
-	for _, tableName := range tableNames {
-		cnt, err := storage.ReadRecordsCount(tableName)
-		if err != nil {
-			log.Error().Err(err).Msg(readListOfRecordsFailed)
-			return err
-		}
-
-		columns := []string{string(tableName), strconv.Itoa(cnt)}
-
-		err = writer.Write(columns)
-		if err != nil {
-			log.Error().Err(err).Msg(writeOneRowToCSV)
-			return err
-		}
-	}
-
-	writer.Flush()
 	return nil
 }
 
