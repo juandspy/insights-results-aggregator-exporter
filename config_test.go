@@ -16,6 +16,12 @@ limitations under the License.
 
 package main_test
 
+// Generated documentation is available at:
+// https://pkg.go.dev/github.com/RedHatInsights/insights-results-aggregator-exporter
+//
+// Documentation in literate-programming-style is available at:
+// https://redhatinsights.github.io/insights-results-aggregator-exporter/packages/config_test.html
+
 import (
 	"os"
 

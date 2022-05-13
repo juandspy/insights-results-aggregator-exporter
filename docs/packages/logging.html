@@ -138,6 +138,92 @@ limitations under the License.
 </code></pre></td>
       </tr>
       
+      <tr class="section">
+	<td class="doc"><p>Generated documentation is available at:
+https://pkg.go.dev/github.com/RedHatInsights/insights-results-aggregator-exporter</p>
+
+<p>Documentation in literate-programming-style is available at:
+https://redhatinsights.github.io/insights-results-aggregator-exporter/packages/logging.html</p>
+</td>
+	<td class="code"><pre><code>
+<div class="keyword">import</div> <div class="operator">(</div>
+	<div class="literal">&#34;fmt&#34;</div><div class="operator"></div>
+	<div class="literal">&#34;io&#34;</div><div class="operator"></div>
+	<div class="literal">&#34;os&#34;</div><div class="operator"></div>
+
+	<div class="ident">zlogsentry</div> <div class="literal">&#34;github.com/archdx/zerolog-sentry&#34;</div><div class="operator"></div>
+	<div class="literal">&#34;github.com/rs/zerolog&#34;</div><div class="operator"></div>
+	<div class="literal">&#34;github.com/rs/zerolog/log&#34;</div><div class="operator"></div>
+<div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>InitLogging add more writers to zerolog log object. This way the logging can be sent to
+many targets. For the moment just STDOUT and Sentry are configured.</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">InitLogging</div><div class="operator">(</div><div class="ident">config</div> <div class="operator">*</div><div class="ident">ConfigStruct</div><div class="operator">)</div> <div class="operator">(</div><div class="keyword">func</div><div class="operator">(</div><div class="operator">)</div><div class="operator">,</div> <div class="ident">error</div><div class="operator">)</div> <div class="operator">{</div>
+	<div class="keyword">var</div> <div class="operator">(</div>
+		<div class="ident">writers</div>       <div class="operator">[</div><div class="operator">]</div><div class="ident">io</div><div class="operator">.</div><div class="ident">Writer</div><div class="operator"></div>
+		<div class="ident">writeClosers</div>  <div class="operator">[</div><div class="operator">]</div><div class="ident">io</div><div class="operator">.</div><div class="ident">WriteCloser</div><div class="operator"></div>
+		<div class="ident">consoleWriter</div> <div class="ident">io</div><div class="operator">.</div><div class="ident">Writer</div><div class="operator"></div>
+	<div class="operator">)</div><div class="operator"></div>
+
+	<div class="ident">loggingConf</div> <div class="operator">:=</div> <div class="ident">GetLoggingConfiguration</div><div class="operator">(</div><div class="ident">config</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">sentryConf</div> <div class="operator">:=</div> <div class="ident">GetSentryConfiguration</div><div class="operator">(</div><div class="ident">config</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="ident">stdOut</div> <div class="operator">:=</div> <div class="ident">os</div><div class="operator">.</div><div class="ident">Stdout</div><div class="operator"></div>
+	<div class="ident">consoleWriter</div> <div class="operator">=</div> <div class="ident">stdOut</div><div class="operator"></div>
+
+	<div class="keyword">if</div> <div class="ident">loggingConf</div><div class="operator">.</div><div class="ident">Debug</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>nice colored output</p>
+</td>
+	<td class="code"><pre><code>		<div class="ident">consoleWriter</div> <div class="operator">=</div> <div class="ident">zerolog</div><div class="operator">.</div><div class="ident">ConsoleWriter</div><div class="operator">{</div><div class="ident">Out</div><div class="operator">:</div> <div class="ident">stdOut</div><div class="operator">}</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+
+	<div class="ident">writers</div> <div class="operator">=</div> <div class="ident">append</div><div class="operator">(</div><div class="ident">writers</div><div class="operator">,</div> <div class="ident">consoleWriter</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="keyword">if</div> <div class="ident">sentryConf</div><div class="operator">.</div><div class="ident">SentryDSN</div> <div class="operator">!=</div> <div class="literal">&#34;&#34;</div> <div class="operator">{</div>
+		<div class="ident">sentryWriter</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">setupSentryLogging</div><div class="operator">(</div><div class="ident">sentryConf</div><div class="operator">)</div><div class="operator"></div>
+		<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
+			<div class="ident">err</div> <div class="operator">=</div> <div class="ident">fmt</div><div class="operator">.</div><div class="ident">Errorf</div><div class="operator">(</div><div class="literal">&#34;Error initializing Sentry logging: %s&#34;</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">.</div><div class="ident">Error</div><div class="operator">(</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
+			<div class="keyword">return</div> <div class="keyword">func</div><div class="operator">(</div><div class="operator">)</div> <div class="operator">{</div><div class="operator">}</div><div class="operator">,</div> <div class="ident">err</div><div class="operator"></div>
+		<div class="operator">}</div><div class="operator"></div>
+		<div class="ident">writers</div> <div class="operator">=</div> <div class="ident">append</div><div class="operator">(</div><div class="ident">writers</div><div class="operator">,</div> <div class="ident">sentryWriter</div><div class="operator">)</div><div class="operator"></div>
+		<div class="ident">writeClosers</div> <div class="operator">=</div> <div class="ident">append</div><div class="operator">(</div><div class="ident">writeClosers</div><div class="operator">,</div> <div class="ident">sentryWriter</div><div class="operator">)</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+
+	<div class="ident">logsWriter</div> <div class="operator">:=</div> <div class="ident">zerolog</div><div class="operator">.</div><div class="ident">MultiLevelWriter</div><div class="operator">(</div><div class="ident">writers</div><div class="operator">...</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">log</div><div class="operator">.</div><div class="ident">Logger</div> <div class="operator">=</div> <div class="ident">zerolog</div><div class="operator">.</div><div class="ident">New</div><div class="operator">(</div><div class="ident">logsWriter</div><div class="operator">)</div><div class="operator">.</div><div class="ident">With</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Timestamp</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Logger</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="keyword">return</div> <div class="keyword">func</div><div class="operator">(</div><div class="operator">)</div> <div class="operator">{</div>
+		<div class="ident">log</div><div class="operator">.</div><div class="ident">Info</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;Closing logging writers&#34;</div><div class="operator">)</div><div class="operator"></div>
+		<div class="keyword">for</div> <div class="ident">_</div><div class="operator">,</div> <div class="ident">w</div> <div class="operator">:=</div> <div class="keyword">range</div> <div class="ident">writeClosers</div> <div class="operator">{</div>
+			<div class="ident">err</div> <div class="operator">:=</div> <div class="ident">w</div><div class="operator">.</div><div class="ident">Close</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+			<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
+				<div class="ident">log</div><div class="operator">.</div><div class="ident">Error</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Err</div><div class="operator">(</div><div class="ident">err</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;unable to close writer&#34;</div><div class="operator">)</div><div class="operator"></div>
+			<div class="operator">}</div><div class="operator"></div>
+		<div class="operator">}</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator">,</div> <div class="ident">nil</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+<div class="keyword">func</div> <div class="ident">setupSentryLogging</div><div class="operator">(</div><div class="ident">conf</div> <div class="ident">SentryConfiguration</div><div class="operator">)</div> <div class="operator">(</div><div class="ident">io</div><div class="operator">.</div><div class="ident">WriteCloser</div><div class="operator">,</div> <div class="ident">error</div><div class="operator">)</div> <div class="operator">{</div>
+	<div class="ident">sentryWriter</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">zlogsentry</div><div class="operator">.</div><div class="ident">New</div><div class="operator">(</div><div class="ident">conf</div><div class="operator">.</div><div class="ident">SentryDSN</div><div class="operator">,</div> <div class="ident">zlogsentry</div><div class="operator">.</div><div class="ident">WithEnvironment</div><div class="operator">(</div><div class="ident">conf</div><div class="operator">.</div><div class="ident">SentryEnvironment</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
+	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
+		<div class="keyword">return</div> <div class="ident">nil</div><div class="operator">,</div> <div class="ident">err</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+
+	<div class="keyword">return</div> <div class="ident">sentryWriter</div><div class="operator">,</div> <div class="ident">nil</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
     </tbody>
   </table>
 </div>

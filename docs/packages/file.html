@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<!--
+ Copyright 2022 Red Hat, Inc
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+
+<html>
+<head>
+<title>file.go</title>
+<meta charset="utf-8"/>
+<style type="text/css">body {
+    background: rgb(225, 225, 225);
+    margin: 0px;
+    padding: 0px;
+}
+
+#docgo p {
+    margin-top: 0px;
+    margin-right: 0px;
+    margin-bottom: 15px;
+    margin-left: 0px;
+}
+
+#docgo div {
+    display: inline;
+}
+
+#docgo #background {
+    position: fixed;
+    top: 0; left: 525px; right: 0; bottom: 0;
+    background: rgb(47, 47, 47);
+    border-left: 1px solid #e5e5ee;
+    z-index: -1;
+}
+
+#docgo .keyword {
+    color: rgb(250, 200, 100);
+}
+
+#docgo .literal {
+    color: rgb(140, 190, 100);
+}
+
+#docgo .ident {
+    color: white;
+}
+
+#docgo .operator {
+    color: white;
+}
+
+#docgo .comment {
+}
+
+#docgo h1, h2, h3, h4, h5 {
+    text-align: left;
+    margin-top: 0px;
+    margin-right: 0px;
+    margin-bottom: 15px;
+    margin-left: 0px;
+}
+
+#docgo h1 {
+    margin-top: 40px;
+}
+
+#docgo .doc {
+    vertical-align: top;
+    font-family: 'Palatino Linotype', 'Book Antiqua', Palatino, FreeSerif, serif;
+    font-size: 15px;
+    line-height: 22px;
+    color: black;
+    min-width: 450px;
+    max-width: 450px;
+    padding-top: 10px;
+    padding-right: 25px;
+    padding-bottom: 1px;
+    padding-left: 50px;
+    overflow-x: hidden;
+}
+
+#docgo .code {
+    min-width: 650px;
+    max-width: 650px;
+    padding-left: 25px;
+    padding-right: 15px;
+    border-left: 1px;
+    overflow-x: hidden;
+    vertical-align: top;
+}
+
+#docgo .code pre code  {
+    font-size: 12px;
+    line-height: 18px;
+    font-family: Menlo, Monaco, Consolas, "Lucida Console", monospace;
+    color: rgb(120, 120, 120);
+}
+</style>
+</head>
+<body>
+<div id="docgo">
+  <div id="background"></div>
+  <table>
+    <thead><tr><th class="doc"><h1>file.go</h1></th><th class="code"></th></tr></thead>
+    <tbody>
+      
+      <tr class="section">
+	<td class="doc"></td>
+	<td class="code"><pre><code><div class="comment">/*
+Copyright © 2022 Red Hat, Inc.
+
+Licensed under the Apache License, Version 2.0 (the &#34;License&#34;);
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an &#34;AS IS&#34; BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/</div>
+
+<div class="keyword">package</div> <div class="ident">main</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>Generated documentation is available at:
+https://pkg.go.dev/github.com/RedHatInsights/insights-results-aggregator-exporter</p>
+
+<p>Documentation in literate-programming-style is available at:
+https://redhatinsights.github.io/insights-results-aggregator-exporter/packages/file.html</p>
+</td>
+	<td class="code"><pre><code>
+<div class="keyword">import</div> <div class="operator">(</div>
+	<div class="literal">&#34;encoding/csv&#34;</div><div class="operator"></div>
+	<div class="literal">&#34;os&#34;</div><div class="operator"></div>
+
+	<div class="literal">&#34;github.com/rs/zerolog/log&#34;</div><div class="operator"></div>
+<div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>Messages</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">const</div> <div class="operator">(</div>
+	<div class="ident">writeTableNameToCSV</div>        <div class="operator">=</div> <div class="literal">&#34;Write table name to CSV&#34;</div><div class="operator"></div>
+	<div class="ident">writeDisabledRuleInfoToCSV</div> <div class="operator">=</div> <div class="literal">&#34;Write disabled rule info to CSV&#34;</div><div class="operator"></div>
+<div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>storeTableNamesIntoFile function stores names of all tables into the
+specified file</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">storeTableNamesIntoFile</div><div class="operator">(</div><div class="ident">fileName</div> <div class="ident">string</div><div class="operator">,</div> <div class="ident">tableNames</div> <div class="operator">[</div><div class="operator">]</div><div class="ident">TableName</div><div class="operator">)</div> <div class="ident">error</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>open new CSV file to be filled in</p>
+</td>
+	<td class="code"><pre><code>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>disable &quot;G304 (CWE-22): Potential file inclusion via variable&quot;</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">fout</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">os</div><div class="operator">.</div><div class="ident">Create</div><div class="operator">(</div><div class="ident">fileName</div><div class="operator">)</div> <div class="operator"></div><div class="comment">// #nosec G304</div>
+	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
+		<div class="keyword">return</div> <div class="ident">err</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>initialize CSV writer</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">writer</div> <div class="operator">:=</div> <div class="ident">csv</div><div class="operator">.</div><div class="ident">NewWriter</div><div class="operator">(</div><div class="ident">fout</div><div class="operator">)</div><div class="operator"></div>
+	<div class="keyword">var</div> <div class="ident">data</div> <div class="operator">=</div> <div class="operator">[</div><div class="operator">]</div><div class="operator">[</div><div class="operator">]</div><div class="ident">string</div><div class="operator">{</div><div class="operator">{</div><div class="literal">&#34;Table name&#34;</div><div class="operator">}</div><div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>header</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">err</div> <div class="operator">=</div> <div class="ident">writer</div><div class="operator">.</div><div class="ident">WriteAll</div><div class="operator">(</div><div class="ident">data</div><div class="operator">)</div><div class="operator"></div>
+	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
+		<div class="keyword">return</div> <div class="ident">err</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>table names</p>
+</td>
+	<td class="code"><pre><code>	<div class="keyword">for</div> <div class="ident">_</div><div class="operator">,</div> <div class="ident">tableName</div> <div class="operator">:=</div> <div class="keyword">range</div> <div class="ident">tableNames</div> <div class="operator">{</div>
+		<div class="ident">err</div> <div class="operator">:=</div> <div class="ident">writer</div><div class="operator">.</div><div class="ident">Write</div><div class="operator">(</div><div class="operator">[</div><div class="operator">]</div><div class="ident">string</div><div class="operator">{</div><div class="ident">string</div><div class="operator">(</div><div class="ident">tableName</div><div class="operator">)</div><div class="operator">}</div><div class="operator">)</div><div class="operator"></div>
+		<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
+			<div class="ident">log</div><div class="operator">.</div><div class="ident">Error</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Err</div><div class="operator">(</div><div class="ident">err</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="ident">writeTableNameToCSV</div><div class="operator">)</div><div class="operator"></div>
+		<div class="operator">}</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+
+	<div class="ident">writer</div><div class="operator">.</div><div class="ident">Flush</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>check for any error during export to CSV</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">err</div> <div class="operator">=</div> <div class="ident">writer</div><div class="operator">.</div><div class="ident">Error</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
+		<div class="keyword">return</div> <div class="ident">err</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>close the file and check if close operation was ok</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">err</div> <div class="operator">=</div> <div class="ident">fout</div><div class="operator">.</div><div class="ident">Close</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
+		<div class="keyword">return</div> <div class="ident">err</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+
+	<div class="keyword">return</div> <div class="ident">nil</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>storeDisabledRulesIntoFile function stores info about disabled rules into
+specified file</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">storeDisabledRulesIntoFile</div><div class="operator">(</div><div class="ident">fileName</div> <div class="ident">string</div><div class="operator">,</div> <div class="ident">disabledRulesInfo</div> <div class="operator">[</div><div class="operator">]</div><div class="ident">DisabledRuleInfo</div><div class="operator">)</div> <div class="ident">error</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>open new CSV file to be filled in</p>
+</td>
+	<td class="code"><pre><code>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>disable &quot;G304 (CWE-22): Potential file inclusion via variable&quot;</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">fout</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">os</div><div class="operator">.</div><div class="ident">Create</div><div class="operator">(</div><div class="ident">fileName</div><div class="operator">)</div> <div class="operator"></div><div class="comment">// #nosec G304</div>
+	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
+		<div class="keyword">return</div> <div class="ident">err</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>conversion to CSV</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">err</div> <div class="operator">=</div> <div class="ident">DisabledRulesToCSV</div><div class="operator">(</div><div class="ident">fout</div><div class="operator">,</div> <div class="ident">disabledRulesInfo</div><div class="operator">)</div><div class="operator"></div>
+	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
+		<div class="ident">log</div><div class="operator">.</div><div class="ident">Error</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Err</div><div class="operator">(</div><div class="ident">err</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="ident">writeDisabledRuleInfoToCSV</div><div class="operator">)</div><div class="operator"></div>
+		<div class="keyword">return</div> <div class="ident">err</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>close the file and check if close operation was ok</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">err</div> <div class="operator">=</div> <div class="ident">fout</div><div class="operator">.</div><div class="ident">Close</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
+		<div class="keyword">return</div> <div class="ident">err</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+
+	<div class="keyword">return</div> <div class="ident">nil</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+    </tbody>
+  </table>
+</div>
+</body>
+</html>

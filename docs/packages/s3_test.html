@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<!--
+ Copyright 2022 Red Hat, Inc
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+
+<html>
+<head>
+<title>s3_test.go</title>
+<meta charset="utf-8"/>
+<style type="text/css">body {
+    background: rgb(225, 225, 225);
+    margin: 0px;
+    padding: 0px;
+}
+
+#docgo p {
+    margin-top: 0px;
+    margin-right: 0px;
+    margin-bottom: 15px;
+    margin-left: 0px;
+}
+
+#docgo div {
+    display: inline;
+}
+
+#docgo #background {
+    position: fixed;
+    top: 0; left: 525px; right: 0; bottom: 0;
+    background: rgb(47, 47, 47);
+    border-left: 1px solid #e5e5ee;
+    z-index: -1;
+}
+
+#docgo .keyword {
+    color: rgb(250, 200, 100);
+}
+
+#docgo .literal {
+    color: rgb(140, 190, 100);
+}
+
+#docgo .ident {
+    color: white;
+}
+
+#docgo .operator {
+    color: white;
+}
+
+#docgo .comment {
+}
+
+#docgo h1, h2, h3, h4, h5 {
+    text-align: left;
+    margin-top: 0px;
+    margin-right: 0px;
+    margin-bottom: 15px;
+    margin-left: 0px;
+}
+
+#docgo h1 {
+    margin-top: 40px;
+}
+
+#docgo .doc {
+    vertical-align: top;
+    font-family: 'Palatino Linotype', 'Book Antiqua', Palatino, FreeSerif, serif;
+    font-size: 15px;
+    line-height: 22px;
+    color: black;
+    min-width: 450px;
+    max-width: 450px;
+    padding-top: 10px;
+    padding-right: 25px;
+    padding-bottom: 1px;
+    padding-left: 50px;
+    overflow-x: hidden;
+}
+
+#docgo .code {
+    min-width: 650px;
+    max-width: 650px;
+    padding-left: 25px;
+    padding-right: 15px;
+    border-left: 1px;
+    overflow-x: hidden;
+    vertical-align: top;
+}
+
+#docgo .code pre code  {
+    font-size: 12px;
+    line-height: 18px;
+    font-family: Menlo, Monaco, Consolas, "Lucida Console", monospace;
+    color: rgb(120, 120, 120);
+}
+</style>
+</head>
+<body>
+<div id="docgo">
+  <div id="background"></div>
+  <table>
+    <thead><tr><th class="doc"><h1>s3_test.go</h1></th><th class="code"></th></tr></thead>
+    <tbody>
+      
+      <tr class="section">
+	<td class="doc"></td>
+	<td class="code"><pre><code><div class="comment">/*
+Copyright © 2022 Red Hat, Inc.
+
+Licensed under the Apache License, Version 2.0 (the &#34;License&#34;);
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an &#34;AS IS&#34; BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/</div>
+
+<div class="keyword">package</div> <div class="ident">main_test</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>Generated documentation is available at:
+https://pkg.go.dev/github.com/RedHatInsights/insights-results-aggregator-exporter</p>
+
+<p>Documentation in literate-programming-style is available at:
+https://redhatinsights.github.io/insights-results-aggregator-exporter/packages/s3_test.html</p>
+</td>
+	<td class="code"><pre><code>
+<div class="keyword">import</div> <div class="operator">(</div>
+	<div class="literal">&#34;context&#34;</div><div class="operator"></div>
+	<div class="literal">&#34;testing&#34;</div><div class="operator"></div>
+
+	<div class="literal">&#34;github.com/stretchr/testify/assert&#34;</div><div class="operator"></div>
+
+	<div class="literal">&#34;github.com/minio/minio-go/v7&#34;</div><div class="operator"></div>
+
+	<div class="ident">main</div> <div class="literal">&#34;github.com/RedHatInsights/insights-results-aggregator-exporter&#34;</div><div class="operator"></div>
+<div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>mustConstructMinioClient helper function constructs an instance of Minio
+client or make the test fail</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">mustConstructMinioClient</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">*</div><div class="ident">minio</div><div class="operator">.</div><div class="ident">Client</div> <div class="operator">{</div>
+	<div class="ident">minioClient</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">minio</div><div class="operator">.</div><div class="ident">New</div><div class="operator">(</div><div class="literal">&#34;localhost:1234&#34;</div><div class="operator">,</div> <div class="operator">&amp;</div><div class="ident">minio</div><div class="operator">.</div><div class="ident">Options</div><div class="operator">{</div><div class="operator">}</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Nil</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="keyword">return</div> <div class="ident">minioClient</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>Test case specification structure for function main.NewS3Connection</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">type</div> <div class="ident">newS3ConnectionTestSpecification</div> <div class="keyword">struct</div> <div class="operator">{</div>
+	<div class="ident">description</div>   <div class="ident">string</div><div class="operator"></div>
+	<div class="ident">configuration</div> <div class="operator">*</div><div class="ident">main</div><div class="operator">.</div><div class="ident">ConfigStruct</div><div class="operator"></div>
+	<div class="ident">shouldFail</div>    <div class="ident">bool</div><div class="operator"></div>
+	<div class="ident">expectedError</div> <div class="ident">string</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>TestNewS3Connection checks the function/constructor NewS3Connection</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">TestNewS3Connection</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>all test cases</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">testCases</div> <div class="operator">:=</div> <div class="operator">[</div><div class="operator">]</div><div class="ident">newS3ConnectionTestSpecification</div><div class="operator">{</div>
+		<div class="ident">newS3ConnectionTestSpecification</div><div class="operator">{</div>
+			<div class="ident">description</div><div class="operator">:</div>   <div class="literal">&#34;nilConfiguration&#34;</div><div class="operator">,</div>
+			<div class="ident">configuration</div><div class="operator">:</div> <div class="ident">nil</div><div class="operator">,</div>
+			<div class="ident">shouldFail</div><div class="operator">:</div>    <div class="ident">true</div><div class="operator">,</div>
+			<div class="ident">expectedError</div><div class="operator">:</div> <div class="literal">&#34;Configuration is nil&#34;</div><div class="operator">,</div>
+		<div class="operator">}</div><div class="operator">,</div>
+		<div class="ident">newS3ConnectionTestSpecification</div><div class="operator">{</div>
+			<div class="ident">description</div><div class="operator">:</div>   <div class="literal">&#34;emptyConfiguration&#34;</div><div class="operator">,</div>
+			<div class="ident">configuration</div><div class="operator">:</div> <div class="operator">&amp;</div><div class="ident">main</div><div class="operator">.</div><div class="ident">ConfigStruct</div><div class="operator">{</div><div class="operator">}</div><div class="operator">,</div>
+			<div class="ident">shouldFail</div><div class="operator">:</div>    <div class="ident">true</div><div class="operator">,</div>
+			<div class="ident">expectedError</div><div class="operator">:</div> <div class="literal">&#34;Endpoint: :0 does not follow ip address or domain name standards.&#34;</div><div class="operator">,</div>
+		<div class="operator">}</div><div class="operator">,</div>
+		<div class="ident">newS3ConnectionTestSpecification</div><div class="operator">{</div>
+			<div class="ident">description</div><div class="operator">:</div> <div class="literal">&#34;wrongConfiguration&#34;</div><div class="operator">,</div>
+			<div class="ident">configuration</div><div class="operator">:</div> <div class="operator">&amp;</div><div class="ident">main</div><div class="operator">.</div><div class="ident">ConfigStruct</div><div class="operator">{</div>
+				<div class="ident">S3</div><div class="operator">:</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">S3Configuration</div><div class="operator">{</div>
+					<div class="ident">Type</div><div class="operator">:</div>            <div class="literal">&#34;&#34;</div><div class="operator">,</div>
+					<div class="ident">EndpointURL</div><div class="operator">:</div>     <div class="literal">&#34;&#34;</div><div class="operator">,</div>
+					<div class="ident">EndpointPort</div><div class="operator">:</div>    <div class="literal">1234</div><div class="operator">,</div>
+					<div class="ident">AccessKeyID</div><div class="operator">:</div>     <div class="literal">&#34;&#34;</div><div class="operator">,</div>
+					<div class="ident">SecretAccessKey</div><div class="operator">:</div> <div class="literal">&#34;&#34;</div><div class="operator">,</div>
+					<div class="ident">UseSSL</div><div class="operator">:</div>          <div class="ident">false</div><div class="operator">,</div>
+					<div class="ident">Bucket</div><div class="operator">:</div>          <div class="literal">&#34;&#34;</div><div class="operator">,</div>
+				<div class="operator">}</div><div class="operator">}</div><div class="operator">,</div>
+			<div class="ident">shouldFail</div><div class="operator">:</div>    <div class="ident">true</div><div class="operator">,</div>
+			<div class="ident">expectedError</div><div class="operator">:</div> <div class="literal">&#34;Endpoint: :1234 does not follow ip address or domain name standards.&#34;</div><div class="operator">,</div>
+		<div class="operator">}</div><div class="operator">,</div>
+		<div class="ident">newS3ConnectionTestSpecification</div><div class="operator">{</div>
+			<div class="ident">description</div><div class="operator">:</div> <div class="literal">&#34;correctConfiguration&#34;</div><div class="operator">,</div>
+			<div class="ident">configuration</div><div class="operator">:</div> <div class="operator">&amp;</div><div class="ident">main</div><div class="operator">.</div><div class="ident">ConfigStruct</div><div class="operator">{</div>
+				<div class="ident">S3</div><div class="operator">:</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">S3Configuration</div><div class="operator">{</div>
+					<div class="ident">Type</div><div class="operator">:</div>            <div class="literal">&#34;minio&#34;</div><div class="operator">,</div>
+					<div class="ident">EndpointURL</div><div class="operator">:</div>     <div class="literal">&#34;localhost&#34;</div><div class="operator">,</div>
+					<div class="ident">EndpointPort</div><div class="operator">:</div>    <div class="literal">1234</div><div class="operator">,</div>
+					<div class="ident">AccessKeyID</div><div class="operator">:</div>     <div class="literal">&#34;foobar&#34;</div><div class="operator">,</div>
+					<div class="ident">SecretAccessKey</div><div class="operator">:</div> <div class="literal">&#34;foobar&#34;</div><div class="operator">,</div>
+					<div class="ident">UseSSL</div><div class="operator">:</div>          <div class="ident">false</div><div class="operator">,</div>
+					<div class="ident">Bucket</div><div class="operator">:</div>          <div class="literal">&#34;test&#34;</div><div class="operator">,</div>
+				<div class="operator">}</div><div class="operator">}</div><div class="operator">,</div>
+			<div class="ident">shouldFail</div><div class="operator">:</div> <div class="ident">false</div><div class="operator">,</div>
+		<div class="operator">}</div><div class="operator">,</div>
+	<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>run all specified test cases</p>
+</td>
+	<td class="code"><pre><code>	<div class="keyword">for</div> <div class="ident">_</div><div class="operator">,</div> <div class="ident">testCase</div> <div class="operator">:=</div> <div class="keyword">range</div> <div class="ident">testCases</div> <div class="operator">{</div>
+		<div class="ident">t</div><div class="operator">.</div><div class="ident">Run</div><div class="operator">(</div><div class="ident">testCase</div><div class="operator">.</div><div class="ident">description</div><div class="operator">,</div> <div class="keyword">func</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>try to construct Minio client using nil
+configuration</p>
+</td>
+	<td class="code"><pre><code>			<div class="ident">client</div><div class="operator">,</div> <div class="ident">_</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">NewS3Connection</div><div class="operator">(</div><div class="ident">testCase</div><div class="operator">.</div><div class="ident">configuration</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>check for error</p>
+</td>
+	<td class="code"><pre><code>			<div class="keyword">if</div> <div class="ident">testCase</div><div class="operator">.</div><div class="ident">shouldFail</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>client should not be constructed and error
+should be returned</p>
+</td>
+	<td class="code"><pre><code>				<div class="ident">assert</div><div class="operator">.</div><div class="ident">Error</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">)</div><div class="operator"></div>
+				<div class="ident">assert</div><div class="operator">.</div><div class="ident">Contains</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">.</div><div class="ident">Error</div><div class="operator">(</div><div class="operator">)</div><div class="operator">,</div> <div class="ident">testCase</div><div class="operator">.</div><div class="ident">expectedError</div><div class="operator">)</div><div class="operator"></div>
+				<div class="ident">assert</div><div class="operator">.</div><div class="ident">Nil</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">client</div><div class="operator">)</div><div class="operator"></div>
+			<div class="operator">}</div> <div class="keyword">else</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>client should be constructed and error
+should not be returned</p>
+</td>
+	<td class="code"><pre><code>				<div class="ident">assert</div><div class="operator">.</div><div class="ident">NoError</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">)</div><div class="operator"></div>
+				<div class="ident">assert</div><div class="operator">.</div><div class="ident">NotNil</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">client</div><div class="operator">)</div><div class="operator"></div>
+			<div class="operator">}</div><div class="operator"></div>
+		<div class="operator">}</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="operator">}</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>Test case specification structure for function main.s3BucketExists</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">type</div> <div class="ident">s3BucketExistsTestSpecification</div> <div class="keyword">struct</div> <div class="operator">{</div>
+	<div class="ident">description</div>   <div class="ident">string</div><div class="operator"></div>
+	<div class="ident">minioClient</div>   <div class="operator">*</div><div class="ident">minio</div><div class="operator">.</div><div class="ident">Client</div><div class="operator"></div>
+	<div class="ident">bucketName</div>    <div class="ident">string</div><div class="operator"></div>
+	<div class="ident">shouldFail</div>    <div class="ident">bool</div><div class="operator"></div>
+	<div class="ident">expectedError</div> <div class="ident">string</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>TestS3BucketExists checks the function s3BucketExists</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">TestS3BucketExists</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+	<div class="ident">ctx</div> <div class="operator">:=</div> <div class="ident">context</div><div class="operator">.</div><div class="ident">Background</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>all test cases</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">testCases</div> <div class="operator">:=</div> <div class="operator">[</div><div class="operator">]</div><div class="ident">s3BucketExistsTestSpecification</div><div class="operator">{</div>
+		<div class="ident">s3BucketExistsTestSpecification</div><div class="operator">{</div>
+			<div class="ident">description</div><div class="operator">:</div>   <div class="literal">&#34;NoMinioClient&#34;</div><div class="operator">,</div>
+			<div class="ident">minioClient</div><div class="operator">:</div>   <div class="ident">nil</div><div class="operator">,</div>
+			<div class="ident">bucketName</div><div class="operator">:</div>    <div class="literal">&#34;&#34;</div><div class="operator">,</div>
+			<div class="ident">shouldFail</div><div class="operator">:</div>    <div class="ident">true</div><div class="operator">,</div>
+			<div class="ident">expectedError</div><div class="operator">:</div> <div class="literal">&#34;Minio Client is nil&#34;</div><div class="operator">,</div>
+		<div class="operator">}</div><div class="operator">,</div>
+		<div class="ident">s3BucketExistsTestSpecification</div><div class="operator">{</div>
+			<div class="ident">description</div><div class="operator">:</div>   <div class="literal">&#34;EmptyBucketName&#34;</div><div class="operator">,</div>
+			<div class="ident">minioClient</div><div class="operator">:</div>   <div class="ident">mustConstructMinioClient</div><div class="operator">(</div><div class="ident">t</div><div class="operator">)</div><div class="operator">,</div>
+			<div class="ident">bucketName</div><div class="operator">:</div>    <div class="literal">&#34;&#34;</div><div class="operator">,</div>
+			<div class="ident">shouldFail</div><div class="operator">:</div>    <div class="ident">true</div><div class="operator">,</div>
+			<div class="ident">expectedError</div><div class="operator">:</div> <div class="literal">&#34;Bucket name is not set&#34;</div><div class="operator">,</div>
+		<div class="operator">}</div><div class="operator">,</div>
+		<div class="ident">s3BucketExistsTestSpecification</div><div class="operator">{</div>
+			<div class="ident">description</div><div class="operator">:</div>   <div class="literal">&#34;NotAccessibleClient&#34;</div><div class="operator">,</div>
+			<div class="ident">minioClient</div><div class="operator">:</div>   <div class="ident">mustConstructMinioClient</div><div class="operator">(</div><div class="ident">t</div><div class="operator">)</div><div class="operator">,</div>
+			<div class="ident">bucketName</div><div class="operator">:</div>    <div class="literal">&#34;bucket&#34;</div><div class="operator">,</div>
+			<div class="ident">shouldFail</div><div class="operator">:</div>    <div class="ident">true</div><div class="operator">,</div>
+			<div class="ident">expectedError</div><div class="operator">:</div> <div class="literal">&#34;connect: connection refused&#34;</div><div class="operator">,</div>
+		<div class="operator">}</div><div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>run all specified test cases</p>
+</td>
+	<td class="code"><pre><code>	<div class="keyword">for</div> <div class="ident">_</div><div class="operator">,</div> <div class="ident">testCase</div> <div class="operator">:=</div> <div class="keyword">range</div> <div class="ident">testCases</div> <div class="operator">{</div>
+		<div class="ident">t</div><div class="operator">.</div><div class="ident">Run</div><div class="operator">(</div><div class="ident">testCase</div><div class="operator">.</div><div class="ident">description</div><div class="operator">,</div> <div class="keyword">func</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+			<div class="ident">_</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">S3BucketExists</div><div class="operator">(</div><div class="ident">ctx</div><div class="operator">,</div>
+				<div class="ident">testCase</div><div class="operator">.</div><div class="ident">minioClient</div><div class="operator">,</div> <div class="ident">testCase</div><div class="operator">.</div><div class="ident">bucketName</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>check for error</p>
+</td>
+	<td class="code"><pre><code>			<div class="keyword">if</div> <div class="ident">testCase</div><div class="operator">.</div><div class="ident">shouldFail</div> <div class="operator">{</div>
+				<div class="ident">assert</div><div class="operator">.</div><div class="ident">Error</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">)</div><div class="operator"></div>
+				<div class="ident">assert</div><div class="operator">.</div><div class="ident">Contains</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">.</div><div class="ident">Error</div><div class="operator">(</div><div class="operator">)</div><div class="operator">,</div> <div class="ident">testCase</div><div class="operator">.</div><div class="ident">expectedError</div><div class="operator">)</div><div class="operator"></div>
+			<div class="operator">}</div> <div class="keyword">else</div> <div class="operator">{</div>
+				<div class="ident">assert</div><div class="operator">.</div><div class="ident">NoError</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">)</div><div class="operator"></div>
+			<div class="operator">}</div><div class="operator"></div>
+		<div class="operator">}</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="operator">}</div><div class="operator"></div>
+
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>Test case specification structure for function main.storeTableNames</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">type</div> <div class="ident">storeTableTestSpecification</div> <div class="keyword">struct</div> <div class="operator">{</div>
+	<div class="ident">description</div>   <div class="ident">string</div><div class="operator"></div>
+	<div class="ident">minioClient</div>   <div class="operator">*</div><div class="ident">minio</div><div class="operator">.</div><div class="ident">Client</div><div class="operator"></div>
+	<div class="ident">bucketName</div>    <div class="ident">string</div><div class="operator"></div>
+	<div class="ident">objectName</div>    <div class="ident">string</div><div class="operator"></div>
+	<div class="ident">tableNames</div>    <div class="operator">[</div><div class="operator">]</div><div class="ident">main</div><div class="operator">.</div><div class="ident">TableName</div><div class="operator"></div>
+	<div class="ident">shouldFail</div>    <div class="ident">bool</div><div class="operator"></div>
+	<div class="ident">expectedError</div> <div class="ident">string</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>TestStoreTableNamesNoClient checks the function storeTableNames</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">TestStoreTable</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+	<div class="ident">ctx</div> <div class="operator">:=</div> <div class="ident">context</div><div class="operator">.</div><div class="ident">Background</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>all test cases</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">testCases</div> <div class="operator">:=</div> <div class="operator">[</div><div class="operator">]</div><div class="ident">storeTableTestSpecification</div><div class="operator">{</div>
+		<div class="ident">storeTableTestSpecification</div><div class="operator">{</div>
+			<div class="ident">description</div><div class="operator">:</div>   <div class="literal">&#34;NoMinioClient&#34;</div><div class="operator">,</div>
+			<div class="ident">minioClient</div><div class="operator">:</div>   <div class="ident">nil</div><div class="operator">,</div>
+			<div class="ident">bucketName</div><div class="operator">:</div>    <div class="literal">&#34;&#34;</div><div class="operator">,</div>
+			<div class="ident">objectName</div><div class="operator">:</div>    <div class="literal">&#34;&#34;</div><div class="operator">,</div>
+			<div class="ident">tableNames</div><div class="operator">:</div>    <div class="operator">[</div><div class="operator">]</div><div class="ident">main</div><div class="operator">.</div><div class="ident">TableName</div><div class="operator">{</div><div class="operator">}</div><div class="operator">,</div>
+			<div class="ident">shouldFail</div><div class="operator">:</div>    <div class="ident">true</div><div class="operator">,</div>
+			<div class="ident">expectedError</div><div class="operator">:</div> <div class="literal">&#34;Minio Client is nil&#34;</div><div class="operator">,</div>
+		<div class="operator">}</div><div class="operator">,</div>
+		<div class="ident">storeTableTestSpecification</div><div class="operator">{</div>
+			<div class="ident">description</div><div class="operator">:</div>   <div class="literal">&#34;EmptyBucketName&#34;</div><div class="operator">,</div>
+			<div class="ident">minioClient</div><div class="operator">:</div>   <div class="ident">mustConstructMinioClient</div><div class="operator">(</div><div class="ident">t</div><div class="operator">)</div><div class="operator">,</div>
+			<div class="ident">bucketName</div><div class="operator">:</div>    <div class="literal">&#34;&#34;</div><div class="operator">,</div>
+			<div class="ident">objectName</div><div class="operator">:</div>    <div class="literal">&#34;&#34;</div><div class="operator">,</div>
+			<div class="ident">tableNames</div><div class="operator">:</div>    <div class="operator">[</div><div class="operator">]</div><div class="ident">main</div><div class="operator">.</div><div class="ident">TableName</div><div class="operator">{</div><div class="operator">}</div><div class="operator">,</div>
+			<div class="ident">shouldFail</div><div class="operator">:</div>    <div class="ident">true</div><div class="operator">,</div>
+			<div class="ident">expectedError</div><div class="operator">:</div> <div class="literal">&#34;Bucket name is not set&#34;</div><div class="operator">,</div>
+		<div class="operator">}</div><div class="operator">,</div>
+		<div class="ident">storeTableTestSpecification</div><div class="operator">{</div>
+			<div class="ident">description</div><div class="operator">:</div>   <div class="literal">&#34;EmptyObjectName&#34;</div><div class="operator">,</div>
+			<div class="ident">minioClient</div><div class="operator">:</div>   <div class="ident">mustConstructMinioClient</div><div class="operator">(</div><div class="ident">t</div><div class="operator">)</div><div class="operator">,</div>
+			<div class="ident">bucketName</div><div class="operator">:</div>    <div class="literal">&#34;bucket&#34;</div><div class="operator">,</div>
+			<div class="ident">objectName</div><div class="operator">:</div>    <div class="literal">&#34;&#34;</div><div class="operator">,</div>
+			<div class="ident">tableNames</div><div class="operator">:</div>    <div class="operator">[</div><div class="operator">]</div><div class="ident">main</div><div class="operator">.</div><div class="ident">TableName</div><div class="operator">{</div><div class="operator">}</div><div class="operator">,</div>
+			<div class="ident">shouldFail</div><div class="operator">:</div>    <div class="ident">true</div><div class="operator">,</div>
+			<div class="ident">expectedError</div><div class="operator">:</div> <div class="literal">&#34;Object name is not set&#34;</div><div class="operator">,</div>
+		<div class="operator">}</div><div class="operator">,</div>
+		<div class="ident">storeTableTestSpecification</div><div class="operator">{</div>
+			<div class="ident">description</div><div class="operator">:</div>   <div class="literal">&#34;NotAccessibleClient&#34;</div><div class="operator">,</div>
+			<div class="ident">minioClient</div><div class="operator">:</div>   <div class="ident">mustConstructMinioClient</div><div class="operator">(</div><div class="ident">t</div><div class="operator">)</div><div class="operator">,</div>
+			<div class="ident">bucketName</div><div class="operator">:</div>    <div class="literal">&#34;bucket&#34;</div><div class="operator">,</div>
+			<div class="ident">objectName</div><div class="operator">:</div>    <div class="literal">&#34;object&#34;</div><div class="operator">,</div>
+			<div class="ident">tableNames</div><div class="operator">:</div>    <div class="operator">[</div><div class="operator">]</div><div class="ident">main</div><div class="operator">.</div><div class="ident">TableName</div><div class="operator">{</div><div class="operator">}</div><div class="operator">,</div>
+			<div class="ident">shouldFail</div><div class="operator">:</div>    <div class="ident">true</div><div class="operator">,</div>
+			<div class="ident">expectedError</div><div class="operator">:</div> <div class="literal">&#34;connect: connection refused&#34;</div><div class="operator">,</div>
+		<div class="operator">}</div><div class="operator">,</div>
+		<div class="ident">storeTableTestSpecification</div><div class="operator">{</div>
+			<div class="ident">description</div><div class="operator">:</div>   <div class="literal">&#34;NotAccessibleClient&#34;</div><div class="operator">,</div>
+			<div class="ident">minioClient</div><div class="operator">:</div>   <div class="ident">mustConstructMinioClient</div><div class="operator">(</div><div class="ident">t</div><div class="operator">)</div><div class="operator">,</div>
+			<div class="ident">bucketName</div><div class="operator">:</div>    <div class="literal">&#34;bucket&#34;</div><div class="operator">,</div>
+			<div class="ident">objectName</div><div class="operator">:</div>    <div class="literal">&#34;object&#34;</div><div class="operator">,</div>
+			<div class="ident">tableNames</div><div class="operator">:</div>    <div class="operator">[</div><div class="operator">]</div><div class="ident">main</div><div class="operator">.</div><div class="ident">TableName</div><div class="operator">{</div><div class="ident">main</div><div class="operator">.</div><div class="ident">TableName</div><div class="operator">(</div><div class="literal">&#34;first&#34;</div><div class="operator">)</div><div class="operator">,</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">TableName</div><div class="operator">(</div><div class="literal">&#34;second&#34;</div><div class="operator">)</div><div class="operator">}</div><div class="operator">,</div>
+			<div class="ident">shouldFail</div><div class="operator">:</div>    <div class="ident">true</div><div class="operator">,</div>
+			<div class="ident">expectedError</div><div class="operator">:</div> <div class="literal">&#34;connect: connection refused&#34;</div><div class="operator">,</div>
+		<div class="operator">}</div><div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>run all specified test cases</p>
+</td>
+	<td class="code"><pre><code>	<div class="keyword">for</div> <div class="ident">_</div><div class="operator">,</div> <div class="ident">testCase</div> <div class="operator">:=</div> <div class="keyword">range</div> <div class="ident">testCases</div> <div class="operator">{</div>
+		<div class="ident">t</div><div class="operator">.</div><div class="ident">Run</div><div class="operator">(</div><div class="ident">testCase</div><div class="operator">.</div><div class="ident">description</div><div class="operator">,</div> <div class="keyword">func</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+			<div class="ident">err</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">StoreTableNames</div><div class="operator">(</div><div class="ident">ctx</div><div class="operator">,</div> <div class="ident">testCase</div><div class="operator">.</div><div class="ident">minioClient</div><div class="operator">,</div>
+				<div class="ident">testCase</div><div class="operator">.</div><div class="ident">bucketName</div><div class="operator">,</div> <div class="ident">testCase</div><div class="operator">.</div><div class="ident">objectName</div><div class="operator">,</div>
+				<div class="ident">testCase</div><div class="operator">.</div><div class="ident">tableNames</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>check for error</p>
+</td>
+	<td class="code"><pre><code>			<div class="keyword">if</div> <div class="ident">testCase</div><div class="operator">.</div><div class="ident">shouldFail</div> <div class="operator">{</div>
+				<div class="ident">assert</div><div class="operator">.</div><div class="ident">Error</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">)</div><div class="operator"></div>
+				<div class="ident">assert</div><div class="operator">.</div><div class="ident">Contains</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">.</div><div class="ident">Error</div><div class="operator">(</div><div class="operator">)</div><div class="operator">,</div> <div class="ident">testCase</div><div class="operator">.</div><div class="ident">expectedError</div><div class="operator">)</div><div class="operator"></div>
+			<div class="operator">}</div> <div class="keyword">else</div> <div class="operator">{</div>
+				<div class="ident">assert</div><div class="operator">.</div><div class="ident">NoError</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">)</div><div class="operator"></div>
+			<div class="operator">}</div><div class="operator"></div>
+		<div class="operator">}</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="operator">}</div><div class="operator"></div>
+
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+    </tbody>
+  </table>
+</div>
+</body>
+</html>

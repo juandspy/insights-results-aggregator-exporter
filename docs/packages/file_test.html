@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<!--
+ Copyright 2022 Red Hat, Inc
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+
+<html>
+<head>
+<title>file_test.go</title>
+<meta charset="utf-8"/>
+<style type="text/css">body {
+    background: rgb(225, 225, 225);
+    margin: 0px;
+    padding: 0px;
+}
+
+#docgo p {
+    margin-top: 0px;
+    margin-right: 0px;
+    margin-bottom: 15px;
+    margin-left: 0px;
+}
+
+#docgo div {
+    display: inline;
+}
+
+#docgo #background {
+    position: fixed;
+    top: 0; left: 525px; right: 0; bottom: 0;
+    background: rgb(47, 47, 47);
+    border-left: 1px solid #e5e5ee;
+    z-index: -1;
+}
+
+#docgo .keyword {
+    color: rgb(250, 200, 100);
+}
+
+#docgo .literal {
+    color: rgb(140, 190, 100);
+}
+
+#docgo .ident {
+    color: white;
+}
+
+#docgo .operator {
+    color: white;
+}
+
+#docgo .comment {
+}
+
+#docgo h1, h2, h3, h4, h5 {
+    text-align: left;
+    margin-top: 0px;
+    margin-right: 0px;
+    margin-bottom: 15px;
+    margin-left: 0px;
+}
+
+#docgo h1 {
+    margin-top: 40px;
+}
+
+#docgo .doc {
+    vertical-align: top;
+    font-family: 'Palatino Linotype', 'Book Antiqua', Palatino, FreeSerif, serif;
+    font-size: 15px;
+    line-height: 22px;
+    color: black;
+    min-width: 450px;
+    max-width: 450px;
+    padding-top: 10px;
+    padding-right: 25px;
+    padding-bottom: 1px;
+    padding-left: 50px;
+    overflow-x: hidden;
+}
+
+#docgo .code {
+    min-width: 650px;
+    max-width: 650px;
+    padding-left: 25px;
+    padding-right: 15px;
+    border-left: 1px;
+    overflow-x: hidden;
+    vertical-align: top;
+}
+
+#docgo .code pre code  {
+    font-size: 12px;
+    line-height: 18px;
+    font-family: Menlo, Monaco, Consolas, "Lucida Console", monospace;
+    color: rgb(120, 120, 120);
+}
+</style>
+</head>
+<body>
+<div id="docgo">
+  <div id="background"></div>
+  <table>
+    <thead><tr><th class="doc"><h1>file_test.go</h1></th><th class="code"></th></tr></thead>
+    <tbody>
+      
+      <tr class="section">
+	<td class="doc"></td>
+	<td class="code"><pre><code><div class="comment">/*
+Copyright © 2022 Red Hat, Inc.
+
+Licensed under the Apache License, Version 2.0 (the &#34;License&#34;);
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an &#34;AS IS&#34; BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/</div>
+
+<div class="keyword">package</div> <div class="ident">main_test</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>Generated documentation is available at:
+https://pkg.go.dev/github.com/RedHatInsights/insights-results-aggregator-exporter</p>
+
+<p>Documentation in literate-programming-style is available at:
+https://redhatinsights.github.io/insights-results-aggregator-exporter/packages/file_test.html</p>
+</td>
+	<td class="code"><pre><code>
+<div class="keyword">import</div> <div class="operator">(</div>
+	<div class="literal">&#34;io/ioutil&#34;</div><div class="operator"></div>
+	<div class="literal">&#34;os&#34;</div><div class="operator"></div>
+	<div class="literal">&#34;testing&#34;</div><div class="operator"></div>
+
+	<div class="ident">main</div> <div class="literal">&#34;github.com/RedHatInsights/insights-results-aggregator-exporter&#34;</div><div class="operator"></div>
+
+	<div class="literal">&#34;github.com/stretchr/testify/assert&#34;</div><div class="operator"></div>
+<div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>mustCreateTemporaryDirectory helper function creates temporary directory
+that will be cleaned up after tests</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">mustCreateTemporaryDirectory</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="ident">string</div> <div class="operator">{</div>
+	<div class="ident">directory</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">ioutil</div><div class="operator">.</div><div class="ident">TempDir</div><div class="operator">(</div><div class="ident">os</div><div class="operator">.</div><div class="ident">TempDir</div><div class="operator">(</div><div class="operator">)</div><div class="operator">,</div> <div class="literal">&#34;exporter&#34;</div><div class="operator">)</div><div class="operator"></div>
+	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
+		<div class="ident">t</div><div class="operator">.</div><div class="ident">Fatal</div><div class="operator">(</div><div class="ident">err</div><div class="operator">)</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+
+	<div class="keyword">return</div> <div class="ident">directory</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>mustReadFile helper function tries to read specified file and return its
+content as a string</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">mustReadFile</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">,</div> <div class="ident">filename</div> <div class="ident">string</div><div class="operator">)</div> <div class="ident">string</div> <div class="operator">{</div>
+	<div class="ident">fileContent</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">ioutil</div><div class="operator">.</div><div class="ident">ReadFile</div><div class="operator">(</div><div class="ident">filename</div><div class="operator">)</div><div class="operator"></div>
+	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
+		<div class="ident">t</div><div class="operator">.</div><div class="ident">Fatal</div><div class="operator">(</div><div class="ident">err</div><div class="operator">)</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+
+	<div class="keyword">return</div> <div class="ident">string</div><div class="operator">(</div><div class="ident">fileContent</div><div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>checkFileContent helper function checks if file has the expected content</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">checkFileContent</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">,</div> <div class="ident">filename</div> <div class="ident">string</div><div class="operator">,</div> <div class="ident">expected</div> <div class="ident">string</div><div class="operator">)</div> <div class="operator">{</div>
+	<div class="ident">content</div> <div class="operator">:=</div> <div class="ident">mustReadFile</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">filename</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">expected</div><div class="operator">,</div> <div class="ident">content</div><div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>mustRemoveTempDirectory helper function make sure the temporary directory is
+deleted after testing</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">mustRemoveTempDirectory</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">,</div> <div class="ident">directory</div> <div class="ident">string</div><div class="operator">)</div> <div class="operator">{</div>
+	<div class="ident">err</div> <div class="operator">:=</div> <div class="ident">os</div><div class="operator">.</div><div class="ident">RemoveAll</div><div class="operator">(</div><div class="ident">directory</div><div class="operator">)</div><div class="operator"></div>
+	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
+		<div class="ident">t</div><div class="operator">.</div><div class="ident">Fatal</div><div class="operator">(</div><div class="ident">err</div><div class="operator">)</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>TestStoreTableNamesIntoFileNoWritableFile checks that error is thrown when
+file can not be created</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">TestStoreTableNamesIntoFileNoWritableFile</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+	<div class="keyword">const</div> <div class="ident">filename</div> <div class="operator">=</div> <div class="literal">&#34;&#34;</div><div class="operator"></div>
+	<div class="ident">tableNames</div> <div class="operator">:=</div> <div class="operator">[</div><div class="operator">]</div><div class="ident">main</div><div class="operator">.</div><div class="ident">TableName</div><div class="operator">{</div><div class="operator">}</div><div class="operator"></div>
+
+	<div class="ident">err</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">StoreTableNamesIntoFile</div><div class="operator">(</div><div class="ident">filename</div><div class="operator">,</div> <div class="ident">tableNames</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Error</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">,</div> <div class="literal">&#34;Error should be thrown for empty file name&#34;</div><div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>TestStoreTableNamesIntoFileEmptyListOfTables check the behaviour if empty
+list of tables is pass into the storeDisabledRulesIntoFile function</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">TestStoreTableNamesIntoFileEmptyListOfTables</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+	<div class="ident">directory</div> <div class="operator">:=</div> <div class="ident">mustCreateTemporaryDirectory</div><div class="operator">(</div><div class="ident">t</div><div class="operator">)</div><div class="operator"></div>
+	<div class="keyword">defer</div> <div class="ident">mustRemoveTempDirectory</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">directory</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="ident">filename</div> <div class="operator">:=</div> <div class="ident">directory</div> <div class="operator">&#43;</div> <div class="literal">&#34;tables.csv&#34;</div><div class="operator"></div>
+	<div class="ident">tableNames</div> <div class="operator">:=</div> <div class="operator">[</div><div class="operator">]</div><div class="ident">main</div><div class="operator">.</div><div class="ident">TableName</div><div class="operator">{</div><div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>just to be sure</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">assert</div><div class="operator">.</div><div class="ident">NoFileExists</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">filename</div><div class="operator">,</div> <div class="literal">&#34;File must not exist&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="ident">err</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">StoreTableNamesIntoFile</div><div class="operator">(</div><div class="ident">filename</div><div class="operator">,</div> <div class="ident">tableNames</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">NoError</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">,</div> <div class="literal">&#34;Error should not be thrown for regular file name&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>file with exported data must be created</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">assert</div><div class="operator">.</div><div class="ident">FileExists</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">filename</div><div class="operator">,</div> <div class="literal">&#34;File must be created&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>check generated file content</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">expected</div> <div class="operator">:=</div> <div class="literal">&#34;Table name\n&#34;</div><div class="operator"></div>
+	<div class="ident">checkFileContent</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">filename</div><div class="operator">,</div> <div class="ident">expected</div><div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>TestStoreTableNamesIntoFile check the behaviour of
+storeDisabledRulesIntoFile function</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">TestStoreTableNamesIntoFile</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+	<div class="ident">directory</div> <div class="operator">:=</div> <div class="ident">mustCreateTemporaryDirectory</div><div class="operator">(</div><div class="ident">t</div><div class="operator">)</div><div class="operator"></div>
+	<div class="keyword">defer</div> <div class="ident">mustRemoveTempDirectory</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">directory</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="ident">filename</div> <div class="operator">:=</div> <div class="ident">directory</div> <div class="operator">&#43;</div> <div class="literal">&#34;tables.csv&#34;</div><div class="operator"></div>
+	<div class="ident">tableNames</div> <div class="operator">:=</div> <div class="operator">[</div><div class="operator">]</div><div class="ident">main</div><div class="operator">.</div><div class="ident">TableName</div><div class="operator">{</div>
+		<div class="ident">main</div><div class="operator">.</div><div class="ident">TableName</div><div class="operator">(</div><div class="literal">&#34;first&#34;</div><div class="operator">)</div><div class="operator">,</div>
+		<div class="ident">main</div><div class="operator">.</div><div class="ident">TableName</div><div class="operator">(</div><div class="literal">&#34;second&#34;</div><div class="operator">)</div><div class="operator">,</div>
+	<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>just to be sure</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">assert</div><div class="operator">.</div><div class="ident">NoFileExists</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">filename</div><div class="operator">,</div> <div class="literal">&#34;File must not exist&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="ident">err</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">StoreTableNamesIntoFile</div><div class="operator">(</div><div class="ident">filename</div><div class="operator">,</div> <div class="ident">tableNames</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">NoError</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">,</div> <div class="literal">&#34;Error should not be thrown for regular file name&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>file with exported data must be created</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">assert</div><div class="operator">.</div><div class="ident">FileExists</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">filename</div><div class="operator">,</div> <div class="literal">&#34;File must be created&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>check generated file content</p>
+</td>
+	<td class="code"><pre><code>	<div class="keyword">const</div> <div class="ident">expected</div> <div class="operator">=</div> <div class="literal">&#34;Table name\nfirst\nsecond\n&#34;</div><div class="operator"></div>
+	<div class="ident">checkFileContent</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">filename</div><div class="operator">,</div> <div class="ident">expected</div><div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>TestStoreDisableRulesIntoFile checks that error is thrown when
+file can not be created</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">TestStoreDisableRulesIntoFile</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+	<div class="keyword">const</div> <div class="ident">filename</div> <div class="operator">=</div> <div class="literal">&#34;&#34;</div><div class="operator"></div>
+	<div class="ident">disabledRules</div> <div class="operator">:=</div> <div class="operator">[</div><div class="operator">]</div><div class="ident">main</div><div class="operator">.</div><div class="ident">DisabledRuleInfo</div><div class="operator">{</div><div class="operator">}</div><div class="operator"></div>
+
+	<div class="ident">err</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">StoreDisabledRulesIntoFile</div><div class="operator">(</div><div class="ident">filename</div><div class="operator">,</div> <div class="ident">disabledRules</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Error</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">,</div> <div class="literal">&#34;Error should be thrown for empty file name&#34;</div><div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>TestStoreDisabledRulesIntoFileEmptyListOfTables check the behaviour if empty
+list of disabled rules is pass into the storeDisabledRulesIntoFile function</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">TestStoreDisabledRulesIntoFileEmptyListOfTables</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+	<div class="ident">directory</div> <div class="operator">:=</div> <div class="ident">mustCreateTemporaryDirectory</div><div class="operator">(</div><div class="ident">t</div><div class="operator">)</div><div class="operator"></div>
+	<div class="keyword">defer</div> <div class="ident">mustRemoveTempDirectory</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">directory</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="ident">filename</div> <div class="operator">:=</div> <div class="ident">directory</div> <div class="operator">&#43;</div> <div class="literal">&#34;disabled_rules.csv&#34;</div><div class="operator"></div>
+	<div class="ident">disabledRules</div> <div class="operator">:=</div> <div class="operator">[</div><div class="operator">]</div><div class="ident">main</div><div class="operator">.</div><div class="ident">DisabledRuleInfo</div><div class="operator">{</div><div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>just to be sure</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">assert</div><div class="operator">.</div><div class="ident">NoFileExists</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">filename</div><div class="operator">,</div> <div class="literal">&#34;File must not exist&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="ident">err</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">StoreDisabledRulesIntoFile</div><div class="operator">(</div><div class="ident">filename</div><div class="operator">,</div> <div class="ident">disabledRules</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">NoError</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">,</div> <div class="literal">&#34;Error should not be thrown for regular file name&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>file with exported data must be created</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">assert</div><div class="operator">.</div><div class="ident">FileExists</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">filename</div><div class="operator">,</div> <div class="literal">&#34;File must be created&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>check generated file content</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">expected</div> <div class="operator">:=</div> <div class="literal">&#34;Rule,Count\n&#34;</div><div class="operator"></div>
+	<div class="ident">checkFileContent</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">filename</div><div class="operator">,</div> <div class="ident">expected</div><div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>TestStoreDisabledRulesIntoFile check the behaviour of
+storeDisabledRulesIntoFile function</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">TestStoreDisabledRulesIntoFile</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+	<div class="ident">directory</div> <div class="operator">:=</div> <div class="ident">mustCreateTemporaryDirectory</div><div class="operator">(</div><div class="ident">t</div><div class="operator">)</div><div class="operator"></div>
+	<div class="keyword">defer</div> <div class="ident">mustRemoveTempDirectory</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">directory</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="ident">filename</div> <div class="operator">:=</div> <div class="ident">directory</div> <div class="operator">&#43;</div> <div class="literal">&#34;disabled_rules.csv&#34;</div><div class="operator"></div>
+	<div class="ident">disabledRules</div> <div class="operator">:=</div> <div class="operator">[</div><div class="operator">]</div><div class="ident">main</div><div class="operator">.</div><div class="ident">DisabledRuleInfo</div><div class="operator">{</div>
+		<div class="ident">main</div><div class="operator">.</div><div class="ident">DisabledRuleInfo</div><div class="operator">{</div><div class="literal">&#34;first&#34;</div><div class="operator">,</div> <div class="literal">1</div><div class="operator">}</div><div class="operator">,</div>
+		<div class="ident">main</div><div class="operator">.</div><div class="ident">DisabledRuleInfo</div><div class="operator">{</div><div class="literal">&#34;second&#34;</div><div class="operator">,</div> <div class="literal">2</div><div class="operator">}</div><div class="operator">,</div>
+		<div class="ident">main</div><div class="operator">.</div><div class="ident">DisabledRuleInfo</div><div class="operator">{</div><div class="literal">&#34;third&#34;</div><div class="operator">,</div> <div class="literal">3</div><div class="operator">}</div><div class="operator">,</div>
+	<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>just to be sure</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">assert</div><div class="operator">.</div><div class="ident">NoFileExists</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">filename</div><div class="operator">,</div> <div class="literal">&#34;File must not exist&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="ident">err</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">StoreDisabledRulesIntoFile</div><div class="operator">(</div><div class="ident">filename</div><div class="operator">,</div> <div class="ident">disabledRules</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">NoError</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">,</div> <div class="literal">&#34;Error should not be thrown for regular file name&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>file with exported data must be created</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">assert</div><div class="operator">.</div><div class="ident">FileExists</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">filename</div><div class="operator">,</div> <div class="literal">&#34;File must be created&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>check generated file content</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">expected</div> <div class="operator">:=</div> <div class="literal">&#34;Rule,Count\nfirst,1\nsecond,2\nthird,3\n&#34;</div><div class="operator"></div>
+	<div class="ident">checkFileContent</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">filename</div><div class="operator">,</div> <div class="ident">expected</div><div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+    </tbody>
+  </table>
+</div>
+</body>
+</html>
