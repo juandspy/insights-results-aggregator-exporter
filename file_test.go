@@ -63,3 +63,26 @@ func TestStoreTableNamesIntoFileNoWritableFile(t *testing.T) {
 	err := main.StoreTableNamesIntoFile(filename, tableNames)
 	assert.Error(t, err, "Error should be thrown for empty file name")
 }
+
+// TestStoreTableNamesIntoFileEmptyListOfTables check the behaviour if empty
+// list of tables is pass into the storeDisabledRulesIntoFile function
+func TestStoreTableNamesIntoFileEmptyListOfTables(t *testing.T) {
+	directory := mustCreateTemporaryDirectory(t)
+	defer os.RemoveAll(directory)
+
+	filename := directory + "tables.csv"
+	tableNames := []main.TableName{}
+
+	// just to be sure
+	assert.NoFileExists(t, filename, "File must not exist")
+
+	err := main.StoreTableNamesIntoFile(filename, tableNames)
+	assert.Nil(t, err, "Error should not be thrown for regular file name")
+
+	// file with exported data must be created
+	assert.FileExists(t, filename, "File must be created")
+
+	// check generated file content
+	expected := "Table name\n"
+	checkFileContent(t, filename, expected)
+}
