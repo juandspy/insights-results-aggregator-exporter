@@ -44,4 +44,8 @@ var (
 	// exported functions from the s3.go source file
 	S3BucketExists  = s3BucketExists
 	StoreTableNames = storeTableNames
+
+	// exported functions from the file.go source file
+	StoreTableNamesIntoFile    = storeTableNamesIntoFile
+	StoreDisabledRulesIntoFile = storeDisabledRulesIntoFile
 )
