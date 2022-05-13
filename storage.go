@@ -14,12 +14,13 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+package main
+
 // Generated documentation is available at:
 // https://pkg.go.dev/github.com/RedHatInsights/insights-results-aggregator-exporter
 //
 // Documentation in literate-programming-style is available at:
 // https://redhatinsights.github.io/insights-results-aggregator-exporter/packages/storage.html
-package main
 
 import (
 	"bytes"

@@ -19,6 +19,12 @@ package main_test
 // Unit test definitions for functions and methods defined in source file
 // exporter.go
 
+// Generated documentation is available at:
+// https://pkg.go.dev/github.com/RedHatInsights/insights-results-aggregator-exporter
+//
+// Documentation in literate-programming-style is available at:
+// https://redhatinsights.github.io/insights-results-aggregator-exporter/packages/exporter_test.html
+
 import (
 	"os"
 	"testing"
