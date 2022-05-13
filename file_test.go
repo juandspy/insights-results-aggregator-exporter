@@ -86,7 +86,7 @@ func TestStoreTableNamesIntoFileEmptyListOfTables(t *testing.T) {
 	assert.NoFileExists(t, filename, "File must not exist")
 
 	err := main.StoreTableNamesIntoFile(filename, tableNames)
-	assert.Nil(t, err, "Error should not be thrown for regular file name")
+	assert.NoError(t, err, "Error should not be thrown for regular file name")
 
 	// file with exported data must be created
 	assert.FileExists(t, filename, "File must be created")
@@ -112,7 +112,7 @@ func TestStoreTableNamesIntoFile(t *testing.T) {
 	assert.NoFileExists(t, filename, "File must not exist")
 
 	err := main.StoreTableNamesIntoFile(filename, tableNames)
-	assert.Nil(t, err, "Error should not be thrown for regular file name")
+	assert.NoError(t, err, "Error should not be thrown for regular file name")
 
 	// file with exported data must be created
 	assert.FileExists(t, filename, "File must be created")
@@ -145,7 +145,7 @@ func TestStoreDisabledRulesIntoFileEmptyListOfTables(t *testing.T) {
 	assert.NoFileExists(t, filename, "File must not exist")
 
 	err := main.StoreDisabledRulesIntoFile(filename, disabledRules)
-	assert.Nil(t, err, "Error should not be thrown for regular file name")
+	assert.NoError(t, err, "Error should not be thrown for regular file name")
 
 	// file with exported data must be created
 	assert.FileExists(t, filename, "File must be created")
@@ -172,7 +172,7 @@ func TestStoreDisabledRulesIntoFile(t *testing.T) {
 	assert.NoFileExists(t, filename, "File must not exist")
 
 	err := main.StoreDisabledRulesIntoFile(filename, disabledRules)
-	assert.Nil(t, err, "Error should not be thrown for regular file name")
+	assert.NoError(t, err, "Error should not be thrown for regular file name")
 
 	// file with exported data must be created
 	assert.FileExists(t, filename, "File must be created")
