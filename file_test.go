@@ -86,3 +86,29 @@ func TestStoreTableNamesIntoFileEmptyListOfTables(t *testing.T) {
 	expected := "Table name\n"
 	checkFileContent(t, filename, expected)
 }
+
+// TestStoreTableNamesIntoFile check the behaviour of
+// storeDisabledRulesIntoFile function
+func TestStoreTableNamesIntoFile(t *testing.T) {
+	directory := mustCreateTemporaryDirectory(t)
+	defer os.RemoveAll(directory)
+
+	filename := directory + "tables.csv"
+	tableNames := []main.TableName{
+		main.TableName("first"),
+		main.TableName("second"),
+	}
+
+	// just to be sure
+	assert.NoFileExists(t, filename, "File must not exist")
+
+	err := main.StoreTableNamesIntoFile(filename, tableNames)
+	assert.Nil(t, err, "Error should not be thrown for regular file name")
+
+	// file with exported data must be created
+	assert.FileExists(t, filename, "File must be created")
+
+	// check generated file content
+	const expected = "Table name\nfirst\nsecond\n"
+	checkFileContent(t, filename, expected)
+}
