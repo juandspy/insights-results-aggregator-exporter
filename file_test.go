@@ -112,3 +112,63 @@ func TestStoreTableNamesIntoFile(t *testing.T) {
 	const expected = "Table name\nfirst\nsecond\n"
 	checkFileContent(t, filename, expected)
 }
+
+// TestStoreDisableRulesIntoFile checks that error is thrown when
+// file can not be created
+func TestStoreDisableRulesIntoFile(t *testing.T) {
+	const filename = ""
+	disabledRules := []main.DisabledRuleInfo{}
+
+	err := main.StoreDisabledRulesIntoFile(filename, disabledRules)
+	assert.Error(t, err, "Error should be thrown for empty file name")
+}
+
+// TestStoreDisabledRulesIntoFileEmptyListOfTables check the behaviour if empty
+// list of disabled rules is pass into the storeDisabledRulesIntoFile function
+func TestStoreDisabledRulesIntoFileEmptyListOfTables(t *testing.T) {
+	directory := mustCreateTemporaryDirectory(t)
+	defer os.RemoveAll(directory)
+
+	filename := directory + "disabled_rules.csv"
+	disabledRules := []main.DisabledRuleInfo{}
+
+	// just to be sure
+	assert.NoFileExists(t, filename, "File must not exist")
+
+	err := main.StoreDisabledRulesIntoFile(filename, disabledRules)
+	assert.Nil(t, err, "Error should not be thrown for regular file name")
+
+	// file with exported data must be created
+	assert.FileExists(t, filename, "File must be created")
+
+	// check generated file content
+	expected := "Rule,Count\n"
+	checkFileContent(t, filename, expected)
+}
+
+// TestStoreDisabledRulesIntoFile check the behaviour of
+// storeDisabledRulesIntoFile function
+func TestStoreDisabledRulesIntoFile(t *testing.T) {
+	directory := mustCreateTemporaryDirectory(t)
+	defer os.RemoveAll(directory)
+
+	filename := directory + "disabled_rules.csv"
+	disabledRules := []main.DisabledRuleInfo{
+		main.DisabledRuleInfo{"first", 1},
+		main.DisabledRuleInfo{"second", 2},
+		main.DisabledRuleInfo{"third", 3},
+	}
+
+	// just to be sure
+	assert.NoFileExists(t, filename, "File must not exist")
+
+	err := main.StoreDisabledRulesIntoFile(filename, disabledRules)
+	assert.Nil(t, err, "Error should not be thrown for regular file name")
+
+	// file with exported data must be created
+	assert.FileExists(t, filename, "File must be created")
+
+	// check generated file content
+	expected := "Rule,Count\nfirst,1\nsecond,2\nthird,3\n"
+	checkFileContent(t, filename, expected)
+}
