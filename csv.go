@@ -64,6 +64,7 @@ func DisabledRulesToCSV(buffer io.Writer, disabledRulesInfo []DisabledRuleInfo) 
 	return nil
 }
 
+// TableMetadataToCSV function exports list of table names into CSV file.
 func TableMetadataToCSV(buffer io.Writer, tableNames []TableName, storage DBStorage) error {
 	if buffer == nil {
 		err := errors.New(bufferIsNil)
