@@ -138,6 +138,46 @@ limitations under the License.
 </code></pre></td>
       </tr>
       
+      <tr class="section">
+	<td class="doc"><p>Generated documentation is available at:
+https://pkg.go.dev/github.com/RedHatInsights/insights-results-aggregator-exporter</p>
+
+<p>Documentation in literate-programming-style is available at:
+https://redhatinsights.github.io/insights-results-aggregator-exporter/packages/logging_test.html</p>
+</td>
+	<td class="code"><pre><code>
+<div class="keyword">import</div> <div class="operator">(</div>
+	<div class="literal">&#34;testing&#34;</div><div class="operator"></div>
+
+	<div class="ident">main</div> <div class="literal">&#34;github.com/RedHatInsights/insights-results-aggregator-exporter&#34;</div><div class="operator"></div>
+	<div class="literal">&#34;github.com/stretchr/testify/assert&#34;</div><div class="operator"></div>
+<div class="operator">)</div><div class="operator"></div>
+
+<div class="keyword">func</div> <div class="ident">TestInitLoggingWrongSentryDSN</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+	<div class="ident">config</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">LoadConfiguration</div><div class="operator">(</div><div class="literal">&#34;&#34;</div><div class="operator">,</div> <div class="literal">&#34;tests/config2&#34;</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">NoError</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">,</div> <div class="literal">&#34;unexpected error loading configuration&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="ident">closer</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">InitLogging</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">config</div><div class="operator">)</div><div class="operator"></div>
+	<div class="keyword">defer</div> <div class="ident">closer</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Error</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">,</div> <div class="literal">&#34;expecting an error due to an invalid Sentry DSN while initializing logging&#34;</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Contains</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">.</div><div class="ident">Error</div><div class="operator">(</div><div class="operator">)</div><div class="operator">,</div> <div class="literal">&#34;DsnParseError&#34;</div><div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+<div class="keyword">func</div> <div class="ident">TestInitLoggingWithSentryDSN</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+	<div class="ident">envVar</div> <div class="operator">:=</div> <div class="literal">&#34;INSIGHTS_RESULTS_AGGREGATOR_EXPORTER__SENTRY__DSN&#34;</div><div class="operator"></div>
+	<div class="ident">mustSetEnv</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">envVar</div><div class="operator">,</div> <div class="literal">&#34;https://public@sentry.example.com/1&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="ident">config</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">LoadConfiguration</div><div class="operator">(</div><div class="literal">&#34;&#34;</div><div class="operator">,</div> <div class="literal">&#34;tests/config2&#34;</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">NoError</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">,</div> <div class="literal">&#34;unexpected error loading configuration&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="ident">closer</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">InitLogging</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">config</div><div class="operator">)</div><div class="operator"></div>
+	<div class="keyword">defer</div> <div class="ident">closer</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">NoError</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">,</div> <div class="literal">&#34;unexpected error initializing logging&#34;</div><div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
     </tbody>
   </table>
 </div>

@@ -17,7 +17,7 @@
 
 <html>
 <head>
-<title>types.go</title>
+<title>export_test.go</title>
 <meta charset="utf-8"/>
 <style type="text/css">body {
     background: rgb(225, 225, 225);
@@ -112,13 +112,13 @@
 <div id="docgo">
   <div id="background"></div>
   <table>
-    <thead><tr><th class="doc"><h1>types.go</h1></th><th class="code"></th></tr></thead>
+    <thead><tr><th class="doc"><h1>export_test.go</h1></th><th class="code"></th></tr></thead>
     <tbody>
       
       <tr class="section">
 	<td class="doc"></td>
 	<td class="code"><pre><code><div class="comment">/*
-Copyright © 2021, 2022 Red Hat, Inc.
+Copyright © 2022  Red Hat, Inc.
 
 Licensed under the Apache License, Version 2.0 (the &#34;License&#34;);
 you may not use this file except in compliance with the License.
@@ -133,8 +133,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */</div>
 
-<div class="keyword">package</div> <div class="ident">main</div><div class="operator"></div>
-
 </code></pre></td>
       </tr>
       
@@ -143,61 +141,58 @@ limitations under the License.
 https://pkg.go.dev/github.com/RedHatInsights/insights-results-aggregator-exporter</p>
 
 <p>Documentation in literate-programming-style is available at:
-https://redhatinsights.github.io/insights-results-aggregator-exporter/packages/types.html</p>
+https://redhatinsights.github.io/insights-results-aggregator-exporter/packages/export_test.html</p>
 </td>
-	<td class="code"><pre><code>
-</code></pre></td>
-      </tr>
-      
-      <tr class="section">
-	<td class="doc"><p>DBDriver type for db driver enum</p>
-</td>
-	<td class="code"><pre><code><div class="keyword">type</div> <div class="ident">DBDriver</div> <div class="ident">int</div><div class="operator"></div>
+	<td class="code"><pre><code><div class="keyword">package</div> <div class="ident">main</div><div class="operator"></div>
 
 </code></pre></td>
       </tr>
       
       <tr class="section">
-	<td class="doc"><p>TableName type represents table name</p>
+	<td class="doc"><p>Export for testing</p>
+
+<p>This source file contains name aliases of all package-private functions
+that need to be called from unit tests. Aliases should start with uppercase
+letter because unit tests belong to different package.</p>
+
+<p>Please look into the following blogpost:
+https://medium.com/@robiplus/golang-trick-export-for-test-aa16cbd7b8cd
+to see why this trick is needed.</p>
 </td>
-	<td class="code"><pre><code><div class="keyword">type</div> <div class="ident">TableName</div> <div class="ident">string</div><div class="operator"></div>
+	<td class="code"><pre><code><div class="keyword">var</div> <div class="operator">(</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>exported functions from the exporter.go source file</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">ShowVersion</div>         <div class="operator">=</div> <div class="ident">showVersion</div><div class="operator"></div>
+	<div class="ident">ShowAuthors</div>         <div class="operator">=</div> <div class="ident">showAuthors</div><div class="operator"></div>
+	<div class="ident">ShowConfiguration</div>   <div class="operator">=</div> <div class="ident">showConfiguration</div><div class="operator"></div>
+	<div class="ident">DoSelectedOperation</div> <div class="operator">=</div> <div class="ident">doSelectedOperation</div><div class="operator"></div>
+	<div class="ident">PrintTables</div>         <div class="operator">=</div> <div class="ident">printTables</div><div class="operator"></div>
+	<div class="ident">ParseFlags</div>          <div class="operator">=</div> <div class="ident">parseFlags</div><div class="operator"></div>
+	<div class="ident">CheckS3Connection</div>   <div class="operator">=</div> <div class="ident">checkS3Connection</div><div class="operator"></div>
+	<div class="ident">PerformDataExport</div>   <div class="operator">=</div> <div class="ident">performDataExport</div><div class="operator"></div>
 
 </code></pre></td>
       </tr>
       
       <tr class="section">
-	<td class="doc"><p>DisabledRuleInfo contains information about rules disabled by user</p>
+	<td class="doc"><p>exported functions from the s3.go source file</p>
 </td>
-	<td class="code"><pre><code><div class="keyword">type</div> <div class="ident">DisabledRuleInfo</div> <div class="keyword">struct</div> <div class="operator">{</div>
-	<div class="ident">Rule</div>  <div class="ident">string</div><div class="operator"></div>
-	<div class="ident">Count</div> <div class="ident">int</div><div class="operator"></div>
-<div class="operator">}</div><div class="operator"></div>
+	<td class="code"><pre><code>	<div class="ident">S3BucketExists</div>  <div class="operator">=</div> <div class="ident">s3BucketExists</div><div class="operator"></div>
+	<div class="ident">StoreTableNames</div> <div class="operator">=</div> <div class="ident">storeTableNames</div><div class="operator"></div>
 
 </code></pre></td>
       </tr>
       
       <tr class="section">
-	<td class="doc"><p>CliFlags represents structure holding all command line arguments and flags.</p>
+	<td class="doc"><p>exported functions from the file.go source file</p>
 </td>
-	<td class="code"><pre><code><div class="keyword">type</div> <div class="ident">CliFlags</div> <div class="keyword">struct</div> <div class="operator">{</div>
-	<div class="ident">ShowVersion</div>         <div class="ident">bool</div><div class="operator"></div>
-	<div class="ident">ShowAuthors</div>         <div class="ident">bool</div><div class="operator"></div>
-	<div class="ident">ShowConfiguration</div>   <div class="ident">bool</div><div class="operator"></div>
-	<div class="ident">PrintSummaryTable</div>   <div class="ident">bool</div><div class="operator"></div>
-	<div class="ident">Output</div>              <div class="ident">string</div><div class="operator"></div>
-	<div class="ident">CheckS3Connection</div>   <div class="ident">bool</div><div class="operator"></div>
-	<div class="ident">ExportMetadata</div>      <div class="ident">bool</div><div class="operator"></div>
-	<div class="ident">ExportDisabledRules</div> <div class="ident">bool</div><div class="operator"></div>
-	<div class="ident">ExportLog</div>           <div class="ident">bool</div><div class="operator"></div>
-<div class="operator">}</div><div class="operator"></div>
-
-</code></pre></td>
-      </tr>
-      
-      <tr class="section">
-	<td class="doc"><p>M represents a map with string keys and any value</p>
-</td>
-	<td class="code"><pre><code><div class="keyword">type</div> <div class="ident">M</div> <div class="keyword">map</div><div class="operator">[</div><div class="ident">string</div><div class="operator">]</div><div class="keyword">interface</div><div class="operator">{</div><div class="operator">}</div><div class="operator"></div>
+	<td class="code"><pre><code>	<div class="ident">StoreTableNamesIntoFile</div>    <div class="operator">=</div> <div class="ident">storeTableNamesIntoFile</div><div class="operator"></div>
+	<div class="ident">StoreDisabledRulesIntoFile</div> <div class="operator">=</div> <div class="ident">storeDisabledRulesIntoFile</div><div class="operator"></div>
+<div class="operator">)</div><div class="operator"></div>
 
 </code></pre></td>
       </tr>

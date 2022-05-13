@@ -135,6 +135,17 @@ limitations under the License.
 
 <div class="keyword">package</div> <div class="ident">main_test</div><div class="operator"></div>
 
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>Generated documentation is available at:
+https://pkg.go.dev/github.com/RedHatInsights/insights-results-aggregator-exporter</p>
+
+<p>Documentation in literate-programming-style is available at:
+https://redhatinsights.github.io/insights-results-aggregator-exporter/packages/config_test.html</p>
+</td>
+	<td class="code"><pre><code>
 <div class="keyword">import</div> <div class="operator">(</div>
 	<div class="literal">&#34;os&#34;</div><div class="operator"></div>
 
@@ -150,14 +161,28 @@ limitations under the License.
 	<div class="ident">zerolog</div><div class="operator">.</div><div class="ident">SetGlobalLevel</div><div class="operator">(</div><div class="ident">zerolog</div><div class="operator">.</div><div class="ident">WarnLevel</div><div class="operator">)</div><div class="operator"></div>
 <div class="operator">}</div><div class="operator"></div>
 
-<div class="keyword">func</div> <div class="ident">mustLoadConfiguration</div><div class="operator">(</div><div class="ident">envVar</div> <div class="ident">string</div><div class="operator">)</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>mustLoadConfiguration function loads configuration file or the actual test
+will fail</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">mustLoadConfiguration</div><div class="operator">(</div><div class="ident">envVar</div> <div class="ident">string</div><div class="operator">)</div> <div class="operator">{</div>
 	<div class="ident">_</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">LoadConfiguration</div><div class="operator">(</div><div class="ident">envVar</div><div class="operator">,</div> <div class="literal">&#34;tests/config1&#34;</div><div class="operator">)</div><div class="operator"></div>
 	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
 		<div class="ident">panic</div><div class="operator">(</div><div class="ident">err</div><div class="operator">)</div><div class="operator"></div>
 	<div class="operator">}</div><div class="operator"></div>
 <div class="operator">}</div><div class="operator"></div>
 
-<div class="keyword">func</div> <div class="ident">mustSetEnv</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">,</div> <div class="ident">key</div><div class="operator">,</div> <div class="ident">val</div> <div class="ident">string</div><div class="operator">)</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>mustSetEnv function set specified environemnt variable or the actual test
+will fail</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">mustSetEnv</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">,</div> <div class="ident">key</div><div class="operator">,</div> <div class="ident">val</div> <div class="ident">string</div><div class="operator">)</div> <div class="operator">{</div>
 	<div class="ident">err</div> <div class="operator">:=</div> <div class="ident">os</div><div class="operator">.</div><div class="ident">Setenv</div><div class="operator">(</div><div class="ident">key</div><div class="operator">,</div> <div class="ident">val</div><div class="operator">)</div><div class="operator"></div>
 	<div class="ident">assert</div><div class="operator">.</div><div class="ident">NoError</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">)</div><div class="operator"></div>
 	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
@@ -169,7 +194,8 @@ limitations under the License.
       </tr>
       
       <tr class="section">
-	<td class="doc"><p>TestLoadDefaultConfiguration loads a configuration file for testing</p>
+	<td class="doc"><p>TestLoadDefaultConfiguration test loads a configuration file for testing
+with check that load was correct</p>
 </td>
 	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">TestLoadDefaultConfiguration</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
 	<div class="ident">os</div><div class="operator">.</div><div class="ident">Clearenv</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
@@ -180,7 +206,8 @@ limitations under the License.
       </tr>
       
       <tr class="section">
-	<td class="doc"><p>TestLoadConfigurationFromEnvVariable tests loading the config. file for testing from an environment variable</p>
+	<td class="doc"><p>TestLoadConfigurationFromEnvVariable tests loading the config. file for
+testing from an environment variable</p>
 </td>
 	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">TestLoadConfigurationFromEnvVariable</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
 	<div class="ident">os</div><div class="operator">.</div><div class="ident">Clearenv</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
@@ -193,7 +220,8 @@ limitations under the License.
       </tr>
       
       <tr class="section">
-	<td class="doc"><p>TestLoadConfigurationNonEnvVarUnknownConfigFile tests loading an unexisting config file when no environment variable is provided</p>
+	<td class="doc"><p>TestLoadConfigurationNonEnvVarUnknownConfigFile tests loading an unexisting
+config file when no environment variable is provided</p>
 </td>
 	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">TestLoadConfigurationNonEnvVarUnknownConfigFile</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
 	<div class="ident">_</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">LoadConfiguration</div><div class="operator">(</div><div class="literal">&#34;&#34;</div><div class="operator">,</div> <div class="literal">&#34;foobar&#34;</div><div class="operator">)</div><div class="operator"></div>
@@ -281,6 +309,24 @@ limitations under the License.
 
 	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">true</div><div class="operator">,</div> <div class="ident">loggingCfg</div><div class="operator">.</div><div class="ident">Debug</div><div class="operator">)</div><div class="operator"></div>
 	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="literal">&#34;&#34;</div><div class="operator">,</div> <div class="ident">loggingCfg</div><div class="operator">.</div><div class="ident">LogLevel</div><div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>TestLoadSentryConfiguration tests loading the sentry configuration sub-tree</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">TestLoadSentryConfiguration</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+	<div class="ident">envVar</div> <div class="operator">:=</div> <div class="literal">&#34;INSIGHTS_RESULTS_AGGREGATOR_EXPORTER_CONFIG_FILE&#34;</div><div class="operator"></div>
+	<div class="ident">mustSetEnv</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">envVar</div><div class="operator">,</div> <div class="literal">&#34;tests/config2&#34;</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">config</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">LoadConfiguration</div><div class="operator">(</div><div class="ident">envVar</div><div class="operator">,</div> <div class="literal">&#34;&#34;</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Nil</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">,</div> <div class="literal">&#34;Failed loading configuration file from env var!&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="ident">sentryCfg</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">GetSentryConfiguration</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">config</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="literal">&#34;test_dsn&#34;</div><div class="operator">,</div> <div class="ident">sentryCfg</div><div class="operator">.</div><div class="ident">SentryDSN</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="literal">&#34;test_env&#34;</div><div class="operator">,</div> <div class="ident">sentryCfg</div><div class="operator">.</div><div class="ident">SentryEnvironment</div><div class="operator">)</div><div class="operator"></div>
 <div class="operator">}</div><div class="operator"></div>
 
 </code></pre></td>

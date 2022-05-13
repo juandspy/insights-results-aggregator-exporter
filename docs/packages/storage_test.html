@@ -135,9 +135,25 @@ limitations under the License.
 
 <div class="keyword">package</div> <div class="ident">main_test</div><div class="operator"></div>
 
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>Generated documentation is available at:
+https://pkg.go.dev/github.com/RedHatInsights/insights-results-aggregator-exporter</p>
+
+<p>Documentation in literate-programming-style is available at:
+https://redhatinsights.github.io/insights-results-aggregator-exporter/packages/storage_test.html</p>
+</td>
+	<td class="code"><pre><code>
 <div class="keyword">import</div> <div class="operator">(</div>
+	<div class="literal">&#34;errors&#34;</div><div class="operator"></div>
+	<div class="literal">&#34;io/ioutil&#34;</div><div class="operator"></div>
 	<div class="literal">&#34;testing&#34;</div><div class="operator"></div>
 
+	<div class="literal">&#34;database/sql&#34;</div><div class="operator"></div>
+
+	<div class="literal">&#34;github.com/DATA-DOG/go-sqlmock&#34;</div><div class="operator"></div>
 	<div class="literal">&#34;github.com/stretchr/testify/assert&#34;</div><div class="operator"></div>
 
 	<div class="ident">main</div> <div class="literal">&#34;github.com/RedHatInsights/insights-results-aggregator-exporter&#34;</div><div class="operator"></div>
@@ -239,6 +255,1186 @@ limitations under the License.
 	<td class="doc"><p>it should not fail</p>
 </td>
 	<td class="code"><pre><code>	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Nil</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>mustCreateMockConnection function tries to create a new mock connection and
+checks if the operation was finished without problems.</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">mustCreateMockConnection</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">(</div><div class="operator">*</div><div class="ident">sql</div><div class="operator">.</div><div class="ident">DB</div><div class="operator">,</div> <div class="ident">sqlmock</div><div class="operator">.</div><div class="ident">Sqlmock</div><div class="operator">)</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>try to initialize new mock connection</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">connection</div><div class="operator">,</div> <div class="ident">mock</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">sqlmock</div><div class="operator">.</div><div class="ident">New</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>check the status</p>
+</td>
+	<td class="code"><pre><code>	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
+		<div class="ident">t</div><div class="operator">.</div><div class="ident">Fatalf</div><div class="operator">(</div><div class="literal">&#34;an error &#39;%s&#39; was not expected when opening a stub database connection&#34;</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">)</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+
+	<div class="keyword">return</div> <div class="ident">connection</div><div class="operator">,</div> <div class="ident">mock</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>checkConnectionClose function perform mocked DB closing operation and checks
+if the connection is properly closed from unit tests.</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">checkConnectionClose</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">,</div> <div class="ident">connection</div> <div class="operator">*</div><div class="ident">sql</div><div class="operator">.</div><div class="ident">DB</div><div class="operator">)</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>connection to mocked DB needs to be closed properly</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">err</div> <div class="operator">:=</div> <div class="ident">connection</div><div class="operator">.</div><div class="ident">Close</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>check the error status</p>
+</td>
+	<td class="code"><pre><code>	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
+		<div class="ident">t</div><div class="operator">.</div><div class="ident">Fatalf</div><div class="operator">(</div><div class="literal">&#34;error during closing connection: %v&#34;</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">)</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>checkAllExpectations function checks if all database-related operations have
+been really met.</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">checkAllExpectations</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">,</div> <div class="ident">mock</div> <div class="ident">sqlmock</div><div class="operator">.</div><div class="ident">Sqlmock</div><div class="operator">)</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>check if all expectations were met</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">err</div> <div class="operator">:=</div> <div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectationsWereMet</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>check the error status</p>
+</td>
+	<td class="code"><pre><code>	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
+		<div class="ident">t</div><div class="operator">.</div><div class="ident">Errorf</div><div class="operator">(</div><div class="literal">&#34;there were unfulfilled expectations: %s&#34;</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">)</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>Expected queries</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">const</div> <div class="operator">(</div>
+	<div class="ident">readRecordCountQuery</div>   <div class="operator">=</div> <div class="literal">&#34;SELECT count\\(\\*\\) FROM TESTED_TABLE&#34;</div><div class="operator"></div>
+	<div class="ident">readDisabledRulesQuery</div> <div class="operator">=</div> <div class="literal">&#34;SELECT rule_id, count\\(rule_id\\) AS rule_count FROM rule_disable GROUP BY rule_id HAVING count\\(rule_id\\)\\&gt;1 ORDER BY rule_count DESC;&#34;</div><div class="operator"></div>
+	<div class="ident">readListOfTablesQuery</div>  <div class="operator">=</div> <div class="literal">`
+           SELECT tablename
+             FROM pg_catalog.pg_tables
+            WHERE schemaname != &#39;information_schema&#39;
+              AND schemaname != &#39;pg_catalog&#39;;
+`</div><div class="operator"></div>
+	<div class="ident">readTableQuery</div>       <div class="operator">=</div> <div class="literal">&#34;SELECT \\* FROM table_name&#34;</div><div class="operator"></div>
+	<div class="ident">readColumnTypesQuery</div> <div class="operator">=</div> <div class="literal">&#34;SELECT \\* FROM table_name LIMIT 1&#34;</div><div class="operator"></div>
+<div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>check the function ReadRecordCount</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">TestReadRecordCount</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>prepare new mocked connection to database</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">connection</div><div class="operator">,</div> <div class="ident">mock</div> <div class="operator">:=</div> <div class="ident">mustCreateMockConnection</div><div class="operator">(</div><div class="ident">t</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>prepare mocked result for SQL query</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">rowsCount</div> <div class="operator">:=</div> <div class="ident">sqlmock</div><div class="operator">.</div><div class="ident">NewRows</div><div class="operator">(</div><div class="operator">[</div><div class="operator">]</div><div class="ident">string</div><div class="operator">{</div><div class="literal">&#34;count&#34;</div><div class="operator">}</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">expected</div> <div class="operator">:=</div> <div class="literal">100</div><div class="operator"></div>
+	<div class="ident">rowsCount</div><div class="operator">.</div><div class="ident">AddRow</div><div class="operator">(</div><div class="ident">expected</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>expected query performed by tested function</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectQuery</div><div class="operator">(</div><div class="ident">readRecordCountQuery</div><div class="operator">)</div><div class="operator">.</div><div class="ident">WillReturnRows</div><div class="operator">(</div><div class="ident">rowsCount</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectClose</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>prepare connection to mocked database</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">storage</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">NewFromConnection</div><div class="operator">(</div><div class="ident">connection</div><div class="operator">,</div> <div class="literal">1</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>call the tested method</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">count</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">storage</div><div class="operator">.</div><div class="ident">ReadRecordsCount</div><div class="operator">(</div><div class="literal">&#34;TESTED_TABLE&#34;</div><div class="operator">)</div><div class="operator"></div>
+	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
+		<div class="ident">t</div><div class="operator">.</div><div class="ident">Errorf</div><div class="operator">(</div><div class="literal">&#34;error was not expected %s&#34;</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">)</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+
+	<div class="keyword">if</div> <div class="ident">count</div> <div class="operator">!=</div> <div class="ident">expected</div> <div class="operator">{</div>
+		<div class="ident">t</div><div class="operator">.</div><div class="ident">Errorf</div><div class="operator">(</div><div class="literal">&#34;wrong number records returned: %d&#34;</div><div class="operator">,</div> <div class="ident">count</div><div class="operator">)</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>connection to mocked DB needs to be closed properly</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">checkConnectionClose</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">connection</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>check if all expectations were met</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">checkAllExpectations</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">mock</div><div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+<div class="keyword">func</div> <div class="ident">TestReadRecordCountScanError</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>prepare new mocked connection to database</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">connection</div><div class="operator">,</div> <div class="ident">mock</div> <div class="operator">:=</div> <div class="ident">mustCreateMockConnection</div><div class="operator">(</div><div class="ident">t</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>prepare mocked result for SQL query</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">rowsCount</div> <div class="operator">:=</div> <div class="ident">sqlmock</div><div class="operator">.</div><div class="ident">NewRows</div><div class="operator">(</div><div class="operator">[</div><div class="operator">]</div><div class="ident">string</div><div class="operator">{</div><div class="literal">&#34;count&#34;</div><div class="operator">}</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">rowsCount</div><div class="operator">.</div><div class="ident">AddRow</div><div class="operator">(</div><div class="literal">&#34;this is not integer&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>expected query performed by tested function</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectQuery</div><div class="operator">(</div><div class="ident">readRecordCountQuery</div><div class="operator">)</div><div class="operator">.</div><div class="ident">WillReturnRows</div><div class="operator">(</div><div class="ident">rowsCount</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectClose</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>prepare connection to mocked database</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">storage</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">NewFromConnection</div><div class="operator">(</div><div class="ident">connection</div><div class="operator">,</div> <div class="literal">1</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>call the tested method</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">_</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">storage</div><div class="operator">.</div><div class="ident">ReadRecordsCount</div><div class="operator">(</div><div class="literal">&#34;TESTED_TABLE&#34;</div><div class="operator">)</div><div class="operator"></div>
+	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">==</div> <div class="ident">nil</div> <div class="operator">{</div>
+		<div class="ident">t</div><div class="operator">.</div><div class="ident">Errorf</div><div class="operator">(</div><div class="literal">&#34;error is expected&#34;</div><div class="operator">)</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>connection to mocked DB needs to be closed properly</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">checkConnectionClose</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">connection</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>check if all expectations were met</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">checkAllExpectations</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">mock</div><div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+<div class="keyword">func</div> <div class="ident">TestReadRecordCountOnError</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>error to be thrown</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">mockedError</div> <div class="operator">:=</div> <div class="ident">errors</div><div class="operator">.</div><div class="ident">New</div><div class="operator">(</div><div class="literal">&#34;mocked error&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>prepare new mocked connection to database</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">connection</div><div class="operator">,</div> <div class="ident">mock</div> <div class="operator">:=</div> <div class="ident">mustCreateMockConnection</div><div class="operator">(</div><div class="ident">t</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>expected query performed by tested function</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectQuery</div><div class="operator">(</div><div class="ident">readRecordCountQuery</div><div class="operator">)</div><div class="operator">.</div><div class="ident">WillReturnError</div><div class="operator">(</div><div class="ident">mockedError</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectClose</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>prepare connection to mocked database</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">storage</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">NewFromConnection</div><div class="operator">(</div><div class="ident">connection</div><div class="operator">,</div> <div class="literal">1</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>call the tested method</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">count</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">storage</div><div class="operator">.</div><div class="ident">ReadRecordsCount</div><div class="operator">(</div><div class="literal">&#34;TESTED_TABLE&#34;</div><div class="operator">)</div><div class="operator"></div>
+	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">mockedError</div> <div class="operator">{</div>
+		<div class="ident">t</div><div class="operator">.</div><div class="ident">Errorf</div><div class="operator">(</div><div class="literal">&#34;different error was returned: %v&#34;</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">)</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+
+	<div class="keyword">if</div> <div class="ident">count</div> <div class="operator">!=</div> <div class="operator">-</div><div class="literal">1</div> <div class="operator">{</div>
+		<div class="ident">t</div><div class="operator">.</div><div class="ident">Errorf</div><div class="operator">(</div><div class="literal">&#34;wrong number records returned: %d&#34;</div><div class="operator">,</div> <div class="ident">count</div><div class="operator">)</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>connection to mocked DB needs to be closed properly</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">checkConnectionClose</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">connection</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>check if all expectations were met</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">checkAllExpectations</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">mock</div><div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>check the function ReadListOfTables</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">TestReadListOfTables</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>prepare new mocked connection to database</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">connection</div><div class="operator">,</div> <div class="ident">mock</div> <div class="operator">:=</div> <div class="ident">mustCreateMockConnection</div><div class="operator">(</div><div class="ident">t</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>prepare mocked result for SQL query</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">rows</div> <div class="operator">:=</div> <div class="ident">sqlmock</div><div class="operator">.</div><div class="ident">NewRows</div><div class="operator">(</div><div class="operator">[</div><div class="operator">]</div><div class="ident">string</div><div class="operator">{</div><div class="literal">&#34;tablename&#34;</div><div class="operator">}</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">rows</div><div class="operator">.</div><div class="ident">AddRow</div><div class="operator">(</div><div class="literal">&#34;foo&#34;</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">rows</div><div class="operator">.</div><div class="ident">AddRow</div><div class="operator">(</div><div class="literal">&#34;bar&#34;</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">rows</div><div class="operator">.</div><div class="ident">AddRow</div><div class="operator">(</div><div class="literal">&#34;baz&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>expected query performed by tested function</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectQuery</div><div class="operator">(</div><div class="ident">readListOfTablesQuery</div><div class="operator">)</div><div class="operator">.</div><div class="ident">WillReturnRows</div><div class="operator">(</div><div class="ident">rows</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectClose</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>prepare connection to mocked database</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">storage</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">NewFromConnection</div><div class="operator">(</div><div class="ident">connection</div><div class="operator">,</div> <div class="literal">1</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>call the tested method</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">tableNames</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">storage</div><div class="operator">.</div><div class="ident">ReadListOfTables</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
+		<div class="ident">t</div><div class="operator">.</div><div class="ident">Errorf</div><div class="operator">(</div><div class="literal">&#34;error was not expected %s&#34;</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">)</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+
+	<div class="keyword">if</div> <div class="ident">len</div><div class="operator">(</div><div class="ident">tableNames</div><div class="operator">)</div> <div class="operator">!=</div> <div class="literal">3</div> <div class="operator">{</div>
+		<div class="ident">t</div><div class="operator">.</div><div class="ident">Errorf</div><div class="operator">(</div><div class="literal">&#34;wrong number records returned: %d&#34;</div><div class="operator">,</div> <div class="ident">len</div><div class="operator">(</div><div class="ident">tableNames</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>connection to mocked DB needs to be closed properly</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">checkConnectionClose</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">connection</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>check if all expectations were met</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">checkAllExpectations</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">mock</div><div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>check the function ReadListOfTables</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">TestReadListOfTablesOnError</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>error to be thrown</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">mockedError</div> <div class="operator">:=</div> <div class="ident">errors</div><div class="operator">.</div><div class="ident">New</div><div class="operator">(</div><div class="literal">&#34;mocked error&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>prepare new mocked connection to database</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">connection</div><div class="operator">,</div> <div class="ident">mock</div> <div class="operator">:=</div> <div class="ident">mustCreateMockConnection</div><div class="operator">(</div><div class="ident">t</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>expected query performed by tested function</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectQuery</div><div class="operator">(</div><div class="ident">readListOfTablesQuery</div><div class="operator">)</div><div class="operator">.</div><div class="ident">WillReturnError</div><div class="operator">(</div><div class="ident">mockedError</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectClose</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>prepare connection to mocked database</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">storage</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">NewFromConnection</div><div class="operator">(</div><div class="ident">connection</div><div class="operator">,</div> <div class="literal">1</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>call the tested method</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">_</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">storage</div><div class="operator">.</div><div class="ident">ReadListOfTables</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">mockedError</div> <div class="operator">{</div>
+		<div class="ident">t</div><div class="operator">.</div><div class="ident">Errorf</div><div class="operator">(</div><div class="literal">&#34;different error was returned: %v&#34;</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">)</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>connection to mocked DB needs to be closed properly</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">checkConnectionClose</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">connection</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>check if all expectations were met</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">checkAllExpectations</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">mock</div><div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>check the function ReadListOfTables</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">TestReadListOfTablesScanError</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>prepare new mocked connection to database</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">connection</div><div class="operator">,</div> <div class="ident">mock</div> <div class="operator">:=</div> <div class="ident">mustCreateMockConnection</div><div class="operator">(</div><div class="ident">t</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>prepare mocked result for SQL query</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">rows</div> <div class="operator">:=</div> <div class="ident">sqlmock</div><div class="operator">.</div><div class="ident">NewRows</div><div class="operator">(</div><div class="operator">[</div><div class="operator">]</div><div class="ident">string</div><div class="operator">{</div><div class="literal">&#34;tablename&#34;</div><div class="operator">}</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">rows</div><div class="operator">.</div><div class="ident">AddRow</div><div class="operator">(</div><div class="literal">1</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">rows</div><div class="operator">.</div><div class="ident">AddRow</div><div class="operator">(</div><div class="literal">2</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">rows</div><div class="operator">.</div><div class="ident">AddRow</div><div class="operator">(</div><div class="literal">3</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>expected query performed by tested function</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectQuery</div><div class="operator">(</div><div class="ident">readListOfTablesQuery</div><div class="operator">)</div><div class="operator">.</div><div class="ident">WillReturnRows</div><div class="operator">(</div><div class="ident">rows</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectClose</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>prepare connection to mocked database</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">storage</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">NewFromConnection</div><div class="operator">(</div><div class="ident">connection</div><div class="operator">,</div> <div class="literal">1</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>call the tested method</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">_</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">storage</div><div class="operator">.</div><div class="ident">ReadListOfTables</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">==</div> <div class="ident">nil</div> <div class="operator">{</div>
+		<div class="ident">t</div><div class="operator">.</div><div class="ident">Errorf</div><div class="operator">(</div><div class="literal">&#34;error is expected&#34;</div><div class="operator">)</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>connection to mocked DB needs to be closed properly</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">checkConnectionClose</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">connection</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>check if all expectations were met</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">checkAllExpectations</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">mock</div><div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>check the function ReadTable</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">TestReadTable</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>prepare new mocked connection to database</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">connection</div><div class="operator">,</div> <div class="ident">mock</div> <div class="operator">:=</div> <div class="ident">mustCreateMockConnection</div><div class="operator">(</div><div class="ident">t</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>prepare mocked result for SQL query</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">column1</div> <div class="operator">:=</div> <div class="ident">sqlmock</div><div class="operator">.</div><div class="ident">NewColumn</div><div class="operator">(</div><div class="literal">&#34;id&#34;</div><div class="operator">)</div><div class="operator">.</div><div class="ident">OfType</div><div class="operator">(</div><div class="literal">&#34;INT4&#34;</div><div class="operator">,</div> <div class="ident">int64</div><div class="operator">(</div><div class="literal">0</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">column2</div> <div class="operator">:=</div> <div class="ident">sqlmock</div><div class="operator">.</div><div class="ident">NewColumn</div><div class="operator">(</div><div class="literal">&#34;value&#34;</div><div class="operator">)</div><div class="operator">.</div><div class="ident">OfType</div><div class="operator">(</div><div class="literal">&#34;FLOAT64&#34;</div><div class="operator">,</div> <div class="ident">float64</div><div class="operator">(</div><div class="literal">0.0</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">column3</div> <div class="operator">:=</div> <div class="ident">sqlmock</div><div class="operator">.</div><div class="ident">NewColumn</div><div class="operator">(</div><div class="literal">&#34;text&#34;</div><div class="operator">)</div><div class="operator">.</div><div class="ident">OfType</div><div class="operator">(</div><div class="literal">&#34;VARCHAR&#34;</div><div class="operator">,</div> <div class="literal">&#34;&#34;</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">column4</div> <div class="operator">:=</div> <div class="ident">sqlmock</div><div class="operator">.</div><div class="ident">NewColumn</div><div class="operator">(</div><div class="literal">&#34;valid&#34;</div><div class="operator">)</div><div class="operator">.</div><div class="ident">OfType</div><div class="operator">(</div><div class="literal">&#34;BOOL&#34;</div><div class="operator">,</div> <div class="ident">false</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>columns of different types</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">rows</div> <div class="operator">:=</div> <div class="ident">mock</div><div class="operator">.</div><div class="ident">NewRowsWithColumnDefinition</div><div class="operator">(</div><div class="ident">column1</div><div class="operator">,</div> <div class="ident">column2</div><div class="operator">,</div> <div class="ident">column3</div><div class="operator">,</div> <div class="ident">column4</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="ident">rows</div><div class="operator">.</div><div class="ident">AddRow</div><div class="operator">(</div><div class="literal">1</div><div class="operator">,</div> <div class="literal">1.2</div><div class="operator">,</div> <div class="literal">&#34;foo&#34;</div><div class="operator">,</div> <div class="ident">true</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">rows</div><div class="operator">.</div><div class="ident">AddRow</div><div class="operator">(</div><div class="literal">2</div><div class="operator">,</div> <div class="literal">1.5</div><div class="operator">,</div> <div class="literal">&#34;bar&#34;</div><div class="operator">,</div> <div class="ident">false</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">rows</div><div class="operator">.</div><div class="ident">AddRow</div><div class="operator">(</div><div class="literal">3</div><div class="operator">,</div> <div class="literal">2.0</div><div class="operator">,</div> <div class="literal">&#34;baz&#34;</div><div class="operator">,</div> <div class="ident">true</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>expected query performed by tested function</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectQuery</div><div class="operator">(</div><div class="ident">readTableQuery</div><div class="operator">)</div><div class="operator">.</div><div class="ident">WillReturnRows</div><div class="operator">(</div><div class="ident">rows</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectClose</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>prepare connection to mocked database</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">storage</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">NewFromConnection</div><div class="operator">(</div><div class="ident">connection</div><div class="operator">,</div> <div class="literal">1</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>call the tested method</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">values</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">storage</div><div class="operator">.</div><div class="ident">ReadTable</div><div class="operator">(</div><div class="literal">&#34;table_name&#34;</div><div class="operator">)</div><div class="operator"></div>
+	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
+		<div class="ident">t</div><div class="operator">.</div><div class="ident">Errorf</div><div class="operator">(</div><div class="literal">&#34;error was not expected %s&#34;</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">)</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+
+	<div class="keyword">if</div> <div class="ident">len</div><div class="operator">(</div><div class="ident">values</div><div class="operator">)</div> <div class="operator">!=</div> <div class="literal">3</div> <div class="operator">{</div>
+		<div class="ident">t</div><div class="operator">.</div><div class="ident">Errorf</div><div class="operator">(</div><div class="literal">&#34;wrong number records returned: %d&#34;</div><div class="operator">,</div> <div class="ident">len</div><div class="operator">(</div><div class="ident">values</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">values</div><div class="operator">[</div><div class="literal">0</div><div class="operator">]</div><div class="operator">[</div><div class="literal">&#34;id&#34;</div><div class="operator">]</div><div class="operator">,</div> <div class="ident">int64</div><div class="operator">(</div><div class="literal">1</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">values</div><div class="operator">[</div><div class="literal">1</div><div class="operator">]</div><div class="operator">[</div><div class="literal">&#34;id&#34;</div><div class="operator">]</div><div class="operator">,</div> <div class="ident">int64</div><div class="operator">(</div><div class="literal">2</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">values</div><div class="operator">[</div><div class="literal">2</div><div class="operator">]</div><div class="operator">[</div><div class="literal">&#34;id&#34;</div><div class="operator">]</div><div class="operator">,</div> <div class="ident">int64</div><div class="operator">(</div><div class="literal">3</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">values</div><div class="operator">[</div><div class="literal">0</div><div class="operator">]</div><div class="operator">[</div><div class="literal">&#34;text&#34;</div><div class="operator">]</div><div class="operator">,</div> <div class="literal">&#34;foo&#34;</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">values</div><div class="operator">[</div><div class="literal">1</div><div class="operator">]</div><div class="operator">[</div><div class="literal">&#34;text&#34;</div><div class="operator">]</div><div class="operator">,</div> <div class="literal">&#34;bar&#34;</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">values</div><div class="operator">[</div><div class="literal">2</div><div class="operator">]</div><div class="operator">[</div><div class="literal">&#34;text&#34;</div><div class="operator">]</div><div class="operator">,</div> <div class="literal">&#34;baz&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>connection to mocked DB needs to be closed properly</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">checkConnectionClose</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">connection</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>check if all expectations were met</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">checkAllExpectations</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">mock</div><div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>check the function ReadTable in case of error</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">TestReadTableOnError</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>error to be thrown</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">mockedError</div> <div class="operator">:=</div> <div class="ident">errors</div><div class="operator">.</div><div class="ident">New</div><div class="operator">(</div><div class="literal">&#34;mocked error&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>prepare new mocked connection to database</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">connection</div><div class="operator">,</div> <div class="ident">mock</div> <div class="operator">:=</div> <div class="ident">mustCreateMockConnection</div><div class="operator">(</div><div class="ident">t</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>expected query performed by tested function</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectQuery</div><div class="operator">(</div><div class="ident">readTableQuery</div><div class="operator">)</div><div class="operator">.</div><div class="ident">WillReturnError</div><div class="operator">(</div><div class="ident">mockedError</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectClose</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>prepare connection to mocked database</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">storage</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">NewFromConnection</div><div class="operator">(</div><div class="ident">connection</div><div class="operator">,</div> <div class="literal">1</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>call the tested method</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">_</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">storage</div><div class="operator">.</div><div class="ident">ReadTable</div><div class="operator">(</div><div class="literal">&#34;table_name&#34;</div><div class="operator">)</div><div class="operator"></div>
+	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">mockedError</div> <div class="operator">{</div>
+		<div class="ident">t</div><div class="operator">.</div><div class="ident">Errorf</div><div class="operator">(</div><div class="literal">&#34;different error was returned: %v&#34;</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">)</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>connection to mocked DB needs to be closed properly</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">checkConnectionClose</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">connection</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>check if all expectations were met</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">checkAllExpectations</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">mock</div><div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>check the function RetrieveColumnTypes</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">TestRetrieveColumnTypes</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>prepare new mocked connection to database</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">connection</div><div class="operator">,</div> <div class="ident">mock</div> <div class="operator">:=</div> <div class="ident">mustCreateMockConnection</div><div class="operator">(</div><div class="ident">t</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>prepare mocked result for SQL query</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">column1</div> <div class="operator">:=</div> <div class="ident">sqlmock</div><div class="operator">.</div><div class="ident">NewColumn</div><div class="operator">(</div><div class="literal">&#34;id&#34;</div><div class="operator">)</div><div class="operator">.</div><div class="ident">OfType</div><div class="operator">(</div><div class="literal">&#34;INT4&#34;</div><div class="operator">,</div> <div class="ident">int64</div><div class="operator">(</div><div class="literal">0</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">column2</div> <div class="operator">:=</div> <div class="ident">sqlmock</div><div class="operator">.</div><div class="ident">NewColumn</div><div class="operator">(</div><div class="literal">&#34;value&#34;</div><div class="operator">)</div><div class="operator">.</div><div class="ident">OfType</div><div class="operator">(</div><div class="literal">&#34;FLOAT64&#34;</div><div class="operator">,</div> <div class="ident">float64</div><div class="operator">(</div><div class="literal">0.0</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">column3</div> <div class="operator">:=</div> <div class="ident">sqlmock</div><div class="operator">.</div><div class="ident">NewColumn</div><div class="operator">(</div><div class="literal">&#34;text&#34;</div><div class="operator">)</div><div class="operator">.</div><div class="ident">OfType</div><div class="operator">(</div><div class="literal">&#34;VARCHAR&#34;</div><div class="operator">,</div> <div class="literal">&#34;&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>columns of different types</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">rows</div> <div class="operator">:=</div> <div class="ident">mock</div><div class="operator">.</div><div class="ident">NewRowsWithColumnDefinition</div><div class="operator">(</div><div class="ident">column1</div><div class="operator">,</div> <div class="ident">column2</div><div class="operator">,</div> <div class="ident">column3</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="ident">rows</div><div class="operator">.</div><div class="ident">AddRow</div><div class="operator">(</div><div class="literal">1</div><div class="operator">,</div> <div class="literal">1.2</div><div class="operator">,</div> <div class="literal">&#34;foo&#34;</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">rows</div><div class="operator">.</div><div class="ident">AddRow</div><div class="operator">(</div><div class="literal">2</div><div class="operator">,</div> <div class="literal">1.5</div><div class="operator">,</div> <div class="literal">&#34;bar&#34;</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">rows</div><div class="operator">.</div><div class="ident">AddRow</div><div class="operator">(</div><div class="literal">3</div><div class="operator">,</div> <div class="literal">2.0</div><div class="operator">,</div> <div class="literal">&#34;baz&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>expected query performed by tested function</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectQuery</div><div class="operator">(</div><div class="ident">readColumnTypesQuery</div><div class="operator">)</div><div class="operator">.</div><div class="ident">WillReturnRows</div><div class="operator">(</div><div class="ident">rows</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectClose</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>prepare connection to mocked database</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">storage</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">NewFromConnection</div><div class="operator">(</div><div class="ident">connection</div><div class="operator">,</div> <div class="literal">1</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>call the tested method</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">types</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">storage</div><div class="operator">.</div><div class="ident">RetrieveColumnTypes</div><div class="operator">(</div><div class="literal">&#34;table_name&#34;</div><div class="operator">)</div><div class="operator"></div>
+	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
+		<div class="ident">t</div><div class="operator">.</div><div class="ident">Errorf</div><div class="operator">(</div><div class="literal">&#34;error was not expected %s&#34;</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">)</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+
+	<div class="keyword">if</div> <div class="ident">len</div><div class="operator">(</div><div class="ident">types</div><div class="operator">)</div> <div class="operator">!=</div> <div class="literal">3</div> <div class="operator">{</div>
+		<div class="ident">t</div><div class="operator">.</div><div class="ident">Errorf</div><div class="operator">(</div><div class="literal">&#34;wrong number of types returned: %d&#34;</div><div class="operator">,</div> <div class="ident">len</div><div class="operator">(</div><div class="ident">types</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">types</div><div class="operator">[</div><div class="literal">0</div><div class="operator">]</div><div class="operator">.</div><div class="ident">Name</div><div class="operator">(</div><div class="operator">)</div><div class="operator">,</div> <div class="literal">&#34;id&#34;</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">types</div><div class="operator">[</div><div class="literal">1</div><div class="operator">]</div><div class="operator">.</div><div class="ident">Name</div><div class="operator">(</div><div class="operator">)</div><div class="operator">,</div> <div class="literal">&#34;value&#34;</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">types</div><div class="operator">[</div><div class="literal">2</div><div class="operator">]</div><div class="operator">.</div><div class="ident">Name</div><div class="operator">(</div><div class="operator">)</div><div class="operator">,</div> <div class="literal">&#34;text&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>connection to mocked DB needs to be closed properly</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">checkConnectionClose</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">connection</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>check if all expectations were met</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">checkAllExpectations</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">mock</div><div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>check the function RetrieveColumnTypes</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">TestRetrieveColumnTypesOnError</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>error to be thrown</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">mockedError</div> <div class="operator">:=</div> <div class="ident">errors</div><div class="operator">.</div><div class="ident">New</div><div class="operator">(</div><div class="literal">&#34;mocked error&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>prepare new mocked connection to database</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">connection</div><div class="operator">,</div> <div class="ident">mock</div> <div class="operator">:=</div> <div class="ident">mustCreateMockConnection</div><div class="operator">(</div><div class="ident">t</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>expected query performed by tested function</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectQuery</div><div class="operator">(</div><div class="ident">readColumnTypesQuery</div><div class="operator">)</div><div class="operator">.</div><div class="ident">WillReturnError</div><div class="operator">(</div><div class="ident">mockedError</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectClose</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>prepare connection to mocked database</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">storage</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">NewFromConnection</div><div class="operator">(</div><div class="ident">connection</div><div class="operator">,</div> <div class="literal">1</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>call the tested method</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">_</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">storage</div><div class="operator">.</div><div class="ident">RetrieveColumnTypes</div><div class="operator">(</div><div class="literal">&#34;table_name&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">mockedError</div> <div class="operator">{</div>
+		<div class="ident">t</div><div class="operator">.</div><div class="ident">Errorf</div><div class="operator">(</div><div class="literal">&#34;different error was returned: %v&#34;</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">)</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>connection to mocked DB needs to be closed properly</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">checkConnectionClose</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">connection</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>check if all expectations were met</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">checkAllExpectations</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">mock</div><div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>check the function StoreTableIntoFile</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">TestStoreTableIntoFile</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>prepare new mocked connection to database</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">connection</div><div class="operator">,</div> <div class="ident">mock</div> <div class="operator">:=</div> <div class="ident">mustCreateMockConnection</div><div class="operator">(</div><div class="ident">t</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>prepare mocked result for SQL query</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">column1</div> <div class="operator">:=</div> <div class="ident">sqlmock</div><div class="operator">.</div><div class="ident">NewColumn</div><div class="operator">(</div><div class="literal">&#34;id&#34;</div><div class="operator">)</div><div class="operator">.</div><div class="ident">OfType</div><div class="operator">(</div><div class="literal">&#34;INT4&#34;</div><div class="operator">,</div> <div class="ident">int64</div><div class="operator">(</div><div class="literal">0</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">column2</div> <div class="operator">:=</div> <div class="ident">sqlmock</div><div class="operator">.</div><div class="ident">NewColumn</div><div class="operator">(</div><div class="literal">&#34;value&#34;</div><div class="operator">)</div><div class="operator">.</div><div class="ident">OfType</div><div class="operator">(</div><div class="literal">&#34;FLOAT64&#34;</div><div class="operator">,</div> <div class="ident">float64</div><div class="operator">(</div><div class="literal">0.0</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">column3</div> <div class="operator">:=</div> <div class="ident">sqlmock</div><div class="operator">.</div><div class="ident">NewColumn</div><div class="operator">(</div><div class="literal">&#34;text&#34;</div><div class="operator">)</div><div class="operator">.</div><div class="ident">OfType</div><div class="operator">(</div><div class="literal">&#34;VARCHAR&#34;</div><div class="operator">,</div> <div class="literal">&#34;&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>columns of different types</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">rows</div> <div class="operator">:=</div> <div class="ident">mock</div><div class="operator">.</div><div class="ident">NewRowsWithColumnDefinition</div><div class="operator">(</div><div class="ident">column1</div><div class="operator">,</div> <div class="ident">column2</div><div class="operator">,</div> <div class="ident">column3</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="ident">rows</div><div class="operator">.</div><div class="ident">AddRow</div><div class="operator">(</div><div class="literal">1</div><div class="operator">,</div> <div class="literal">1.2</div><div class="operator">,</div> <div class="literal">&#34;foo&#34;</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">rows</div><div class="operator">.</div><div class="ident">AddRow</div><div class="operator">(</div><div class="literal">2</div><div class="operator">,</div> <div class="literal">1.5</div><div class="operator">,</div> <div class="literal">&#34;bar&#34;</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">rows</div><div class="operator">.</div><div class="ident">AddRow</div><div class="operator">(</div><div class="literal">3</div><div class="operator">,</div> <div class="literal">2.0</div><div class="operator">,</div> <div class="literal">&#34;baz&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>expected query performed by tested function</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectQuery</div><div class="operator">(</div><div class="ident">readColumnTypesQuery</div><div class="operator">)</div><div class="operator">.</div><div class="ident">WillReturnRows</div><div class="operator">(</div><div class="ident">rows</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>expected query performed by tested function</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">expectedQuery2</div> <div class="operator">:=</div> <div class="literal">&#34;SELECT \\* FROM table_name&#34;</div><div class="operator"></div>
+
+	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectQuery</div><div class="operator">(</div><div class="ident">expectedQuery2</div><div class="operator">)</div><div class="operator">.</div><div class="ident">WillReturnRows</div><div class="operator">(</div><div class="ident">rows</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectClose</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>prepare connection to mocked database</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">storage</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">NewFromConnection</div><div class="operator">(</div><div class="ident">connection</div><div class="operator">,</div> <div class="literal">1</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>call the tested method</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">err</div> <div class="operator">:=</div> <div class="ident">storage</div><div class="operator">.</div><div class="ident">StoreTableIntoFile</div><div class="operator">(</div><div class="literal">&#34;table_name&#34;</div><div class="operator">)</div><div class="operator"></div>
+	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
+		<div class="ident">t</div><div class="operator">.</div><div class="ident">Errorf</div><div class="operator">(</div><div class="literal">&#34;error was not expected %s&#34;</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">)</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>connection to mocked DB needs to be closed properly</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">checkConnectionClose</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">connection</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>check if all expectations were met</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">checkAllExpectations</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">mock</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>check generated file</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">content</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">ioutil</div><div class="operator">.</div><div class="ident">ReadFile</div><div class="operator">(</div><div class="literal">&#34;table_name.csv&#34;</div><div class="operator">)</div><div class="operator"></div>
+	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
+		<div class="ident">t</div><div class="operator">.</div><div class="ident">Errorf</div><div class="operator">(</div><div class="literal">&#34;error during reading file %s&#34;</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">)</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+
+	<div class="ident">expected</div> <div class="operator">:=</div> <div class="literal">`id,value,text
+1,1.2,foo
+2,1.5,bar
+3,2,baz
+`</div><div class="operator"></div>
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">expected</div><div class="operator">,</div> <div class="ident">string</div><div class="operator">(</div><div class="ident">content</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>check the function ReadDisabledRules</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">TestReadDisabledRules</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>prepare new mocked connection to database</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">connection</div><div class="operator">,</div> <div class="ident">mock</div> <div class="operator">:=</div> <div class="ident">mustCreateMockConnection</div><div class="operator">(</div><div class="ident">t</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>prepare mocked result for SQL query</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">rows</div> <div class="operator">:=</div> <div class="ident">sqlmock</div><div class="operator">.</div><div class="ident">NewRows</div><div class="operator">(</div><div class="operator">[</div><div class="operator">]</div><div class="ident">string</div><div class="operator">{</div><div class="literal">&#34;rule&#34;</div><div class="operator">,</div> <div class="literal">&#34;count&#34;</div><div class="operator">}</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">rows</div><div class="operator">.</div><div class="ident">AddRow</div><div class="operator">(</div><div class="literal">&#34;rule1&#34;</div><div class="operator">,</div> <div class="literal">1</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">rows</div><div class="operator">.</div><div class="ident">AddRow</div><div class="operator">(</div><div class="literal">&#34;rule2&#34;</div><div class="operator">,</div> <div class="literal">2</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">rows</div><div class="operator">.</div><div class="ident">AddRow</div><div class="operator">(</div><div class="literal">&#34;rule3&#34;</div><div class="operator">,</div> <div class="literal">3</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>expected query performed by tested function</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectQuery</div><div class="operator">(</div><div class="ident">readDisabledRulesQuery</div><div class="operator">)</div><div class="operator">.</div><div class="ident">WillReturnRows</div><div class="operator">(</div><div class="ident">rows</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectClose</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>prepare connection to mocked database</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">storage</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">NewFromConnection</div><div class="operator">(</div><div class="ident">connection</div><div class="operator">,</div> <div class="literal">1</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>call the tested method</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">results</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">storage</div><div class="operator">.</div><div class="ident">ReadDisabledRules</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
+		<div class="ident">t</div><div class="operator">.</div><div class="ident">Errorf</div><div class="operator">(</div><div class="literal">&#34;error was not expected %s&#34;</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">)</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+
+	<div class="keyword">if</div> <div class="ident">len</div><div class="operator">(</div><div class="ident">results</div><div class="operator">)</div> <div class="operator">!=</div> <div class="literal">3</div> <div class="operator">{</div>
+		<div class="ident">t</div><div class="operator">.</div><div class="ident">Errorf</div><div class="operator">(</div><div class="literal">&#34;wrong number records returned: %d&#34;</div><div class="operator">,</div> <div class="ident">len</div><div class="operator">(</div><div class="ident">results</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>check the list of returned records</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="literal">&#34;rule1&#34;</div><div class="operator">,</div> <div class="ident">results</div><div class="operator">[</div><div class="literal">0</div><div class="operator">]</div><div class="operator">.</div><div class="ident">Rule</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="literal">&#34;rule2&#34;</div><div class="operator">,</div> <div class="ident">results</div><div class="operator">[</div><div class="literal">1</div><div class="operator">]</div><div class="operator">.</div><div class="ident">Rule</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="literal">&#34;rule3&#34;</div><div class="operator">,</div> <div class="ident">results</div><div class="operator">[</div><div class="literal">2</div><div class="operator">]</div><div class="operator">.</div><div class="ident">Rule</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="literal">1</div><div class="operator">,</div> <div class="ident">results</div><div class="operator">[</div><div class="literal">0</div><div class="operator">]</div><div class="operator">.</div><div class="ident">Count</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="literal">2</div><div class="operator">,</div> <div class="ident">results</div><div class="operator">[</div><div class="literal">1</div><div class="operator">]</div><div class="operator">.</div><div class="ident">Count</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="literal">3</div><div class="operator">,</div> <div class="ident">results</div><div class="operator">[</div><div class="literal">2</div><div class="operator">]</div><div class="operator">.</div><div class="ident">Count</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>connection to mocked DB needs to be closed properly</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">checkConnectionClose</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">connection</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>check if all expectations were met</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">checkAllExpectations</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">mock</div><div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>check the function ReadDisabledRules</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">TestReadDisabledRulesOnError</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>error to be thrown</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">mockedError</div> <div class="operator">:=</div> <div class="ident">errors</div><div class="operator">.</div><div class="ident">New</div><div class="operator">(</div><div class="literal">&#34;mocked error&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>prepare new mocked connection to database</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">connection</div><div class="operator">,</div> <div class="ident">mock</div> <div class="operator">:=</div> <div class="ident">mustCreateMockConnection</div><div class="operator">(</div><div class="ident">t</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>expected query performed by tested function</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectQuery</div><div class="operator">(</div><div class="ident">readDisabledRulesQuery</div><div class="operator">)</div><div class="operator">.</div><div class="ident">WillReturnError</div><div class="operator">(</div><div class="ident">mockedError</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectClose</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>prepare connection to mocked database</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">storage</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">NewFromConnection</div><div class="operator">(</div><div class="ident">connection</div><div class="operator">,</div> <div class="literal">1</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>call the tested method</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">_</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">storage</div><div class="operator">.</div><div class="ident">ReadDisabledRules</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">mockedError</div> <div class="operator">{</div>
+		<div class="ident">t</div><div class="operator">.</div><div class="ident">Errorf</div><div class="operator">(</div><div class="literal">&#34;different error was returned: %v&#34;</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">)</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>connection to mocked DB needs to be closed properly</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">checkConnectionClose</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">connection</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>check if all expectations were met</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">checkAllExpectations</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">mock</div><div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>check the function ReadDisabledRules</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">TestReadDisabledRulesScanError</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>prepare new mocked connection to database</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">connection</div><div class="operator">,</div> <div class="ident">mock</div> <div class="operator">:=</div> <div class="ident">mustCreateMockConnection</div><div class="operator">(</div><div class="ident">t</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>prepare mocked result for SQL query</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">rows</div> <div class="operator">:=</div> <div class="ident">sqlmock</div><div class="operator">.</div><div class="ident">NewRows</div><div class="operator">(</div><div class="operator">[</div><div class="operator">]</div><div class="ident">string</div><div class="operator">{</div><div class="literal">&#34;rule&#34;</div><div class="operator">,</div> <div class="literal">&#34;count&#34;</div><div class="operator">}</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">rows</div><div class="operator">.</div><div class="ident">AddRow</div><div class="operator">(</div><div class="literal">&#34;rule1&#34;</div><div class="operator">,</div> <div class="literal">&#34;not count&#34;</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">rows</div><div class="operator">.</div><div class="ident">AddRow</div><div class="operator">(</div><div class="literal">&#34;rule2&#34;</div><div class="operator">,</div> <div class="literal">&#34;not count&#34;</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">rows</div><div class="operator">.</div><div class="ident">AddRow</div><div class="operator">(</div><div class="literal">&#34;rule3&#34;</div><div class="operator">,</div> <div class="literal">&#34;not count&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>expected query performed by tested function</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">expectedQuery</div> <div class="operator">:=</div> <div class="literal">&#34;SELECT rule_id, count\\(rule_id\\) AS rule_count FROM rule_disable GROUP BY rule_id HAVING count\\(rule_id\\)\\&gt;1 ORDER BY rule_count DESC;&#34;</div><div class="operator"></div>
+	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectQuery</div><div class="operator">(</div><div class="ident">expectedQuery</div><div class="operator">)</div><div class="operator">.</div><div class="ident">WillReturnRows</div><div class="operator">(</div><div class="ident">rows</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">mock</div><div class="operator">.</div><div class="ident">ExpectClose</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>prepare connection to mocked database</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">storage</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">NewFromConnection</div><div class="operator">(</div><div class="ident">connection</div><div class="operator">,</div> <div class="literal">1</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>call the tested method</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">_</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">storage</div><div class="operator">.</div><div class="ident">ReadDisabledRules</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">==</div> <div class="ident">nil</div> <div class="operator">{</div>
+		<div class="ident">t</div><div class="operator">.</div><div class="ident">Errorf</div><div class="operator">(</div><div class="literal">&#34;error was expected&#34;</div><div class="operator">)</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>connection to mocked DB needs to be closed properly</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">checkConnectionClose</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">connection</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>check if all expectations were met</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">checkAllExpectations</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">mock</div><div class="operator">)</div><div class="operator"></div>
 <div class="operator">}</div><div class="operator"></div>
 
 </code></pre></td>

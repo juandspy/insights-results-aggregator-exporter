@@ -118,7 +118,7 @@
       <tr class="section">
 	<td class="doc"></td>
 	<td class="code"><pre><code><div class="comment">/*
-Copyright © 2021 Red Hat, Inc.
+Copyright © 2021, 2022 Red Hat, Inc.
 
 Licensed under the Apache License, Version 2.0 (the &#34;License&#34;);
 you may not use this file except in compliance with the License.
@@ -134,6 +134,628 @@ limitations under the License.
 */</div>
 
 <div class="keyword">package</div> <div class="ident">main_test</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>Unit test definitions for functions and methods defined in source file
+exporter.go</p>
+</td>
+	<td class="code"><pre><code>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>Generated documentation is available at:
+https://pkg.go.dev/github.com/RedHatInsights/insights-results-aggregator-exporter</p>
+
+<p>Documentation in literate-programming-style is available at:
+https://redhatinsights.github.io/insights-results-aggregator-exporter/packages/exporter_test.html</p>
+</td>
+	<td class="code"><pre><code>
+<div class="keyword">import</div> <div class="operator">(</div>
+	<div class="literal">&#34;os&#34;</div><div class="operator"></div>
+	<div class="literal">&#34;testing&#34;</div><div class="operator"></div>
+
+	<div class="literal">&#34;github.com/rs/zerolog&#34;</div><div class="operator"></div>
+	<div class="literal">&#34;github.com/rs/zerolog/log&#34;</div><div class="operator"></div>
+	<div class="literal">&#34;github.com/stretchr/testify/assert&#34;</div><div class="operator"></div>
+	<div class="literal">&#34;github.com/tisnik/go-capture&#34;</div><div class="operator"></div>
+
+	<div class="ident">main</div> <div class="literal">&#34;github.com/RedHatInsights/insights-results-aggregator-exporter&#34;</div><div class="operator"></div>
+<div class="operator">)</div><div class="operator"></div>
+
+<div class="keyword">const</div> <div class="operator">(</div>
+	<div class="ident">expectedVersionMessage</div>        <div class="operator">=</div> <div class="literal">&#34;Insights Results Aggregator Cleaner version 1.0&#34;</div><div class="operator"></div>
+	<div class="ident">expectedAuthorsMessage</div>        <div class="operator">=</div> <div class="literal">&#34;Pavel Tisnovsky&#34;</div><div class="operator"></div>
+	<div class="ident">expectedCopyrightMessage</div>      <div class="operator">=</div> <div class="literal">&#34;Red Hat Inc.&#34;</div><div class="operator"></div>
+	<div class="ident">expectedConfigurationMessage1</div> <div class="operator">=</div> <div class="literal">&#34;Driver&#34;</div><div class="operator"></div>
+	<div class="ident">expectedConfigurationMessage2</div> <div class="operator">=</div> <div class="literal">&#34;Username&#34;</div><div class="operator"></div>
+	<div class="ident">expectedConfigurationMessage3</div> <div class="operator">=</div> <div class="literal">&#34;Host&#34;</div><div class="operator"></div>
+<div class="operator">)</div><div class="operator"></div>
+
+<div class="keyword">func</div> <div class="ident">init</div><div class="operator">(</div><div class="operator">)</div> <div class="operator">{</div>
+	<div class="ident">zerolog</div><div class="operator">.</div><div class="ident">SetGlobalLevel</div><div class="operator">(</div><div class="ident">zerolog</div><div class="operator">.</div><div class="ident">InfoLevel</div><div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>TestShowVersion checks the function showVersion</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">TestShowVersion</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>try to call the tested function and capture its output</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">output</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">capture</div><div class="operator">.</div><div class="ident">StandardOutput</div><div class="operator">(</div><div class="keyword">func</div><div class="operator">(</div><div class="operator">)</div> <div class="operator">{</div>
+		<div class="ident">main</div><div class="operator">.</div><div class="ident">ShowVersion</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>check the captured text</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">checkCapture</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Contains</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">output</div><div class="operator">,</div> <div class="ident">expectedVersionMessage</div><div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>TestShowAuthors checks the function showAuthors</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">TestShowAuthors</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>try to call the tested function and capture its output</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">output</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">capture</div><div class="operator">.</div><div class="ident">StandardOutput</div><div class="operator">(</div><div class="keyword">func</div><div class="operator">(</div><div class="operator">)</div> <div class="operator">{</div>
+		<div class="ident">main</div><div class="operator">.</div><div class="ident">ShowAuthors</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>check the captured text</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">checkCapture</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Contains</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">output</div><div class="operator">,</div> <div class="ident">expectedAuthorsMessage</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Contains</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">output</div><div class="operator">,</div> <div class="ident">expectedCopyrightMessage</div><div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>TestShowConfiguration checks the function ShowConfiguration</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">TestShowConfiguration</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>fill in configuration structure</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">configuration</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">ConfigStruct</div><div class="operator">{</div><div class="operator">}</div><div class="operator"></div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>try to call the tested function and capture its output</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">output</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">capture</div><div class="operator">.</div><div class="ident">ErrorOutput</div><div class="operator">(</div><div class="keyword">func</div><div class="operator">(</div><div class="operator">)</div> <div class="operator">{</div>
+		<div class="ident">log</div><div class="operator">.</div><div class="ident">Logger</div> <div class="operator">=</div> <div class="ident">log</div><div class="operator">.</div><div class="ident">Output</div><div class="operator">(</div><div class="ident">zerolog</div><div class="operator">.</div><div class="ident">New</div><div class="operator">(</div><div class="ident">os</div><div class="operator">.</div><div class="ident">Stderr</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
+		<div class="ident">main</div><div class="operator">.</div><div class="ident">ShowConfiguration</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">configuration</div><div class="operator">)</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>check the captured text</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">checkCapture</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Contains</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">output</div><div class="operator">,</div> <div class="ident">expectedConfigurationMessage1</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Contains</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">output</div><div class="operator">,</div> <div class="ident">expectedConfigurationMessage2</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Contains</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">output</div><div class="operator">,</div> <div class="ident">expectedConfigurationMessage3</div><div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+<div class="keyword">func</div> <div class="ident">checkCapture</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">,</div> <div class="ident">err</div> <div class="ident">error</div><div class="operator">)</div> <div class="operator">{</div>
+	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
+		<div class="ident">t</div><div class="operator">.</div><div class="ident">Fatal</div><div class="operator">(</div><div class="literal">&#34;Unable to capture standard output&#34;</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">)</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>TestDoSelectedOperationShowVersion checks the function showVersion called
+via doSelectedOperation function</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">TestDoSelectedOperationShowVersion</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>stub for structures needed to call the tested function</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">configuration</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">ConfigStruct</div><div class="operator">{</div><div class="operator">}</div><div class="operator"></div>
+	<div class="ident">cliFlags</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">CliFlags</div><div class="operator">{</div>
+		<div class="ident">ShowVersion</div><div class="operator">:</div>       <div class="ident">true</div><div class="operator">,</div>
+		<div class="ident">ShowAuthors</div><div class="operator">:</div>       <div class="ident">false</div><div class="operator">,</div>
+		<div class="ident">ShowConfiguration</div><div class="operator">:</div> <div class="ident">false</div><div class="operator">,</div>
+	<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>try to call the tested function and capture its output</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">output</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">capture</div><div class="operator">.</div><div class="ident">StandardOutput</div><div class="operator">(</div><div class="keyword">func</div><div class="operator">(</div><div class="operator">)</div> <div class="operator">{</div>
+		<div class="ident">code</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">DoSelectedOperation</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">configuration</div><div class="operator">,</div> <div class="ident">cliFlags</div><div class="operator">,</div> <div class="ident">log</div><div class="operator">.</div><div class="ident">Logger</div><div class="operator">)</div><div class="operator"></div>
+		<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">code</div><div class="operator">,</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">ExitStatusOK</div><div class="operator">)</div><div class="operator"></div>
+		<div class="ident">assert</div><div class="operator">.</div><div class="ident">Nil</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">)</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>check the captured text</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">checkCapture</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Contains</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">output</div><div class="operator">,</div> <div class="ident">expectedVersionMessage</div><div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>TestDoSelectedOperationShowAuthors checks the function showAuthors called
+via doSelectedOperation function</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">TestDoSelectedOperationShowAuthors</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>stub for structures needed to call the tested function</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">configuration</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">ConfigStruct</div><div class="operator">{</div><div class="operator">}</div><div class="operator"></div>
+	<div class="ident">cliFlags</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">CliFlags</div><div class="operator">{</div>
+		<div class="ident">ShowVersion</div><div class="operator">:</div>       <div class="ident">false</div><div class="operator">,</div>
+		<div class="ident">ShowAuthors</div><div class="operator">:</div>       <div class="ident">true</div><div class="operator">,</div>
+		<div class="ident">ShowConfiguration</div><div class="operator">:</div> <div class="ident">false</div><div class="operator">,</div>
+	<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>try to call the tested function and capture its output</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">output</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">capture</div><div class="operator">.</div><div class="ident">StandardOutput</div><div class="operator">(</div><div class="keyword">func</div><div class="operator">(</div><div class="operator">)</div> <div class="operator">{</div>
+		<div class="ident">code</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">DoSelectedOperation</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">configuration</div><div class="operator">,</div> <div class="ident">cliFlags</div><div class="operator">,</div> <div class="ident">log</div><div class="operator">.</div><div class="ident">Logger</div><div class="operator">)</div><div class="operator"></div>
+		<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">code</div><div class="operator">,</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">ExitStatusOK</div><div class="operator">)</div><div class="operator"></div>
+		<div class="ident">assert</div><div class="operator">.</div><div class="ident">Nil</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">)</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>check the captured text</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">checkCapture</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Contains</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">output</div><div class="operator">,</div> <div class="ident">expectedAuthorsMessage</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Contains</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">output</div><div class="operator">,</div> <div class="ident">expectedCopyrightMessage</div><div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>TestDoSelectedOperationShowConfiguration checks the function
+showConfiguration called via doSelectedOperation function</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">TestDoSelectedOperationShowConfiguration</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>stub for structures needed to call the tested function</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">configuration</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">ConfigStruct</div><div class="operator">{</div><div class="operator">}</div><div class="operator"></div>
+	<div class="ident">cliFlags</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">CliFlags</div><div class="operator">{</div>
+		<div class="ident">ShowVersion</div><div class="operator">:</div>       <div class="ident">false</div><div class="operator">,</div>
+		<div class="ident">ShowAuthors</div><div class="operator">:</div>       <div class="ident">false</div><div class="operator">,</div>
+		<div class="ident">ShowConfiguration</div><div class="operator">:</div> <div class="ident">true</div><div class="operator">,</div>
+	<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>try to call the tested function and capture its output</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">output</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">capture</div><div class="operator">.</div><div class="ident">ErrorOutput</div><div class="operator">(</div><div class="keyword">func</div><div class="operator">(</div><div class="operator">)</div> <div class="operator">{</div>
+		<div class="ident">log</div><div class="operator">.</div><div class="ident">Logger</div> <div class="operator">=</div> <div class="ident">log</div><div class="operator">.</div><div class="ident">Output</div><div class="operator">(</div><div class="ident">zerolog</div><div class="operator">.</div><div class="ident">New</div><div class="operator">(</div><div class="ident">os</div><div class="operator">.</div><div class="ident">Stderr</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
+		<div class="ident">code</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">DoSelectedOperation</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">configuration</div><div class="operator">,</div> <div class="ident">cliFlags</div><div class="operator">,</div> <div class="ident">log</div><div class="operator">.</div><div class="ident">Logger</div><div class="operator">)</div><div class="operator"></div>
+		<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">code</div><div class="operator">,</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">ExitStatusOK</div><div class="operator">)</div><div class="operator"></div>
+		<div class="ident">assert</div><div class="operator">.</div><div class="ident">Nil</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">)</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>check the captured text</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">checkCapture</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Contains</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">output</div><div class="operator">,</div> <div class="ident">expectedConfigurationMessage1</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Contains</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">output</div><div class="operator">,</div> <div class="ident">expectedConfigurationMessage2</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Contains</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">output</div><div class="operator">,</div> <div class="ident">expectedConfigurationMessage3</div><div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>TestDoSelectedOperationCheckS3Connection checks the function
+checkS3Connection called via doSelectedOperation function</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">TestDoSelectedOperationCheckS3Connection</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>stub for structures needed to call the tested function</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">configuration</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">ConfigStruct</div><div class="operator">{</div><div class="operator">}</div><div class="operator"></div>
+	<div class="ident">cliFlags</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">CliFlags</div><div class="operator">{</div>
+		<div class="ident">ShowVersion</div><div class="operator">:</div>       <div class="ident">false</div><div class="operator">,</div>
+		<div class="ident">ShowAuthors</div><div class="operator">:</div>       <div class="ident">false</div><div class="operator">,</div>
+		<div class="ident">ShowConfiguration</div><div class="operator">:</div> <div class="ident">false</div><div class="operator">,</div>
+		<div class="ident">CheckS3Connection</div><div class="operator">:</div> <div class="ident">true</div><div class="operator">,</div>
+	<div class="operator">}</div><div class="operator"></div>
+
+	<div class="ident">code</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">DoSelectedOperation</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">configuration</div><div class="operator">,</div> <div class="ident">cliFlags</div><div class="operator">,</div> <div class="ident">log</div><div class="operator">.</div><div class="ident">Logger</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">code</div><div class="operator">,</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">ExitStatusS3Error</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Error</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>TestPrintTables checks the function printTables</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">TestPrintTables</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+	<div class="ident">tables</div> <div class="operator">:=</div> <div class="operator">[</div><div class="operator">]</div><div class="ident">main</div><div class="operator">.</div><div class="ident">TableName</div><div class="operator">{</div>
+		<div class="ident">main</div><div class="operator">.</div><div class="ident">TableName</div><div class="operator">(</div><div class="literal">&#34;first&#34;</div><div class="operator">)</div><div class="operator">,</div>
+		<div class="ident">main</div><div class="operator">.</div><div class="ident">TableName</div><div class="operator">(</div><div class="literal">&#34;second&#34;</div><div class="operator">)</div><div class="operator">,</div>
+		<div class="ident">main</div><div class="operator">.</div><div class="ident">TableName</div><div class="operator">(</div><div class="literal">&#34;third&#34;</div><div class="operator">)</div><div class="operator">,</div>
+	<div class="operator">}</div><div class="operator"></div>
+
+	<div class="ident">output</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">capture</div><div class="operator">.</div><div class="ident">ErrorOutput</div><div class="operator">(</div><div class="keyword">func</div><div class="operator">(</div><div class="operator">)</div> <div class="operator">{</div>
+		<div class="ident">log</div><div class="operator">.</div><div class="ident">Logger</div> <div class="operator">=</div> <div class="ident">log</div><div class="operator">.</div><div class="ident">Output</div><div class="operator">(</div><div class="ident">zerolog</div><div class="operator">.</div><div class="ident">New</div><div class="operator">(</div><div class="ident">os</div><div class="operator">.</div><div class="ident">Stderr</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
+		<div class="ident">main</div><div class="operator">.</div><div class="ident">PrintTables</div><div class="operator">(</div><div class="ident">tables</div><div class="operator">)</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>check the captured text</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">checkCapture</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Contains</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">output</div><div class="operator">,</div> <div class="literal">&#34;\\\&#34;table\\\&#34;:\\\&#34;first\\\&#34;&#34;</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Contains</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">output</div><div class="operator">,</div> <div class="literal">&#34;\\\&#34;table\\\&#34;:\\\&#34;second\\\&#34;&#34;</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Contains</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">output</div><div class="operator">,</div> <div class="literal">&#34;\\\&#34;table\\\&#34;:\\\&#34;third\\\&#34;&#34;</div><div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>TestParseFlags is dummy test for parseFlags function</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">TestParseFlags</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+	<div class="ident">flags</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">ParseFlags</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">NotNil</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">flags</div><div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>TestPerformDataExportViaDoSelectedOperation checks the function
+performDataExport.</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">TestPerformDataExportViaDoSelectedOperation</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>fill in configuration structure w/o specifying S3 connection or DB
+connection</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">configuration</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">ConfigStruct</div><div class="operator">{</div><div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>default operation is export data</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">cliFlags</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">CliFlags</div><div class="operator">{</div>
+		<div class="ident">ShowVersion</div><div class="operator">:</div>       <div class="ident">false</div><div class="operator">,</div>
+		<div class="ident">ShowAuthors</div><div class="operator">:</div>       <div class="ident">false</div><div class="operator">,</div>
+		<div class="ident">ShowConfiguration</div><div class="operator">:</div> <div class="ident">false</div><div class="operator">,</div>
+		<div class="ident">CheckS3Connection</div><div class="operator">:</div> <div class="ident">false</div><div class="operator">,</div>
+	<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>the call should fail</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">code</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">DoSelectedOperation</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">configuration</div><div class="operator">,</div> <div class="ident">cliFlags</div><div class="operator">,</div> <div class="ident">log</div><div class="operator">.</div><div class="ident">Logger</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">code</div><div class="operator">,</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">ExitStatusStorageError</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Error</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>TestCheckS3Connection checks the function CheckS3Connection</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">TestCheckS3Connection</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>fill in configuration structure
+w/o specifying S3 connection</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">configuration</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">ConfigStruct</div><div class="operator">{</div><div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>the call should fail</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">code</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">CheckS3Connection</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">configuration</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">code</div><div class="operator">,</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">ExitStatusS3Error</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Error</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>TestPerformDataExport checks the function performDataExport.</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">TestPerformDataExportNoStorage</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>fill in configuration structure w/o specifying S3 connection or DB
+connection</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">configuration</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">ConfigStruct</div><div class="operator">{</div><div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>default operation is export data</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">cliFlags</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">CliFlags</div><div class="operator">{</div>
+		<div class="ident">ShowVersion</div><div class="operator">:</div>       <div class="ident">false</div><div class="operator">,</div>
+		<div class="ident">ShowAuthors</div><div class="operator">:</div>       <div class="ident">false</div><div class="operator">,</div>
+		<div class="ident">ShowConfiguration</div><div class="operator">:</div> <div class="ident">false</div><div class="operator">,</div>
+		<div class="ident">CheckS3Connection</div><div class="operator">:</div> <div class="ident">false</div><div class="operator">,</div>
+	<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>the call should fail</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">code</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">PerformDataExport</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">configuration</div><div class="operator">,</div> <div class="ident">cliFlags</div><div class="operator">,</div> <div class="ident">log</div><div class="operator">.</div><div class="ident">Logger</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">code</div><div class="operator">,</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">ExitStatusStorageError</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Error</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>TestPerformDataExport checks the function performDataExport.</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">TestPerformDataExportConfigError</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>fill in configuration structure w/o specifying S3 connection
+but DB connection is specified</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">configuration</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">ConfigStruct</div><div class="operator">{</div>
+		<div class="ident">main</div><div class="operator">.</div><div class="ident">StorageConfiguration</div><div class="operator">{</div>
+			<div class="ident">Driver</div><div class="operator">:</div>        <div class="literal">&#34;postgres&#34;</div><div class="operator">,</div>
+			<div class="ident">PGUsername</div><div class="operator">:</div>    <div class="literal">&#34;user&#34;</div><div class="operator">,</div>
+			<div class="ident">PGPassword</div><div class="operator">:</div>    <div class="literal">&#34;password&#34;</div><div class="operator">,</div>
+			<div class="ident">PGHost</div><div class="operator">:</div>        <div class="literal">&#34;nowhere&#34;</div><div class="operator">,</div>
+			<div class="ident">PGPort</div><div class="operator">:</div>        <div class="literal">1234</div><div class="operator">,</div>
+			<div class="ident">PGDBName</div><div class="operator">:</div>      <div class="literal">&#34;test&#34;</div><div class="operator">,</div>
+			<div class="ident">PGParams</div><div class="operator">:</div>      <div class="literal">&#34;&#34;</div><div class="operator">,</div>
+			<div class="ident">LogSQLQueries</div><div class="operator">:</div> <div class="ident">true</div><div class="operator">,</div>
+		<div class="operator">}</div><div class="operator">,</div>
+		<div class="ident">main</div><div class="operator">.</div><div class="ident">S3Configuration</div><div class="operator">{</div><div class="operator">}</div><div class="operator">,</div>
+		<div class="ident">main</div><div class="operator">.</div><div class="ident">LoggingConfiguration</div><div class="operator">{</div><div class="operator">}</div><div class="operator">,</div>
+		<div class="ident">main</div><div class="operator">.</div><div class="ident">SentryConfiguration</div><div class="operator">{</div><div class="operator">}</div><div class="operator">,</div>
+	<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>default operation is export data</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">cliFlags</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">CliFlags</div><div class="operator">{</div>
+		<div class="ident">ShowVersion</div><div class="operator">:</div>       <div class="ident">false</div><div class="operator">,</div>
+		<div class="ident">ShowAuthors</div><div class="operator">:</div>       <div class="ident">false</div><div class="operator">,</div>
+		<div class="ident">ShowConfiguration</div><div class="operator">:</div> <div class="ident">false</div><div class="operator">,</div>
+		<div class="ident">CheckS3Connection</div><div class="operator">:</div> <div class="ident">false</div><div class="operator">,</div>
+	<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>the call should fail, but now because of improper configuration</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">code</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">PerformDataExport</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">configuration</div><div class="operator">,</div> <div class="ident">cliFlags</div><div class="operator">,</div> <div class="ident">log</div><div class="operator">.</div><div class="ident">Logger</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">code</div><div class="operator">,</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">ExitStatusConfigurationError</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Error</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>TestPerformDataExport checks the function performDataExport.</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">TestPerformDataExportToS3</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>fill in configuration structure w/o specifying S3 connection
+but DB connection is specified</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">configuration</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">ConfigStruct</div><div class="operator">{</div>
+		<div class="ident">main</div><div class="operator">.</div><div class="ident">StorageConfiguration</div><div class="operator">{</div>
+			<div class="ident">Driver</div><div class="operator">:</div>        <div class="literal">&#34;postgres&#34;</div><div class="operator">,</div>
+			<div class="ident">PGUsername</div><div class="operator">:</div>    <div class="literal">&#34;user&#34;</div><div class="operator">,</div>
+			<div class="ident">PGPassword</div><div class="operator">:</div>    <div class="literal">&#34;password&#34;</div><div class="operator">,</div>
+			<div class="ident">PGHost</div><div class="operator">:</div>        <div class="literal">&#34;nowhere&#34;</div><div class="operator">,</div>
+			<div class="ident">PGPort</div><div class="operator">:</div>        <div class="literal">1234</div><div class="operator">,</div>
+			<div class="ident">PGDBName</div><div class="operator">:</div>      <div class="literal">&#34;test&#34;</div><div class="operator">,</div>
+			<div class="ident">PGParams</div><div class="operator">:</div>      <div class="literal">&#34;&#34;</div><div class="operator">,</div>
+			<div class="ident">LogSQLQueries</div><div class="operator">:</div> <div class="ident">true</div><div class="operator">,</div>
+		<div class="operator">}</div><div class="operator">,</div>
+		<div class="ident">main</div><div class="operator">.</div><div class="ident">S3Configuration</div><div class="operator">{</div><div class="operator">}</div><div class="operator">,</div>
+		<div class="ident">main</div><div class="operator">.</div><div class="ident">LoggingConfiguration</div><div class="operator">{</div><div class="operator">}</div><div class="operator">,</div>
+		<div class="ident">main</div><div class="operator">.</div><div class="ident">SentryConfiguration</div><div class="operator">{</div><div class="operator">}</div><div class="operator">,</div>
+	<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>default operation is export data</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">cliFlags</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">CliFlags</div><div class="operator">{</div>
+		<div class="ident">ShowVersion</div><div class="operator">:</div>       <div class="ident">false</div><div class="operator">,</div>
+		<div class="ident">ShowAuthors</div><div class="operator">:</div>       <div class="ident">false</div><div class="operator">,</div>
+		<div class="ident">ShowConfiguration</div><div class="operator">:</div> <div class="ident">false</div><div class="operator">,</div>
+		<div class="ident">CheckS3Connection</div><div class="operator">:</div> <div class="ident">false</div><div class="operator">,</div>
+		<div class="ident">Output</div><div class="operator">:</div>            <div class="literal">&#34;S3&#34;</div><div class="operator">,</div>
+	<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>the call should fail due to inaccessible S3/Minio</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">code</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">PerformDataExport</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">configuration</div><div class="operator">,</div> <div class="ident">cliFlags</div><div class="operator">,</div> <div class="ident">log</div><div class="operator">.</div><div class="ident">Logger</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">code</div><div class="operator">,</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">ExitStatusS3Error</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Error</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>TestPerformDataExport checks the function performDataExport.</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">TestPerformDataExportToFile</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>fill in configuration structure w/o specifying S3 connection
+but DB connection is specified</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">configuration</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">ConfigStruct</div><div class="operator">{</div>
+		<div class="ident">main</div><div class="operator">.</div><div class="ident">StorageConfiguration</div><div class="operator">{</div>
+			<div class="ident">Driver</div><div class="operator">:</div>        <div class="literal">&#34;postgres&#34;</div><div class="operator">,</div>
+			<div class="ident">PGUsername</div><div class="operator">:</div>    <div class="literal">&#34;user&#34;</div><div class="operator">,</div>
+			<div class="ident">PGPassword</div><div class="operator">:</div>    <div class="literal">&#34;password&#34;</div><div class="operator">,</div>
+			<div class="ident">PGHost</div><div class="operator">:</div>        <div class="literal">&#34;nowhere&#34;</div><div class="operator">,</div>
+			<div class="ident">PGPort</div><div class="operator">:</div>        <div class="literal">1234</div><div class="operator">,</div>
+			<div class="ident">PGDBName</div><div class="operator">:</div>      <div class="literal">&#34;test&#34;</div><div class="operator">,</div>
+			<div class="ident">PGParams</div><div class="operator">:</div>      <div class="literal">&#34;&#34;</div><div class="operator">,</div>
+			<div class="ident">LogSQLQueries</div><div class="operator">:</div> <div class="ident">true</div><div class="operator">,</div>
+		<div class="operator">}</div><div class="operator">,</div>
+		<div class="ident">main</div><div class="operator">.</div><div class="ident">S3Configuration</div><div class="operator">{</div><div class="operator">}</div><div class="operator">,</div>
+		<div class="ident">main</div><div class="operator">.</div><div class="ident">LoggingConfiguration</div><div class="operator">{</div><div class="operator">}</div><div class="operator">,</div>
+		<div class="ident">main</div><div class="operator">.</div><div class="ident">SentryConfiguration</div><div class="operator">{</div><div class="operator">}</div><div class="operator">,</div>
+	<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>default operation is export data</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">cliFlags</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">CliFlags</div><div class="operator">{</div>
+		<div class="ident">ShowVersion</div><div class="operator">:</div>       <div class="ident">false</div><div class="operator">,</div>
+		<div class="ident">ShowAuthors</div><div class="operator">:</div>       <div class="ident">false</div><div class="operator">,</div>
+		<div class="ident">ShowConfiguration</div><div class="operator">:</div> <div class="ident">false</div><div class="operator">,</div>
+		<div class="ident">CheckS3Connection</div><div class="operator">:</div> <div class="ident">false</div><div class="operator">,</div>
+		<div class="ident">Output</div><div class="operator">:</div>            <div class="literal">&#34;file&#34;</div><div class="operator">,</div>
+	<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>the call should fail due to inaccessible storage (DB)</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">code</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">PerformDataExport</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">configuration</div><div class="operator">,</div> <div class="ident">cliFlags</div><div class="operator">,</div> <div class="ident">log</div><div class="operator">.</div><div class="ident">Logger</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">code</div><div class="operator">,</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">ExitStatusStorageError</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Error</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
 
 </code></pre></td>
       </tr>

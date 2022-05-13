@@ -133,6 +133,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */</div>
 
+<div class="keyword">package</div> <div class="ident">main</div><div class="operator"></div>
+
 </code></pre></td>
       </tr>
       
@@ -143,14 +145,14 @@ https://pkg.go.dev/github.com/RedHatInsights/insights-results-aggregator-exporte
 <p>Documentation in literate-programming-style is available at:
 https://redhatinsights.github.io/insights-results-aggregator-exporter/packages/storage.html</p>
 </td>
-	<td class="code"><pre><code><div class="keyword">package</div> <div class="ident">main</div><div class="operator"></div>
-
+	<td class="code"><pre><code>
 <div class="keyword">import</div> <div class="operator">(</div>
 	<div class="literal">&#34;bytes&#34;</div><div class="operator"></div>
 	<div class="literal">&#34;context&#34;</div><div class="operator"></div>
 	<div class="literal">&#34;encoding/csv&#34;</div><div class="operator"></div>
 	<div class="literal">&#34;fmt&#34;</div><div class="operator"></div>
 	<div class="literal">&#34;io&#34;</div><div class="operator"></div>
+	<div class="literal">&#34;os&#34;</div><div class="operator"></div>
 
 	<div class="literal">&#34;database/sql&#34;</div><div class="operator"></div>
 
@@ -196,6 +198,8 @@ https://redhatinsights.github.io/insights-results-aggregator-exporter/packages/s
 	<div class="ident">sqlStatementExecutionError</div>  <div class="operator">=</div> <div class="literal">&#34;SQL statement execution error&#34;</div><div class="operator"></div>
 	<div class="ident">unableToRetrieveColumnTypes</div> <div class="operator">=</div> <div class="literal">&#34;Unable to retrieve column types&#34;</div><div class="operator"></div>
 	<div class="ident">readTableContentFailed</div>      <div class="operator">=</div> <div class="literal">&#34;Read table content failed&#34;</div><div class="operator"></div>
+	<div class="ident">readListOfRecordsFailed</div>     <div class="operator">=</div> <div class="literal">&#34;Unable to read list of records&#34;</div><div class="operator"></div>
+	<div class="ident">writeOneRowToCSV</div>            <div class="operator">=</div> <div class="literal">&#34;Write one row to CSV&#34;</div><div class="operator"></div>
 <div class="operator">)</div><div class="operator"></div>
 
 </code></pre></td>
@@ -216,6 +220,14 @@ https://redhatinsights.github.io/insights-results-aggregator-exporter/packages/s
              FROM pg_catalog.pg_tables
             WHERE schemaname != &#39;information_schema&#39;
               AND schemaname != &#39;pg_catalog&#39;;
+   `</div><div class="operator"></div>
+
+	<div class="ident">selectDisabledRules</div> <div class="operator">=</div> <div class="literal">`
+           SELECT rule_id, count(rule_id) AS rule_count
+	     FROM rule_disable
+	    GROUP BY rule_id
+	   HAVING count(rule_id)&gt;1
+	    ORDER BY rule_count DESC;
    `</div><div class="operator"></div>
 <div class="operator">)</div><div class="operator"></div>
 
@@ -423,7 +435,10 @@ database.</p>
 selected table.</p>
 </td>
 	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">logColumnTypes</div><div class="operator">(</div><div class="ident">tableName</div> <div class="ident">TableName</div><div class="operator">,</div> <div class="ident">columnTypes</div> <div class="operator">[</div><div class="operator">]</div><div class="operator">*</div><div class="ident">sql</div><div class="operator">.</div><div class="ident">ColumnType</div><div class="operator">)</div> <div class="operator">{</div>
-	<div class="ident">log</div><div class="operator">.</div><div class="ident">Info</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Str</div><div class="operator">(</div><div class="literal">&#34;table columns&#34;</div><div class="operator">,</div> <div class="ident">string</div><div class="operator">(</div><div class="ident">tableName</div><div class="operator">)</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Int</div><div class="operator">(</div><div class="literal">&#34;columns&#34;</div><div class="operator">,</div> <div class="ident">len</div><div class="operator">(</div><div class="ident">columnTypes</div><div class="operator">)</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;table metadata&#34;</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">log</div><div class="operator">.</div><div class="ident">Info</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div>
+		<div class="ident">Str</div><div class="operator">(</div><div class="literal">&#34;table columns&#34;</div><div class="operator">,</div> <div class="ident">string</div><div class="operator">(</div><div class="ident">tableName</div><div class="operator">)</div><div class="operator">)</div><div class="operator">.</div>
+		<div class="ident">Int</div><div class="operator">(</div><div class="literal">&#34;columns&#34;</div><div class="operator">,</div> <div class="ident">len</div><div class="operator">(</div><div class="ident">columnTypes</div><div class="operator">)</div><div class="operator">)</div><div class="operator">.</div>
+		<div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;table metadata&#34;</div><div class="operator">)</div><div class="operator"></div>
 
 	<div class="keyword">for</div> <div class="ident">i</div><div class="operator">,</div> <div class="ident">columnType</div> <div class="operator">:=</div> <div class="keyword">range</div> <div class="ident">columnTypes</div> <div class="operator">{</div>
 		<div class="ident">log</div><div class="operator">.</div><div class="ident">Info</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div>
@@ -431,6 +446,20 @@ selected table.</p>
 			<div class="ident">Str</div><div class="operator">(</div><div class="literal">&#34;type&#34;</div><div class="operator">,</div> <div class="ident">columnType</div><div class="operator">.</div><div class="ident">DatabaseTypeName</div><div class="operator">(</div><div class="operator">)</div><div class="operator">)</div><div class="operator">.</div>
 			<div class="ident">Int</div><div class="operator">(</div><div class="literal">&#34;column&#34;</div><div class="operator">,</div> <div class="ident">i</div><div class="operator">&#43;</div><div class="literal">1</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;column type&#34;</div><div class="operator">)</div><div class="operator"></div>
 	<div class="operator">}</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>logRecordCount is helper function to print number of records stored in
+given database table.</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">logRecordCount</div><div class="operator">(</div><div class="ident">tableName</div> <div class="ident">TableName</div><div class="operator">,</div> <div class="ident">count</div> <div class="ident">int</div><div class="operator">)</div> <div class="operator">{</div>
+	<div class="ident">log</div><div class="operator">.</div><div class="ident">Info</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div>
+		<div class="ident">Str</div><div class="operator">(</div><div class="literal">&#34;table name&#34;</div><div class="operator">,</div> <div class="ident">string</div><div class="operator">(</div><div class="ident">tableName</div><div class="operator">)</div><div class="operator">)</div><div class="operator">.</div>
+		<div class="ident">Int</div><div class="operator">(</div><div class="literal">&#34;record count&#34;</div><div class="operator">,</div> <div class="ident">count</div><div class="operator">)</div><div class="operator">.</div>
+		<div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;records in table&#34;</div><div class="operator">)</div><div class="operator"></div>
 <div class="operator">}</div><div class="operator"></div>
 
 </code></pre></td>
@@ -522,7 +551,14 @@ https://stackoverflow.com/questions/42774467/how-to-convert-sql-rows-to-typed-js
 	<div class="keyword">return</div> <div class="ident">masterData</div><div class="operator"></div>
 <div class="operator">}</div><div class="operator"></div>
 
-<div class="keyword">func</div> <div class="ident">select1FromTable</div><div class="operator">(</div><div class="ident">tableName</div> <div class="ident">TableName</div><div class="operator">)</div> <div class="ident">string</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>select1FromTable is helper function to construct query to database - read
+one record from given table.</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">select1FromTable</div><div class="operator">(</div><div class="ident">tableName</div> <div class="ident">TableName</div><div class="operator">)</div> <div class="ident">string</div> <div class="operator">{</div>
 </code></pre></td>
       </tr>
       
@@ -533,6 +569,26 @@ disable &quot;G201 (CWE-89): SQL string formatting (Confidence: HIGH, Severity: 
 <h1>nosec G201</h1>
 </td>
 	<td class="code"><pre><code>	<div class="keyword">return</div> <div class="ident">fmt</div><div class="operator">.</div><div class="ident">Sprintf</div><div class="operator">(</div><div class="literal">&#34;SELECT * FROM %s LIMIT 1&#34;</div><div class="operator">,</div> <div class="ident">string</div><div class="operator">(</div><div class="ident">tableName</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>selectCountFromTable is helper function to construct query to database -
+read number of records in table.</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">selectCountFromTable</div><div class="operator">(</div><div class="ident">tableName</div> <div class="ident">TableName</div><div class="operator">)</div> <div class="ident">string</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>it is not possible to use parameter for table name or a key
+disable &quot;G201 (CWE-89): SQL string formatting (Confidence: HIGH, Severity: MEDIUM)&quot;</p>
+
+<h1>nosec G201</h1>
+</td>
+	<td class="code"><pre><code>	<div class="keyword">return</div> <div class="ident">fmt</div><div class="operator">.</div><div class="ident">Sprintf</div><div class="operator">(</div><div class="literal">&#34;SELECT count(*) FROM %s&#34;</div><div class="operator">,</div> <div class="ident">string</div><div class="operator">(</div><div class="ident">tableName</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
 <div class="operator">}</div><div class="operator"></div>
 
 <div class="keyword">func</div> <div class="ident">selectAllFromTable</div><div class="operator">(</div><div class="ident">tableName</div> <div class="ident">TableName</div><div class="operator">)</div> <div class="ident">string</div> <div class="operator">{</div>
@@ -697,6 +753,114 @@ println(masterData)</p>
       </tr>
       
       <tr class="section">
+	<td class="doc"><p>StoreTableIntoFile function stores specified table into selected file</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="operator">(</div><div class="ident">storage</div> <div class="ident">DBStorage</div><div class="operator">)</div> <div class="ident">StoreTableIntoFile</div><div class="operator">(</div><div class="ident">tableName</div> <div class="ident">TableName</div><div class="operator">)</div> <div class="ident">error</div> <div class="operator">{</div>
+	<div class="ident">columnTypes</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">storage</div><div class="operator">.</div><div class="ident">RetrieveColumnTypes</div><div class="operator">(</div><div class="ident">tableName</div><div class="operator">)</div><div class="operator"></div>
+	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
+		<div class="keyword">return</div> <div class="ident">err</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+
+	<div class="ident">colNames</div> <div class="operator">:=</div> <div class="ident">getColumnNames</div><div class="operator">(</div><div class="ident">columnTypes</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="ident">fileName</div> <div class="operator">:=</div> <div class="ident">string</div><div class="operator">(</div><div class="ident">tableName</div><div class="operator">)</div> <div class="operator">&#43;</div> <div class="literal">&#34;.csv&#34;</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>open new CSV file to be filled in
+disable &quot;G304 (CWE-22): Potential file inclusion via variable&quot;</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">fout</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">os</div><div class="operator">.</div><div class="ident">Create</div><div class="operator">(</div><div class="ident">fileName</div><div class="operator">)</div> <div class="operator"></div><div class="comment">// #nosec G304</div>
+	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
+		<div class="keyword">return</div> <div class="ident">err</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>initialize CSV writer</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">writer</div> <div class="operator">:=</div> <div class="ident">csv</div><div class="operator">.</div><div class="ident">NewWriter</div><div class="operator">(</div><div class="ident">fout</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="ident">err</div> <div class="operator">=</div> <div class="ident">writeColumnNames</div><div class="operator">(</div><div class="ident">writer</div><div class="operator">,</div> <div class="ident">colNames</div><div class="operator">)</div><div class="operator"></div>
+	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
+		<div class="keyword">return</div> <div class="ident">err</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+
+	<div class="ident">err</div> <div class="operator">=</div> <div class="ident">storage</div><div class="operator">.</div><div class="ident">WriteTableContent</div><div class="operator">(</div><div class="ident">writer</div><div class="operator">,</div> <div class="ident">tableName</div><div class="operator">,</div> <div class="ident">colNames</div><div class="operator">)</div><div class="operator"></div>
+	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
+		<div class="keyword">return</div> <div class="ident">err</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+
+	<div class="ident">writer</div><div class="operator">.</div><div class="ident">Flush</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>check for any error during export to CSV</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">err</div> <div class="operator">=</div> <div class="ident">writer</div><div class="operator">.</div><div class="ident">Error</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
+		<div class="keyword">return</div> <div class="ident">err</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>close the file and check if close operation was ok</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">err</div> <div class="operator">=</div> <div class="ident">fout</div><div class="operator">.</div><div class="ident">Close</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
+		<div class="keyword">return</div> <div class="ident">err</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+
+	<div class="keyword">return</div> <div class="ident">nil</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>ReadRecordsCount method reads number of records stored in given database
+table.</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="operator">(</div><div class="ident">storage</div> <div class="ident">DBStorage</div><div class="operator">)</div> <div class="ident">ReadRecordsCount</div><div class="operator">(</div><div class="ident">tableName</div> <div class="ident">TableName</div><div class="operator">)</div> <div class="operator">(</div><div class="ident">int</div><div class="operator">,</div> <div class="ident">error</div><div class="operator">)</div> <div class="operator">{</div>
+	<div class="ident">sqlStatement</div> <div class="operator">:=</div> <div class="ident">selectCountFromTable</div><div class="operator">(</div><div class="ident">tableName</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>try to query DB</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">row</div> <div class="operator">:=</div> <div class="ident">storage</div><div class="operator">.</div><div class="ident">connection</div><div class="operator">.</div><div class="ident">QueryRow</div><div class="operator">(</div><div class="ident">sqlStatement</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="keyword">var</div> <div class="ident">count</div> <div class="ident">int</div><div class="operator"></div>
+
+	<div class="ident">err</div> <div class="operator">:=</div> <div class="ident">row</div><div class="operator">.</div><div class="ident">Scan</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">count</div><div class="operator">)</div><div class="operator"></div>
+	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
+		<div class="keyword">return</div> <div class="operator">-</div><div class="literal">1</div><div class="operator">,</div> <div class="ident">err</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>everything seems to be ok</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">logRecordCount</div><div class="operator">(</div><div class="ident">tableName</div><div class="operator">,</div> <div class="ident">count</div><div class="operator">)</div><div class="operator"></div>
+	<div class="keyword">return</div> <div class="ident">count</div><div class="operator">,</div> <div class="ident">nil</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
 	<td class="doc"><p>RetrieveColumnTypes read column types from given table</p>
 </td>
 	<td class="code"><pre><code><div class="keyword">func</div> <div class="operator">(</div><div class="ident">storage</div> <div class="ident">DBStorage</div><div class="operator">)</div> <div class="ident">RetrieveColumnTypes</div><div class="operator">(</div><div class="ident">tableName</div> <div class="ident">TableName</div><div class="operator">)</div> <div class="operator">(</div><div class="operator">[</div><div class="operator">]</div><div class="operator">*</div><div class="ident">sql</div><div class="operator">.</div><div class="ident">ColumnType</div><div class="operator">,</div> <div class="ident">error</div><div class="operator">)</div> <div class="operator">{</div>
@@ -777,11 +941,122 @@ writera (may be file or S3 bucke)</p>
 		<div class="operator">}</div><div class="operator"></div>
 		<div class="ident">err</div> <div class="operator">=</div> <div class="ident">writer</div><div class="operator">.</div><div class="ident">Write</div><div class="operator">(</div><div class="ident">columns</div><div class="operator">)</div><div class="operator"></div>
 		<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
-			<div class="ident">log</div><div class="operator">.</div><div class="ident">Error</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Err</div><div class="operator">(</div><div class="ident">err</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;Write one row to CSV&#34;</div><div class="operator">)</div><div class="operator"></div>
+			<div class="ident">log</div><div class="operator">.</div><div class="ident">Error</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Err</div><div class="operator">(</div><div class="ident">err</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="ident">writeOneRowToCSV</div><div class="operator">)</div><div class="operator"></div>
 			<div class="keyword">return</div> <div class="ident">err</div><div class="operator"></div>
 		<div class="operator">}</div><div class="operator"></div>
 	<div class="operator">}</div><div class="operator"></div>
 	<div class="keyword">return</div> <div class="ident">nil</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>StoreTableMetadataIntoFile method stores metadata about given tables into
+file.</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="operator">(</div><div class="ident">storage</div> <div class="ident">DBStorage</div><div class="operator">)</div> <div class="ident">StoreTableMetadataIntoFile</div><div class="operator">(</div><div class="ident">fileName</div> <div class="ident">string</div><div class="operator">,</div> <div class="ident">tableNames</div> <div class="operator">[</div><div class="operator">]</div><div class="ident">TableName</div><div class="operator">)</div> <div class="ident">error</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>open new CSV file to be filled in
+disable &quot;G304 (CWE-22): Potential file inclusion via variable&quot;</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">fout</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">os</div><div class="operator">.</div><div class="ident">Create</div><div class="operator">(</div><div class="ident">fileName</div><div class="operator">)</div> <div class="operator"></div><div class="comment">// #nosec G304</div>
+	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
+		<div class="keyword">return</div> <div class="ident">err</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+
+	<div class="ident">err</div> <div class="operator">=</div> <div class="ident">TableMetadataToCSV</div><div class="operator">(</div><div class="ident">fout</div><div class="operator">,</div> <div class="ident">tableNames</div><div class="operator">,</div> <div class="ident">storage</div><div class="operator">)</div><div class="operator"></div>
+	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>logging has been performed already</p>
+</td>
+	<td class="code"><pre><code>		<div class="keyword">return</div> <div class="ident">err</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>initialize CSV writer</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">writer</div> <div class="operator">:=</div> <div class="ident">csv</div><div class="operator">.</div><div class="ident">NewWriter</div><div class="operator">(</div><div class="ident">fout</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>check for any error during export to CSV</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">err</div> <div class="operator">=</div> <div class="ident">writer</div><div class="operator">.</div><div class="ident">Error</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
+		<div class="keyword">return</div> <div class="ident">err</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>close the file and check if close operation was ok</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">err</div> <div class="operator">=</div> <div class="ident">fout</div><div class="operator">.</div><div class="ident">Close</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
+		<div class="keyword">return</div> <div class="ident">err</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+
+	<div class="keyword">return</div> <div class="ident">nil</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>StoreTableMetadataIntoS3 method stores metadata about given tables into
+S3 or Minio.</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="operator">(</div><div class="ident">storage</div> <div class="ident">DBStorage</div><div class="operator">)</div> <div class="ident">StoreTableMetadataIntoS3</div><div class="operator">(</div><div class="ident">ctx</div> <div class="ident">context</div><div class="operator">.</div><div class="ident">Context</div><div class="operator">,</div>
+	<div class="ident">minioClient</div> <div class="operator">*</div><div class="ident">minio</div><div class="operator">.</div><div class="ident">Client</div><div class="operator">,</div> <div class="ident">bucketName</div> <div class="ident">string</div><div class="operator">,</div> <div class="ident">objectName</div> <div class="ident">string</div><div class="operator">,</div>
+	<div class="ident">tableNames</div> <div class="operator">[</div><div class="operator">]</div><div class="ident">TableName</div><div class="operator">)</div> <div class="ident">error</div> <div class="operator">{</div>
+
+	<div class="ident">buffer</div> <div class="operator">:=</div> <div class="ident">new</div><div class="operator">(</div><div class="ident">bytes</div><div class="operator">.</div><div class="ident">Buffer</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="ident">err</div> <div class="operator">:=</div> <div class="ident">TableMetadataToCSV</div><div class="operator">(</div><div class="ident">buffer</div><div class="operator">,</div> <div class="ident">tableNames</div><div class="operator">,</div> <div class="ident">storage</div><div class="operator">)</div><div class="operator"></div>
+	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>logging has been performed already</p>
+</td>
+	<td class="code"><pre><code>		<div class="keyword">return</div> <div class="ident">err</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>write CSV data into S3 bucket or Minio bucket</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">reader</div> <div class="operator">:=</div> <div class="ident">io</div><div class="operator">.</div><div class="ident">Reader</div><div class="operator">(</div><div class="ident">buffer</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="ident">options</div> <div class="operator">:=</div> <div class="ident">minio</div><div class="operator">.</div><div class="ident">PutObjectOptions</div><div class="operator">{</div><div class="ident">ContentType</div><div class="operator">:</div> <div class="literal">&#34;text/csv&#34;</div><div class="operator">}</div><div class="operator"></div>
+	<div class="ident">_</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">=</div> <div class="ident">minioClient</div><div class="operator">.</div><div class="ident">PutObject</div><div class="operator">(</div><div class="ident">ctx</div><div class="operator">,</div> <div class="ident">bucketName</div><div class="operator">,</div> <div class="ident">objectName</div><div class="operator">,</div> <div class="ident">reader</div><div class="operator">,</div> <div class="operator">-</div><div class="literal">1</div><div class="operator">,</div> <div class="ident">options</div><div class="operator">)</div><div class="operator"></div>
+	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
+		<div class="keyword">return</div> <div class="ident">err</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>everything look ok</p>
+</td>
+	<td class="code"><pre><code>	<div class="keyword">return</div> <div class="ident">nil</div><div class="operator"></div>
 <div class="operator">}</div><div class="operator"></div>
 
 <div class="keyword">func</div> <div class="ident">getColumnNames</div><div class="operator">(</div><div class="ident">columnTypes</div> <div class="operator">[</div><div class="operator">]</div><div class="operator">*</div><div class="ident">sql</div><div class="operator">.</div><div class="ident">ColumnType</div><div class="operator">)</div> <div class="operator">[</div><div class="operator">]</div><div class="ident">string</div> <div class="operator">{</div>
@@ -793,34 +1068,62 @@ writera (may be file or S3 bucke)</p>
 	<div class="keyword">return</div> <div class="ident">colNames</div><div class="operator"></div>
 <div class="operator">}</div><div class="operator"></div>
 
-</code></pre></td>
-      </tr>
-      
-      <tr class="section">
-	<td class="doc"><p>set MIME content type for object stored in S3 or Minio</p>
-</td>
-	<td class="code"><pre><code>	<div class="ident">options</div> <div class="operator">:=</div> <div class="ident">minio</div><div class="operator">.</div><div class="ident">PutObjectOptions</div><div class="operator">{</div><div class="ident">ContentType</div><div class="operator">:</div> <div class="literal">&#34;text/csv&#34;</div><div class="operator">}</div><div class="operator"></div>
-
-</code></pre></td>
-      </tr>
-      
-      <tr class="section">
-	<td class="doc"><p>name of object stored in S3 or Minio</p>
-</td>
-	<td class="code"><pre><code>	<div class="ident">objectName</div> <div class="operator">:=</div> <div class="ident">string</div><div class="operator">(</div><div class="ident">tableName</div><div class="operator">)</div> <div class="operator">&#43;</div> <div class="literal">&#34;.csv&#34;</div><div class="operator"></div>
-
-</code></pre></td>
-      </tr>
-      
-      <tr class="section">
-	<td class="doc"><p>perform write into S3 or Minio with common error check</p>
-</td>
-	<td class="code"><pre><code>	<div class="ident">_</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">=</div> <div class="ident">minioClient</div><div class="operator">.</div><div class="ident">PutObject</div><div class="operator">(</div><div class="ident">ctx</div><div class="operator">,</div> <div class="ident">bucketName</div><div class="operator">,</div> <div class="ident">objectName</div><div class="operator">,</div> <div class="ident">reader</div><div class="operator">,</div> <div class="operator">-</div><div class="literal">1</div><div class="operator">,</div> <div class="ident">options</div><div class="operator">)</div><div class="operator"></div>
+<div class="keyword">func</div> <div class="ident">writeColumnNames</div><div class="operator">(</div><div class="ident">writer</div> <div class="operator">*</div><div class="ident">csv</div><div class="operator">.</div><div class="ident">Writer</div><div class="operator">,</div> <div class="ident">colNames</div> <div class="operator">[</div><div class="operator">]</div><div class="ident">string</div><div class="operator">)</div> <div class="ident">error</div> <div class="operator">{</div>
+	<div class="ident">err</div> <div class="operator">:=</div> <div class="ident">writer</div><div class="operator">.</div><div class="ident">Write</div><div class="operator">(</div><div class="ident">colNames</div><div class="operator">)</div><div class="operator"></div>
 	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
 		<div class="ident">log</div><div class="operator">.</div><div class="ident">Error</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Err</div><div class="operator">(</div><div class="ident">err</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;Write column names to CSV&#34;</div><div class="operator">)</div><div class="operator"></div>
 		<div class="keyword">return</div> <div class="ident">err</div><div class="operator"></div>
 	<div class="operator">}</div><div class="operator"></div>
 	<div class="keyword">return</div> <div class="ident">nil</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>ReadDisabledRules method reads rules disabled by more than one user</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="operator">(</div><div class="ident">storage</div> <div class="ident">DBStorage</div><div class="operator">)</div> <div class="ident">ReadDisabledRules</div><div class="operator">(</div><div class="operator">)</div> <div class="operator">(</div><div class="operator">[</div><div class="operator">]</div><div class="ident">DisabledRuleInfo</div><div class="operator">,</div> <div class="ident">error</div><div class="operator">)</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>slice to make list of disabled rule</p>
+</td>
+	<td class="code"><pre><code>	<div class="keyword">var</div> <div class="ident">disabledRulesInfo</div> <div class="operator">=</div> <div class="ident">make</div><div class="operator">(</div><div class="operator">[</div><div class="operator">]</div><div class="ident">DisabledRuleInfo</div><div class="operator">,</div> <div class="literal">0</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="ident">rows</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">storage</div><div class="operator">.</div><div class="ident">connection</div><div class="operator">.</div><div class="ident">Query</div><div class="operator">(</div><div class="ident">selectDisabledRules</div><div class="operator">)</div><div class="operator"></div>
+	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
+		<div class="keyword">return</div> <div class="ident">disabledRulesInfo</div><div class="operator">,</div> <div class="ident">err</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+
+	<div class="keyword">defer</div> <div class="keyword">func</div><div class="operator">(</div><div class="operator">)</div> <div class="operator">{</div>
+		<div class="ident">err</div> <div class="operator">:=</div> <div class="ident">rows</div><div class="operator">.</div><div class="ident">Close</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+		<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
+			<div class="ident">log</div><div class="operator">.</div><div class="ident">Error</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Err</div><div class="operator">(</div><div class="ident">err</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="ident">unableToCloseDBRowsHandle</div><div class="operator">)</div><div class="operator"></div>
+		<div class="operator">}</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>read all records</p>
+</td>
+	<td class="code"><pre><code>	<div class="keyword">for</div> <div class="ident">rows</div><div class="operator">.</div><div class="ident">Next</div><div class="operator">(</div><div class="operator">)</div> <div class="operator">{</div>
+		<div class="keyword">var</div> <div class="ident">disabledRuleInfo</div> <div class="ident">DisabledRuleInfo</div><div class="operator"></div>
+
+		<div class="ident">err</div> <div class="operator">:=</div> <div class="ident">rows</div><div class="operator">.</div><div class="ident">Scan</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">disabledRuleInfo</div><div class="operator">.</div><div class="ident">Rule</div><div class="operator">,</div> <div class="operator">&amp;</div><div class="ident">disabledRuleInfo</div><div class="operator">.</div><div class="ident">Count</div><div class="operator">)</div><div class="operator"></div>
+		<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
+			<div class="keyword">if</div> <div class="ident">closeErr</div> <div class="operator">:=</div> <div class="ident">rows</div><div class="operator">.</div><div class="ident">Close</div><div class="operator">(</div><div class="operator">)</div><div class="operator">;</div> <div class="ident">closeErr</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
+				<div class="ident">log</div><div class="operator">.</div><div class="ident">Error</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Err</div><div class="operator">(</div><div class="ident">closeErr</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="ident">unableToCloseDBRowsHandle</div><div class="operator">)</div><div class="operator"></div>
+			<div class="operator">}</div><div class="operator"></div>
+			<div class="keyword">return</div> <div class="ident">disabledRulesInfo</div><div class="operator">,</div> <div class="ident">err</div><div class="operator"></div>
+		<div class="operator">}</div><div class="operator"></div>
+		<div class="ident">disabledRulesInfo</div> <div class="operator">=</div> <div class="ident">append</div><div class="operator">(</div><div class="ident">disabledRulesInfo</div><div class="operator">,</div> <div class="ident">disabledRuleInfo</div><div class="operator">)</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+
+	<div class="keyword">return</div> <div class="ident">disabledRulesInfo</div><div class="operator">,</div> <div class="ident">nil</div><div class="operator"></div>
 <div class="operator">}</div><div class="operator"></div>
 
 </code></pre></td>
