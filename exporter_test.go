@@ -38,7 +38,7 @@ import (
 )
 
 const (
-	expectedVersionMessage        = "Insights Results Aggregator Cleaner version 1.0"
+	expectedVersionMessage        = "Insights Results Aggregator Exporter version 1.0"
 	expectedAuthorsMessage        = "Pavel Tisnovsky"
 	expectedCopyrightMessage      = "Red Hat Inc."
 	expectedConfigurationMessage1 = "Driver"
