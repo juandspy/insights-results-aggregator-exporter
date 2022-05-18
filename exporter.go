@@ -34,7 +34,7 @@ import (
 
 // Messages
 const (
-	versionMessage         = "Insights Results Aggregator Cleaner version 1.0"
+	versionMessage         = "Insights Results Aggregator Exporter version 1.0"
 	authorsMessage         = "Pavel Tisnovsky, Red Hat Inc."
 	operationFailedMessage = "Operation failed"
 	listOfTablesMsg        = "List of tables"
@@ -489,8 +489,6 @@ func createOperationLog(cliFlags CliFlags, buffer *bytes.Buffer) (zerolog.Logger
 }
 
 func mainWithStatusCode() int {
-	log.Debug().Msg("Started")
-
 	// parse all command line flags
 	cliFlags := parseFlags()
 
