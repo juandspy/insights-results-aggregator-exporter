@@ -1,0 +1,150 @@
+# Copyright 2022 Red Hat, Inc
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+---
+apiVersion: v1
+kind: Template
+metadata:
+  name: ccx-results-exporter
+objects:
+- apiVersion: cloud.redhat.com/v1alpha1
+  kind: ClowdApp
+  metadata:
+    name: ccx-results-exporter
+  spec:
+    envName: ${ENV_NAME}
+    testing:
+      iqePlugin: ccx
+    jobs:
+    - name: instance
+      parallelism: 1
+      completions: 1
+      activeDeadlineSeconds: ${{ACTIVE_DEADLINE_SECONDS}}
+      backoffLimit: ${{BACKOFF_LIMIT}}
+      podSpec:
+        image: ${IMAGE}:${IMAGE_TAG}
+        # TODO: Use a command to export any database
+        command:
+          - ./insights-results-aggregator-exporter
+          - "-authors"
+        restartPolicy: Never
+        resources:
+          requests:
+            cpu: ${CPU_REQUEST}
+            memory: ${MEMORY_REQUEST}
+          limits:
+            cpu: ${CPU_LIMIT}
+            memory: ${MEMORY_LIMIT}
+        env:
+        - name: ENV_NAME
+          value: ${ENV_NAME}
+        - name: INSIGHTS_RESULTS_AGGREGATOR_EXPORTER__STORAGE__DB_DRIVER
+          value: postgres
+        - name: INSIGHTS_RESULTS_AGGREGATOR_EXPORTER__STORAGE__PG_PARAMS
+          value: sslmode=disable
+        - name: INSIGHTS_RESULTS_AGGREGATOR_EXPORTER__S3__TYPE
+          value: ${S3__TYPE}
+        - name: S3__ENDPOINT_URL
+          valueFrom:
+            secretKeyRef:
+              name: ccx-results-exporter-s3
+              key: endpoint
+              optional: false
+        - name: INSIGHTS_RESULTS_AGGREGATOR_EXPORTER__S3__ENDPOINT_PORT
+          value: ${S3__ENDPOINT_PORT}
+        - name: INSIGHTS_RESULTS_AGGREGATOR_EXPORTER__S3__ACCESS_KEY_ID
+          valueFrom:
+            secretKeyRef:
+              name: ccx-exporter-s3-read-write
+              key: aws_access_key_id
+              optional: false
+        - name: INSIGHTS_RESULTS_AGGREGATOR_EXPORTER__S3__SECRET_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: ccx-exporter-s3-read-write
+              key: aws_secret_access_key
+              optional: false
+        - name: INSIGHTS_RESULTS_AGGREGATOR_EXPORTER__S3__USE_SSL
+          value: "true"
+        - name: INSIGHTS_RESULTS_AGGREGATOR_EXPORTER__S3__BUCKET
+          valueFrom:
+            secretKeyRef:
+              name: ccx-results-exporter-s3
+              key: bucket
+              optional: false
+        - name: INSIGHTS_RESULTS_AGGREGATOR_EXPORTER__LOGGING__DEBUG
+          value: "${DEBUG}"
+        - name: INSIGHTS_RESULTS_AGGREGATOR_EXPORTER__LOGGING__LOG_DEVEL
+          value: debug
+        - name: INSIGHTS_RESULTS_AGGREGATOR_EXPORTER__SENTRY__DSN
+          valueFrom:
+            secretKeyRef:
+              key: IRAE_SENTRY_DSN
+              name: sentry-dsn
+              optional: true
+        - name: INSIGHTS_RESULTS_AGGREGATOR_EXPORTER__SENTRY__ENVIRONMENT
+          value: ${ENV_NAME}
+    database:
+      name: ccx-data-pipeline
+      version: 12
+
+- apiVersion: cloud.redhat.com/v1alpha1
+  kind: ClowdJobInvocation
+  metadata:
+    labels:
+      app: ccx-results-exporter
+    name: job-launcher
+  spec:
+    appName: ccx-results-exporter
+    jobs:
+      - instance
+
+parameters:
+- name: CLOWDER_ENABLED
+  description: Determines if this is a Clowder deployment
+  value: "true"
+- description: Env Name
+  name: ENV_NAME
+  required: true
+- name: ACTIVE_DEADLINE_SECONDS
+  description: The maximum duration the job can run. 
+  value: "300" # 5 minutes
+- name: BACKOFF_LIMIT
+  description: The number of retries for a job.
+  value: "3"
+- name: IMAGE
+  description: Image ID of the job.
+  value: quay.io/cloudservices/insights-results-aggregator-exporter
+- name: IMAGE_TAG
+  description: The image tag.
+  value: latest
+- name: CPU_REQUEST
+  description: Minimum amount of CPU that the job may consume.
+  value: 100m
+- name: MEMORY_REQUEST
+  description: Minimum amount of memory that the job may consume.
+  value: 500Mi
+- name: CPU_LIMIT
+  description: Maximum amount of CPU that the job will consume.
+  value: 200m
+- name: MEMORY_LIMIT
+  description: Maximum amount of memory that the job will consume.
+  value: 500Mi
+# Exporter configuration
+- name: DEBUG
+  value: "true"
+- name: S3__TYPE
+  value: s3
+- name: S3__ENDPOINT_PORT
+  value: "" # TODO: can I leave it empty?

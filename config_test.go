@@ -27,6 +27,7 @@ import (
 
 	"testing"
 
+	clowder "github.com/redhatinsights/app-common-go/pkg/api/v1"
 	"github.com/rs/zerolog"
 	"github.com/stretchr/testify/assert"
 
@@ -167,9 +168,19 @@ func TestLoadS3Configuration(t *testing.T) {
 // file for testing from an environment variable. Clowder config is enabled in
 // this case.
 func TestLoadConfigurationFromEnvVariableClowderEnabled(t *testing.T) {
+	var testDB = "test_db"
 	os.Clearenv()
 
-	mustSetEnv(t, "INSIGHTS_RESULTS_AGGREGATOR_EXPORTER_CONFIG_FILE", "tests/config2")
-	mustSetEnv(t, "ACG_CONFIG", "tests/clowder_config.json")
-	mustLoadConfiguration("INSIGHTS_RESULTS_AGGREGATOR_EXPORTER_CONFIG_FILE")
+	clowder.LoadedConfig = &clowder.AppConfig{
+		Database: &clowder.DatabaseConfig{
+			Name: testDB,
+		},
+	}
+	mustSetEnv(t, "ACG_CONFIG", "to enable clowder")
+
+	config, err := main.LoadConfiguration("INSIGHTS_RESULTS_AGGREGATOR_EXPORTER_CONFIG_FILE", "tests/config2")
+	assert.NoError(t, err, "Failed loading configuration file")
+
+	dbCfg := main.GetStorageConfiguration(&config)
+	assert.Equal(t, testDB, dbCfg.PGDBName)
 }
