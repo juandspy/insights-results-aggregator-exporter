@@ -82,7 +82,7 @@ type Storage interface {
 	Close() error
 
 	ReadListOfTables() ([]TableName, error)
-	ReadTable(tableName string) error
+	ReadTable(tableName string, limit int) error
 }
 
 // DBStorage is an implementation of Storage interface that use selected SQL like database
@@ -328,8 +328,13 @@ func selectAllFromTable(tableName TableName) string {
 }
 
 // ReadTable method reads the whole content of selected table.
-func (storage DBStorage) ReadTable(tableName TableName) ([]M, error) {
+func (storage DBStorage) ReadTable(tableName TableName, limit int) ([]M, error) {
 	sqlStatement := selectAllFromTable(tableName)
+
+	if limit > 0 {
+		sqlStatement += fmt.Sprintf(" LIMIT %d", limit)
+	}
+
 	log.Info().Str("SQL statement", sqlStatement).Msg("Performing")
 
 	rows, err := storage.connection.Query(sqlStatement)
@@ -386,7 +391,8 @@ func (storage DBStorage) ReadTable(tableName TableName) ([]M, error) {
 
 // StoreTable function stores specified table into S3/Minio
 func (storage DBStorage) StoreTable(ctx context.Context,
-	minioClient *minio.Client, bucketName string, tableName TableName) error {
+	minioClient *minio.Client, bucketName string, tableName TableName,
+	limit int) error {
 	columnTypes, err := storage.RetrieveColumnTypes(tableName)
 	if err != nil {
 		return err
@@ -404,7 +410,7 @@ func (storage DBStorage) StoreTable(ctx context.Context,
 		return err
 	}
 
-	err = storage.WriteTableContent(writer, tableName, colNames)
+	err = storage.WriteTableContent(writer, tableName, colNames, limit)
 	if err != nil {
 		return err
 	}
@@ -423,7 +429,8 @@ func (storage DBStorage) StoreTable(ctx context.Context,
 }
 
 // StoreTableIntoFile function stores specified table into selected file
-func (storage DBStorage) StoreTableIntoFile(tableName TableName) error {
+func (storage DBStorage) StoreTableIntoFile(tableName TableName,
+	limit int) error {
 	columnTypes, err := storage.RetrieveColumnTypes(tableName)
 	if err != nil {
 		return err
@@ -448,7 +455,7 @@ func (storage DBStorage) StoreTableIntoFile(tableName TableName) error {
 		return err
 	}
 
-	err = storage.WriteTableContent(writer, tableName, colNames)
+	err = storage.WriteTableContent(writer, tableName, colNames, limit)
 	if err != nil {
 		return err
 	}
@@ -522,9 +529,10 @@ func (storage DBStorage) RetrieveColumnTypes(tableName TableName) ([]*sql.Column
 
 // WriteTableContent method writes content of whole table into given CSV
 // writera (may be file or S3 bucke)
-func (storage DBStorage) WriteTableContent(writer *csv.Writer, tableName TableName, colNames []string) error {
+func (storage DBStorage) WriteTableContent(writer *csv.Writer,
+	tableName TableName, colNames []string, limit int) error {
 	// now we know column types, time to perform export
-	finalRows, err := storage.ReadTable(tableName)
+	finalRows, err := storage.ReadTable(tableName, limit)
 	if err != nil {
 		log.Error().Err(err).Msg(readTableContentFailed)
 		return err

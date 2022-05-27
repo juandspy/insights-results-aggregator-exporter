@@ -156,11 +156,11 @@ func performDataExport(configuration *ConfigStruct, cliFlags CliFlags, operation
 	case s3Output:
 		return performDataExportToS3(configuration, storage,
 			cliFlags.ExportMetadata, cliFlags.ExportDisabledRules,
-			operationLogger)
+			operationLogger, cliFlags.Limit)
 	case fileOutput:
 		return performDataExportToFiles(configuration, storage,
 			cliFlags.ExportMetadata, cliFlags.ExportDisabledRules,
-			operationLogger)
+			operationLogger, cliFlags.Limit)
 	default:
 		err := fmt.Errorf(unknownOutputType, cliFlags.Output)
 		operationLogger.Err(err).Msg("Wrong output type selected")
@@ -173,7 +173,7 @@ func performDataExport(configuration *ConfigStruct, cliFlags CliFlags, operation
 func performDataExportToS3(configuration *ConfigStruct,
 	storage *DBStorage, exportMetadata bool,
 	ExportDisabledRules bool,
-	operationLogger zerolog.Logger) (int, error) {
+	operationLogger zerolog.Logger, limit int) (int, error) {
 
 	operationLogger.Info().Msg("Exporting to S3")
 
@@ -250,7 +250,7 @@ func performDataExportToS3(configuration *ConfigStruct,
 		operationLogger.Info().
 			Str(tableNameMsg, string(tableName)).
 			Msg(exportingTable)
-		err = storage.StoreTable(context, minioClient, bucket, tableName)
+		err = storage.StoreTable(context, minioClient, bucket, tableName, limit)
 		if err != nil {
 			const msg = "Store table into S3 failed"
 			log.Err(err).Str(tableNameMsg, string(tableName)).
@@ -279,7 +279,7 @@ func performDataExportToS3(configuration *ConfigStruct,
 func performDataExportToFiles(configuration *ConfigStruct,
 	storage *DBStorage, exportMetadata bool,
 	exportDisabledRules bool,
-	operationLogger zerolog.Logger) (int, error) {
+	operationLogger zerolog.Logger, limit int) (int, error) {
 
 	operationLogger.Info().Msg("Exporting to file")
 
@@ -346,7 +346,7 @@ func performDataExportToFiles(configuration *ConfigStruct,
 		operationLogger.Info().
 			Str(tableNameMsg, string(tableName)).
 			Msg(exportingTable)
-		err = storage.StoreTableIntoFile(tableName)
+		err = storage.StoreTableIntoFile(tableName, limit)
 		if err != nil {
 			const msg = "Store table into file failed"
 			log.Err(err).Str(tableNameMsg, string(tableName)).
@@ -446,6 +446,7 @@ func parseFlags() (cliFlags CliFlags) {
 	flag.BoolVar(&cliFlags.ExportDisabledRules, "disabled-by-more-users", false, "export rules disabled by more users")
 	flag.BoolVar(&cliFlags.CheckS3Connection, "check-s3-connection", false, "check S3 connection and exit")
 	flag.BoolVar(&cliFlags.ExportLog, "export-log", false, "export log")
+	flag.IntVar(&cliFlags.Limit, "limit", -1, "limit number of exported records")
 
 	// parse all command line flags
 	flag.Parse()

@@ -45,6 +45,7 @@ type CliFlags struct {
 	ExportMetadata      bool
 	ExportDisabledRules bool
 	ExportLog           bool
+	Limit               int
 }
 
 // M represents a map with string keys and any value
