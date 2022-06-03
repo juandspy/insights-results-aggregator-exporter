@@ -54,6 +54,14 @@ func mustReadFile(t *testing.T, filename string) string {
 	return string(fileContent)
 }
 
+// mustDeleteFile helper function tries to delete specified file
+func mustDeleteFile(t *testing.T, filename string) {
+	err := os.Remove(filename)
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
 // checkFileContent helper function checks if file has the expected content
 func checkFileContent(t *testing.T, filename string, expected string) {
 	content := mustReadFile(t, filename)
@@ -100,6 +108,9 @@ func TestStoreTableNamesIntoFileEmptyListOfTables(t *testing.T) {
 	// check generated file content
 	expected := "Table name\n"
 	checkFileContent(t, filename, expected)
+
+	// delete temporary file
+	mustDeleteFile(t, filename)
 }
 
 // TestStoreTableNamesIntoFile check the behaviour of
@@ -126,6 +137,9 @@ func TestStoreTableNamesIntoFile(t *testing.T) {
 	// check generated file content
 	const expected = "Table name\nfirst\nsecond\n"
 	checkFileContent(t, filename, expected)
+
+	// delete temporary file
+	mustDeleteFile(t, filename)
 }
 
 // TestStoreDisableRulesIntoFile checks that error is thrown when
@@ -159,6 +173,9 @@ func TestStoreDisabledRulesIntoFileEmptyListOfTables(t *testing.T) {
 	// check generated file content
 	expected := "Rule,Count\n"
 	checkFileContent(t, filename, expected)
+
+	// delete temporary file
+	mustDeleteFile(t, filename)
 }
 
 // TestStoreDisabledRulesIntoFile check the behaviour of
@@ -186,4 +203,7 @@ func TestStoreDisabledRulesIntoFile(t *testing.T) {
 	// check generated file content
 	expected := "Rule,Count\nfirst,1\nsecond,2\nthird,3\n"
 	checkFileContent(t, filename, expected)
+
+	// delete temporary file
+	mustDeleteFile(t, filename)
 }
