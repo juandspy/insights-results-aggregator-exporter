@@ -34,10 +34,9 @@ objects:
       backoffLimit: ${{BACKOFF_LIMIT}}
       podSpec:
         image: ${IMAGE}:${IMAGE_TAG}
-        # TODO: Use a command to export any database
         command:
           - ./insights-results-aggregator-exporter
-          - "-check-s3-connection"
+          - "-output S3"
         restartPolicy: Never
         resources:
           requests:
