@@ -64,7 +64,7 @@ func TestNewS3Connection(t *testing.T) {
 			description:   "emptyConfiguration",
 			configuration: &main.ConfigStruct{},
 			shouldFail:    true,
-			expectedError: "Endpoint: :0 does not follow ip address or domain name standards.",
+			expectedError: "Endpoint:  does not follow ip address or domain name standards.",
 		},
 		newS3ConnectionTestSpecification{
 			description: "wrongConfiguration",

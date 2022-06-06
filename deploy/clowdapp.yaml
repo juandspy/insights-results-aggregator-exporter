@@ -55,7 +55,7 @@ objects:
           value: sslmode=disable
         - name: INSIGHTS_RESULTS_AGGREGATOR_EXPORTER__S3__TYPE
           value: ${S3__TYPE}
-        - name: S3__ENDPOINT_URL
+        - name: INSIGHTS_RESULTS_AGGREGATOR_EXPORTER__S3__ENDPOINT_URL
           valueFrom:
             secretKeyRef:
               name: ccx-results-exporter-s3
@@ -147,4 +147,4 @@ parameters:
 - name: S3__TYPE
   value: s3
 - name: S3__ENDPOINT_PORT
-  value: "" # TODO: can I leave it empty?
+  description: S3 endpoint port. Leave it empty in case you are using AWS.

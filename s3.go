@@ -61,9 +61,13 @@ func NewS3Connection(configuration *ConfigStruct) (*minio.Client, context.Contex
 	// retrieve S3/Minio configuration
 	s3Configuration := GetS3Configuration(configuration)
 
-	endpoint := fmt.Sprintf("%s:%d",
-		s3Configuration.EndpointURL, s3Configuration.EndpointPort)
-
+	var endpoint string
+	if s3Configuration.EndpointPort == 0 {
+		endpoint = s3Configuration.EndpointURL
+	} else {
+		endpoint = fmt.Sprintf("%s:%d",
+			s3Configuration.EndpointURL, s3Configuration.EndpointPort)
+	}
 	log.Info().Str("S3 endpoint", endpoint).Msg("Preparing connection")
 
 	ctx := context.Background()
