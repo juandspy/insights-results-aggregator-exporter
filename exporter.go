@@ -172,7 +172,7 @@ func performDataExport(configuration *ConfigStruct, cliFlags CliFlags, operation
 // bucket
 func performDataExportToS3(configuration *ConfigStruct,
 	storage *DBStorage, exportMetadata bool,
-	ExportDisabledRules bool,
+	exportDisabledRules bool,
 	operationLogger zerolog.Logger, limit int) (int, error) {
 
 	operationLogger.Info().Msg("Exporting to S3")
@@ -222,7 +222,7 @@ func performDataExportToS3(configuration *ConfigStruct,
 		}
 	}
 
-	if ExportDisabledRules {
+	if exportDisabledRules {
 		operationLogger.Info().Msg(exportingDisabledRules)
 
 		// export rules disabled by more users into CSV file

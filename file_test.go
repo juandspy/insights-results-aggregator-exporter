@@ -63,7 +63,7 @@ func mustDeleteFile(t *testing.T, filename string) {
 }
 
 // checkFileContent helper function checks if file has the expected content
-func checkFileContent(t *testing.T, filename string, expected string) {
+func checkFileContent(t *testing.T, filename, expected string) {
 	content := mustReadFile(t, filename)
 	assert.Equal(t, expected, content)
 }
