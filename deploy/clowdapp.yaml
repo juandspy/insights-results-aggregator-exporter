@@ -103,13 +103,17 @@ objects:
   metadata:
     labels:
       app: ccx-results-exporter
-    name: job-launcher
+    name: job-launcher--${CJI_RANDOM_SUFFIX}
   spec:
     appName: ccx-results-exporter
     jobs:
       - instance
 
 parameters:
+- name: CJI_RANDOM_SUFFIX
+  description: A suffix for generating random CJI
+  from: '[A-Z0-9]{8}'
+  generate: expression
 - name: CLOWDER_ENABLED
   description: Determines if this is a Clowder deployment
   value: "true"
