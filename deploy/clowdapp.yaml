@@ -112,7 +112,7 @@ objects:
 parameters:
 - name: CJI_RANDOM_SUFFIX
   description: A suffix for generating random CJI
-  from: '[A-Z0-9]{8}'
+  from: '[a-z]{8}'
   generate: expression
 - name: CLOWDER_ENABLED
   description: Determines if this is a Clowder deployment
