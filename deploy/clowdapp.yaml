@@ -128,7 +128,7 @@ parameters:
   value: "300" # 5 minutes
 - name: BACKOFF_LIMIT
   description: The number of retries for a job.
-  value: "3"
+  value: "1"
 - name: IMAGE
   description: Image ID of the job.
   value: quay.io/cloudservices/insights-results-aggregator-exporter
@@ -137,16 +137,16 @@ parameters:
   value: latest
 - name: CPU_REQUEST
   description: Minimum amount of CPU that the job may consume.
-  value: 100m
+  value: 200m
 - name: MEMORY_REQUEST
   description: Minimum amount of memory that the job may consume.
-  value: 500Mi
+  value: 5Gi
 - name: CPU_LIMIT
   description: Maximum amount of CPU that the job will consume.
-  value: 200m
+  value: 400m
 - name: MEMORY_LIMIT
   description: Maximum amount of memory that the job will consume.
-  value: 500Mi
+  value: 8Gi
 # Exporter configuration
 - name: DEBUG
   value: "true"
