@@ -38,6 +38,8 @@ objects:
           - ./insights-results-aggregator-exporter
         args:
           - "-output=S3"
+          - "-limit=10"
+          - "-metadata=true"
         restartPolicy: Never
         resources:
           requests:
