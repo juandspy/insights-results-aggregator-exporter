@@ -36,7 +36,8 @@ objects:
         image: ${IMAGE}:${IMAGE_TAG}
         command:
           - ./insights-results-aggregator-exporter
-          - "-output S3"
+        args:
+          - "-output=S3"
         restartPolicy: Never
         resources:
           requests:
