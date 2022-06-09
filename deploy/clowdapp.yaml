@@ -103,7 +103,7 @@ objects:
   metadata:
     labels:
       app: ccx-results-exporter
-    name: job-launcher--${CJI_RANDOM_SUFFIX}
+    name: job-launcher-${CJI_RANDOM_SUFFIX}
   spec:
     appName: ccx-results-exporter
     jobs:
