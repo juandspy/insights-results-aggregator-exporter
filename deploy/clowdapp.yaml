@@ -37,7 +37,7 @@ objects:
         command:
           - ./insights-results-aggregator-exporter
         args:
-          - "-output=S3"
+          - "-output=${{OUTPUT}}"
           - "-limit=10"
           - "-metadata=true"
         restartPolicy: Never
@@ -62,7 +62,7 @@ objects:
             secretKeyRef:
               name: ccx-results-exporter-s3
               key: endpoint
-              optional: false
+              optional: true
         - name: INSIGHTS_RESULTS_AGGREGATOR_EXPORTER__S3__ENDPOINT_PORT
           value: ${S3__ENDPOINT_PORT}
         - name: INSIGHTS_RESULTS_AGGREGATOR_EXPORTER__S3__ACCESS_KEY_ID
@@ -70,13 +70,13 @@ objects:
             secretKeyRef:
               name: ccx-exporter-s3-read-write
               key: aws_access_key_id
-              optional: false
+              optional: true
         - name: INSIGHTS_RESULTS_AGGREGATOR_EXPORTER__S3__SECRET_ACCESS_KEY
           valueFrom:
             secretKeyRef:
               name: ccx-exporter-s3-read-write
               key: aws_secret_access_key
-              optional: false
+              optional: true
         - name: INSIGHTS_RESULTS_AGGREGATOR_EXPORTER__S3__USE_SSL
           value: "true"
         - name: INSIGHTS_RESULTS_AGGREGATOR_EXPORTER__S3__BUCKET
@@ -84,7 +84,7 @@ objects:
             secretKeyRef:
               name: ccx-results-exporter-s3
               key: bucket
-              optional: false
+              optional: true
         - name: INSIGHTS_RESULTS_AGGREGATOR_EXPORTER__LOGGING__DEBUG
           value: "${DEBUG}"
         - name: INSIGHTS_RESULTS_AGGREGATOR_EXPORTER__LOGGING__LOG_DEVEL
@@ -147,6 +147,9 @@ parameters:
 - name: MEMORY_LIMIT
   description: Maximum amount of memory that the job will consume.
   value: 8Gi
+- name: OUTPUT
+  description: The exporter output (S3 or file)
+  value: file
 # Exporter configuration
 - name: DEBUG
   value: "true"
