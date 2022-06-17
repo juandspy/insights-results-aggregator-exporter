@@ -124,10 +124,10 @@ parameters:
   required: true
 - name: ACTIVE_DEADLINE_SECONDS
   description: The maximum duration the job can run. 
-  value: "300" # 5 minutes
+  value: 300 # 5 minutes
 - name: BACKOFF_LIMIT
   description: The number of retries for a job.
-  value: "1"
+  value: 1
 - name: IMAGE
   description: Image ID of the job.
   value: quay.io/cloudservices/insights-results-aggregator-exporter
