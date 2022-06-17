@@ -37,7 +37,7 @@ objects:
         command:
           - ./insights-results-aggregator-exporter
         args:
-          - "-output=${{OUTPUT}}"
+          - "-output=$OUTPUT"
           - "-limit=10"
           - "-metadata=true"
         restartPolicy: Never
@@ -51,6 +51,8 @@ objects:
         env:
         - name: ENV_NAME
           value: ${ENV_NAME}
+        - name: OUTPUT
+          value: ${OUTPUT}
         - name: INSIGHTS_RESULTS_AGGREGATOR_EXPORTER__STORAGE__DB_DRIVER
           value: postgres
         - name: INSIGHTS_RESULTS_AGGREGATOR_EXPORTER__STORAGE__PG_PARAMS
