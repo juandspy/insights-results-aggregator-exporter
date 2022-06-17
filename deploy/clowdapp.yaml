@@ -30,14 +30,14 @@ objects:
     - name: instance
       parallelism: 1
       completions: 1
-      activeDeadlineSeconds: ${{ACTIVE_DEADLINE_SECONDS}}
-      backoffLimit: ${{BACKOFF_LIMIT}}
+      activeDeadlineSeconds: ${ACTIVE_DEADLINE_SECONDS}
+      backoffLimit: ${BACKOFF_LIMIT}
       podSpec:
         image: ${IMAGE}:${IMAGE_TAG}
         command:
           - ./insights-results-aggregator-exporter
         args:
-          - "-output=$OUTPUT"
+          - "-output=${OUTPUT}"
           - "-limit=10"
           - "-metadata=true"
         restartPolicy: Never
@@ -51,8 +51,6 @@ objects:
         env:
         - name: ENV_NAME
           value: ${ENV_NAME}
-        - name: OUTPUT
-          value: ${OUTPUT}
         - name: INSIGHTS_RESULTS_AGGREGATOR_EXPORTER__STORAGE__DB_DRIVER
           value: postgres
         - name: INSIGHTS_RESULTS_AGGREGATOR_EXPORTER__STORAGE__PG_PARAMS
