@@ -46,7 +46,11 @@ type CliFlags struct {
 	ExportDisabledRules bool
 	ExportLog           bool
 	Limit               int
+	IgnoredTables       string
 }
 
 // M represents a map with string keys and any value
 type M map[string]interface{}
+
+// IgnoredTables represents set of ignored tables
+type IgnoredTables map[string]struct{}
