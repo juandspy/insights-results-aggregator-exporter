@@ -39,6 +39,7 @@ objects:
         args:
           - "-output=${OUTPUT}"
           - "-metadata=true"
+          - "-ignore-tables=${TABLES_TO_IGNORE}"
         restartPolicy: Never
         resources:
           requests:
@@ -149,6 +150,9 @@ parameters:
 - name: OUTPUT
   description: The exporter output (S3 or file)
   value: file
+- name: TABLES_TO_IGNORE
+  description: The tables to ignore
+  value: ""
 # Exporter configuration
 - name: DEBUG
   value: "true"
