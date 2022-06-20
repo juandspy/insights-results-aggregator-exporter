@@ -71,6 +71,8 @@ Usage of ./irae:
          export rules disabled by more than one user
   -export-log
         export log
+  -ignore-tables string
+        comma-separated list of tables that will be ignored
   -limit int
         limit number of exported records (default -1)
   -metadata
