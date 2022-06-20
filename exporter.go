@@ -27,6 +27,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
@@ -39,6 +40,7 @@ const (
 	operationFailedMessage = "Operation failed"
 	listOfTablesMsg        = "List of tables"
 	tableNameMsg           = "Table name"
+	tableIsIgnored         = "Table is ignored, skipping export"
 )
 
 // Exit codes
@@ -139,6 +141,22 @@ func showConfiguration(config *ConfigStruct) {
 		Msg("S3 configuration")
 }
 
+// constructIgnoredTablesMap helper function splits list of tables by comma and
+// constructs a map from it where keys are taken from splitted string
+func constructIgnoredTablesMap(input string) IgnoredTables {
+	tables := strings.Split(input, ",")
+
+	// prepare empty map with given capacity
+	var m IgnoredTables = make(IgnoredTables, len(tables))
+
+	// put ignored tables into such map
+	for _, table := range tables {
+		m[table] = struct{}{}
+	}
+
+	return m
+}
+
 // performDataExport function exports all data into selected output
 func performDataExport(configuration *ConfigStruct, cliFlags CliFlags, operationLogger zerolog.Logger) (int, error) {
 	operationLogger.Info().Msg("Retrieving connection to storage")
@@ -152,15 +170,17 @@ func performDataExport(configuration *ConfigStruct, cliFlags CliFlags, operation
 		return ExitStatusStorageError, err
 	}
 
+	ignoredTablesMap := constructIgnoredTablesMap(cliFlags.IgnoredTables)
+
 	switch cliFlags.Output {
 	case s3Output:
 		return performDataExportToS3(configuration, storage,
 			cliFlags.ExportMetadata, cliFlags.ExportDisabledRules,
-			operationLogger, cliFlags.Limit)
+			operationLogger, cliFlags.Limit, ignoredTablesMap)
 	case fileOutput:
 		return performDataExportToFiles(configuration, storage,
 			cliFlags.ExportMetadata, cliFlags.ExportDisabledRules,
-			operationLogger, cliFlags.Limit)
+			operationLogger, cliFlags.Limit, ignoredTablesMap)
 	default:
 		err := fmt.Errorf(unknownOutputType, cliFlags.Output)
 		operationLogger.Err(err).Msg("Wrong output type selected")
@@ -173,7 +193,8 @@ func performDataExport(configuration *ConfigStruct, cliFlags CliFlags, operation
 func performDataExportToS3(configuration *ConfigStruct,
 	storage *DBStorage, exportMetadata bool,
 	exportDisabledRules bool,
-	operationLogger zerolog.Logger, limit int) (int, error) {
+	operationLogger zerolog.Logger, limit int,
+	ignoredTables IgnoredTables) (int, error) {
 
 	operationLogger.Info().Msg("Exporting to S3")
 
@@ -247,6 +268,13 @@ func performDataExportToS3(configuration *ConfigStruct,
 
 	// read content of all tables and perform export
 	for _, tableName := range tableNames {
+		// ignore table if specified by user
+		if _, found := ignoredTables[string(tableName)]; found {
+			operationLogger.Info().
+				Str(tableNameMsg, string(tableName)).
+				Msg(tableIsIgnored)
+			continue
+		}
 		operationLogger.Info().
 			Str(tableNameMsg, string(tableName)).
 			Msg(exportingTable)
@@ -279,7 +307,8 @@ func performDataExportToS3(configuration *ConfigStruct,
 func performDataExportToFiles(configuration *ConfigStruct,
 	storage *DBStorage, exportMetadata bool,
 	exportDisabledRules bool,
-	operationLogger zerolog.Logger, limit int) (int, error) {
+	operationLogger zerolog.Logger, limit int,
+	ignoredTables IgnoredTables) (int, error) {
 
 	operationLogger.Info().Msg("Exporting to file")
 
@@ -343,6 +372,13 @@ func performDataExportToFiles(configuration *ConfigStruct,
 
 	// read content of all tables and perform export
 	for _, tableName := range tableNames {
+		// ignore table if specified by user
+		if _, found := ignoredTables[string(tableName)]; found {
+			operationLogger.Info().
+				Str(tableNameMsg, string(tableName)).
+				Msg(tableIsIgnored)
+			continue
+		}
 		operationLogger.Info().
 			Str(tableNameMsg, string(tableName)).
 			Msg(exportingTable)
@@ -447,6 +483,7 @@ func parseFlags() (cliFlags CliFlags) {
 	flag.BoolVar(&cliFlags.CheckS3Connection, "check-s3-connection", false, "check S3 connection and exit")
 	flag.BoolVar(&cliFlags.ExportLog, "export-log", false, "export log")
 	flag.IntVar(&cliFlags.Limit, "limit", -1, "limit number of exported records")
+	flag.StringVar(&cliFlags.IgnoredTables, "ignore-tables", "", "comma-separated list of tables that will be ignored")
 
 	// parse all command line flags
 	flag.Parse()
