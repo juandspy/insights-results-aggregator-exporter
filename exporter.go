@@ -149,6 +149,11 @@ func constructIgnoredTablesMap(input string) IgnoredTables {
 	// prepare empty map with given capacity
 	var m IgnoredTables = make(IgnoredTables, len(tables))
 
+	// don't add empty string into a map
+	if len(input) == 0 {
+		return m
+	}
+
 	// put ignored tables into such map
 	for _, table := range tables {
 		m[table] = struct{}{}
