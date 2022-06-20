@@ -377,3 +377,27 @@ func TestPerformDataExportToFile(t *testing.T) {
 	assert.Equal(t, code, main.ExitStatusStorageError)
 	assert.Error(t, err)
 }
+
+// TestConstructIgnoreTableMapEmptyInput checks the function
+// constructIgnoredTablesMap for empty input.
+func TestConstructIgnoreTableMapEmptyInput(t *testing.T) {
+	m := main.ConstructIgnoredTablesMap("")
+	assert.Len(t, m, 0, "Empty map should be returned")
+}
+
+// TestConstructIgnoreTableMapOneTable checks the function
+// constructIgnoredTablesMap for input with one table only.
+func TestConstructIgnoreTableMapOneTable(t *testing.T) {
+	m := main.ConstructIgnoredTablesMap("table_name")
+	assert.Len(t, m, 1, "Map with one item should be returned")
+	assert.Contains(t, m, "table_name", "Table name should be added into a map")
+}
+
+// TestConstructIgnoreTableMapTwoTables checks the function
+// constructIgnoredTablesMap for input with two tables
+func TestConstructIgnoreTableMapTwoTables(t *testing.T) {
+	m := main.ConstructIgnoredTablesMap("table1,table2")
+	assert.Len(t, m, 2, "Map with two items should be returned")
+	assert.Contains(t, m, "table1")
+	assert.Contains(t, m, "table2")
+}
