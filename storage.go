@@ -419,12 +419,24 @@ func (storage DBStorage) StoreTable(ctx context.Context,
 
 	reader := io.Reader(buffer)
 
+	// Compute exact object size instead of using default value -1
+	//
+	// Warning: possible problems with large tables and 32bit architecture
+	// Warning: passing -1 will allocate a large amount of memory
+	//
+	// Previous warning taken from:
+	// https://docs.min.io/docs/golang-client-api-reference#PutObject
+	size := buffer.Len()
+
 	options := minio.PutObjectOptions{ContentType: "text/csv"}
 	objectName := string(tableName) + ".csv"
-	_, err = minioClient.PutObject(ctx, bucketName, objectName, reader, -1, options)
+	_, err = minioClient.PutObject(ctx, bucketName, objectName, reader, int64(size), options)
 	if err != nil {
 		return err
 	}
+
+	// reset buffer before it will be garbage collected
+	buffer.Reset()
 	return nil
 }
 
