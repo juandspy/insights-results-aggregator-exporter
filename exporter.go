@@ -150,7 +150,7 @@ func constructIgnoredTablesMap(input string) IgnoredTables {
 	var m IgnoredTables = make(IgnoredTables, len(tables))
 
 	// don't add empty string into a map
-	if len(input) == 0 {
+	if input == "" {
 		return m
 	}
 
