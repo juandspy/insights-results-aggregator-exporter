@@ -186,9 +186,9 @@ func TestStoreDisabledRulesIntoFile(t *testing.T) {
 
 	filename := directory + "disabled_rules.csv"
 	disabledRules := []main.DisabledRuleInfo{
-		main.DisabledRuleInfo{"first", 1},
-		main.DisabledRuleInfo{"second", 2},
-		main.DisabledRuleInfo{"third", 3},
+		{"first", 1},
+		{"second", 2},
+		{"third", 3},
 	}
 
 	// just to be sure
