@@ -54,19 +54,19 @@ type newS3ConnectionTestSpecification struct {
 func TestNewS3Connection(t *testing.T) {
 	// all test cases
 	testCases := []newS3ConnectionTestSpecification{
-		newS3ConnectionTestSpecification{
+		{
 			description:   "nilConfiguration",
 			configuration: nil,
 			shouldFail:    true,
 			expectedError: "Configuration is nil",
 		},
-		newS3ConnectionTestSpecification{
+		{
 			description:   "emptyConfiguration",
 			configuration: &main.ConfigStruct{},
 			shouldFail:    true,
 			expectedError: "Endpoint:  does not follow ip address or domain name standards.",
 		},
-		newS3ConnectionTestSpecification{
+		{
 			description: "wrongConfiguration",
 			configuration: &main.ConfigStruct{
 				S3: main.S3Configuration{
@@ -81,7 +81,7 @@ func TestNewS3Connection(t *testing.T) {
 			shouldFail:    true,
 			expectedError: "Endpoint: :1234 does not follow ip address or domain name standards.",
 		},
-		newS3ConnectionTestSpecification{
+		{
 			description: "correctConfiguration",
 			configuration: &main.ConfigStruct{
 				S3: main.S3Configuration{
@@ -137,21 +137,21 @@ func TestS3BucketExists(t *testing.T) {
 
 	// all test cases
 	testCases := []s3BucketExistsTestSpecification{
-		s3BucketExistsTestSpecification{
+		{
 			description:   "NoMinioClient",
 			minioClient:   nil,
 			bucketName:    "",
 			shouldFail:    true,
 			expectedError: "Minio Client is nil",
 		},
-		s3BucketExistsTestSpecification{
+		{
 			description:   "EmptyBucketName",
 			minioClient:   mustConstructMinioClient(t),
 			bucketName:    "",
 			shouldFail:    true,
 			expectedError: "Bucket name is not set",
 		},
-		s3BucketExistsTestSpecification{
+		{
 			description:   "NotAccessibleClient",
 			minioClient:   mustConstructMinioClient(t),
 			bucketName:    "bucket",
@@ -195,7 +195,7 @@ func TestStoreTable(t *testing.T) {
 
 	// all test cases
 	testCases := []storeTableTestSpecification{
-		storeTableTestSpecification{
+		{
 			description:   "NoMinioClient",
 			minioClient:   nil,
 			bucketName:    "",
@@ -204,7 +204,7 @@ func TestStoreTable(t *testing.T) {
 			shouldFail:    true,
 			expectedError: "Minio Client is nil",
 		},
-		storeTableTestSpecification{
+		{
 			description:   "EmptyBucketName",
 			minioClient:   mustConstructMinioClient(t),
 			bucketName:    "",
@@ -213,7 +213,7 @@ func TestStoreTable(t *testing.T) {
 			shouldFail:    true,
 			expectedError: "Bucket name is not set",
 		},
-		storeTableTestSpecification{
+		{
 			description:   "EmptyObjectName",
 			minioClient:   mustConstructMinioClient(t),
 			bucketName:    "bucket",
@@ -222,7 +222,7 @@ func TestStoreTable(t *testing.T) {
 			shouldFail:    true,
 			expectedError: "Object name is not set",
 		},
-		storeTableTestSpecification{
+		{
 			description:   "NotAccessibleClient",
 			minioClient:   mustConstructMinioClient(t),
 			bucketName:    "bucket",
@@ -231,7 +231,7 @@ func TestStoreTable(t *testing.T) {
 			shouldFail:    true,
 			expectedError: "connect: connection refused",
 		},
-		storeTableTestSpecification{
+		{
 			description:   "NotAccessibleClient",
 			minioClient:   mustConstructMinioClient(t),
 			bucketName:    "bucket",

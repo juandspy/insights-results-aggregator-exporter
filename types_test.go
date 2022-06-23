@@ -21,5 +21,3 @@ package main_test
 //
 // Documentation in literate-programming-style is available at:
 // https://redhatinsights.github.io/insights-results-aggregator-exporter/packages/types_test.html
-
-import ()

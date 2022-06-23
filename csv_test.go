@@ -66,9 +66,9 @@ func TestDisabledRulesToCSV(t *testing.T) {
 
 	// empty list
 	disabledRules := []main.DisabledRuleInfo{
-		main.DisabledRuleInfo{"first", 1},
-		main.DisabledRuleInfo{"second", 2},
-		main.DisabledRuleInfo{"third", 3},
+		{"first", 1},
+		{"second", 2},
+		{"third", 3},
 	}
 
 	err := main.DisabledRulesToCSV(buffer, disabledRules)
