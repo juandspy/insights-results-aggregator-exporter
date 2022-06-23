@@ -47,7 +47,7 @@ func mustLoadConfiguration(envVar string) {
 	}
 }
 
-// mustSetEnv function set specified environemnt variable or the actual test
+// mustSetEnv function set specified environment variable or the actual test
 // will fail
 func mustSetEnv(t *testing.T, key, val string) {
 	err := os.Setenv(key, val)
