@@ -25,6 +25,7 @@ package main_test
 import (
 	"errors"
 	"io/ioutil"
+	"os"
 	"testing"
 
 	"database/sql"
