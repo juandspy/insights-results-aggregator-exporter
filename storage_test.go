@@ -568,7 +568,7 @@ func TestStoreTableIntoFile(t *testing.T) {
 	checkAllExpectations(t, mock)
 
 	// check generated file
-	content, err := ioutil.ReadFile("table_name.csv")
+	content, err := os.ReadFile("table_name.csv")
 	if err != nil {
 		t.Errorf("error during reading file %s", err)
 	}
