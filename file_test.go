@@ -46,7 +46,7 @@ func mustCreateTemporaryDirectory(t *testing.T) string {
 // mustReadFile helper function tries to read specified file and return its
 // content as a string
 func mustReadFile(t *testing.T, filename string) string {
-	fileContent, err := ioutil.ReadFile(filename)
+	fileContent, err := os.ReadFile(filename)
 	if err != nil {
 		t.Fatal(err)
 	}
