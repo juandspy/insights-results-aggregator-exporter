@@ -98,7 +98,7 @@ objects:
         - name: INSIGHTS_RESULTS_AGGREGATOR_EXPORTER__SENTRY__ENVIRONMENT
           value: ${ENV_NAME}
     database:
-      name: ccx-data-pipeline
+      name: ${DB_NAME}
       version: 12
 
 - apiVersion: cloud.redhat.com/v1alpha1
@@ -156,6 +156,8 @@ parameters:
 # Exporter configuration
 - name: DEBUG
   value: "true"
+- name: DB_NAME
+  value: ccx-data-pipeline
 - name: S3__TYPE
   value: s3
 - name: S3__ENDPOINT_PORT
