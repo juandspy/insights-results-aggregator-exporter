@@ -1,0 +1,43 @@
+# Copyright 2022 Red Hat, Inc
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# This is the ClowdJobInvocation (https://redhatinsights.github.io/clowder/clowder/dev/usage/jobs.html) 
+# part of the exporter job. It's been separated from the job (https://github.com/RedHatInsights/insights-results-aggregator-exporter/pull/142)
+# because there is a bug in Clowder (https://issues.redhat.com/browse/RHCLOUD-19961) where the
+# CJI runs before the job gets updated, so it triggers a previous version of the job.
+
+# With the CJI and the job separated, we can make use of promotions (https://gitlab.cee.redhat.com/service/app-interface/-/blob/master/docs/app-sre/continuous-delivery-in-app-interface.md#automatedgated-promotions)
+# and wait for the job to be ready before running the CJI.
+
+---
+apiVersion: v1
+kind: Template
+metadata:
+  name: ccx-results-exporter-cji
+objects:
+- apiVersion: cloud.redhat.com/v1alpha1
+  kind: ClowdJobInvocation
+  metadata:
+    labels:
+      app: ccx-results-exporter
+    name: job-launcher
+  spec:
+    appName: ccx-results-exporter
+    jobs:
+      - instance
+
+parameters:
+- name: CLOWDER_ENABLED
+  description: Determines if this is a Clowder deployment
+  value: "true"
