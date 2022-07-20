@@ -147,3 +147,5 @@ parameters:
   value: s3
 - name: S3__ENDPOINT_PORT
   description: S3 endpoint port. Leave it empty in case you are using AWS.
+- name: TEST_VARIABLE
+  description: a test variable # TODO: Delete me
