@@ -31,7 +31,7 @@ objects:
   metadata:
     labels:
       app: ccx-results-exporter
-    name: job-launcher
+    name: ${JOB_NAME}-job-launcher
   spec:
     appName: ccx-results-exporter
     jobs:
