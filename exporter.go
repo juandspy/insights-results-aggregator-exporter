@@ -194,14 +194,6 @@ func performDataExport(configuration *ConfigStruct, cliFlags CliFlags, operation
 	}
 }
 
-func getS3Bucket(configuration *ConfigStruct) string {
-	bucket, bucketPrefix := GetS3Configuration(configuration).Bucket, GetS3Configuration(configuration).Prefix
-	if bucketPrefix != "" {
-		bucket = bucketPrefix + "/" + bucket
-	}
-	return bucket
-}
-
 // performDataExportToS3 exports all tables and metadata info configured S3
 // bucket
 func performDataExportToS3(configuration *ConfigStruct,
@@ -231,15 +223,18 @@ func performDataExportToS3(configuration *ConfigStruct,
 	// log into terminal
 	printTables(tableNames)
 
-	bucket := getS3Bucket(configuration)
+	s3config := GetS3Configuration(configuration)
+	bucket, bucketPrefix := s3config.Bucket, s3config.Prefix
 	log.Info().Str("bucket name", bucket).Msg("S3 bucket to write to")
+	listOfTablesObject := setObjectPrefix(bucketPrefix, listOfTables)
+	metadataTableObject := setObjectPrefix(bucketPrefix, metadataTable)
 
 	if exportMetadata {
 		operationLogger.Info().Msg(exportingMetadata)
 
 		// export list of all tables into S3
 		err = storeTableNames(context, minioClient,
-			bucket, listOfTables, tableNames)
+			bucket, listOfTablesObject, tableNames)
 		if err != nil {
 			const msg = "Store table list to S3 failed"
 			log.Err(err).Msg(msg)
@@ -249,7 +244,7 @@ func performDataExportToS3(configuration *ConfigStruct,
 
 		// export tables metadata into S3
 		err = storage.StoreTableMetadataIntoS3(context, minioClient,
-			bucket, metadataTable, tableNames)
+			bucket, metadataTableObject, tableNames)
 		if err != nil {
 			const msg = "Store tables metadata to S3 failed"
 			log.Err(err).Msg(msg)
@@ -292,7 +287,7 @@ func performDataExportToS3(configuration *ConfigStruct,
 		operationLogger.Info().
 			Str(tableNameMsg, string(tableName)).
 			Msg(exportingTable)
-		err = storage.StoreTable(context, minioClient, bucket, tableName, limit)
+		err = storage.StoreTable(context, minioClient, bucket, bucketPrefix, tableName, limit)
 		if err != nil {
 			const msg = "Store table into S3 failed"
 			log.Err(err).Str(tableNameMsg, string(tableName)).
@@ -457,8 +452,10 @@ func storeOpertionLogIntoS3(configuration *ConfigStruct,
 		return err
 	}
 
-	bucketName := GetS3Configuration(configuration).Bucket
-	return storeBufferToS3(context, minioClient, bucketName, logFile, buffer)
+	s3config := GetS3Configuration(configuration)
+	bucketName, bucketPrefix := s3config.Bucket, s3config.Prefix
+	logFileObject := setObjectPrefix(bucketPrefix, logFile)
+	return storeBufferToS3(context, minioClient, bucketName, logFileObject, buffer)
 }
 
 // doSelectedOperation function perform operation selected on command line.
@@ -538,6 +535,13 @@ func createOperationLog(cliFlags CliFlags, buffer *bytes.Buffer) (zerolog.Logger
 
 	return dummyLogger, nil
 
+}
+
+func setObjectPrefix(prefix, object string) string {
+	if prefix != "" {
+		return prefix + "/" + object
+	}
+	return object
 }
 
 func mainWithStatusCode() int {

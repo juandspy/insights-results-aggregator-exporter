@@ -391,7 +391,7 @@ func (storage DBStorage) ReadTable(tableName TableName, limit int) ([]M, error) 
 
 // StoreTable function stores specified table into S3/Minio
 func (storage DBStorage) StoreTable(ctx context.Context,
-	minioClient *minio.Client, bucketName string, tableName TableName,
+	minioClient *minio.Client, bucketName, prefix string, tableName TableName,
 	limit int) error {
 	columnTypes, err := storage.RetrieveColumnTypes(tableName)
 	if err != nil {
@@ -429,7 +429,7 @@ func (storage DBStorage) StoreTable(ctx context.Context,
 	size := buffer.Len()
 
 	options := minio.PutObjectOptions{ContentType: "text/csv"}
-	objectName := string(tableName) + ".csv"
+	objectName := setObjectPrefix(prefix, string(tableName)) + ".csv"
 	_, err = minioClient.PutObject(ctx, bucketName, objectName, reader, int64(size), options)
 	if err != nil {
 		return err
