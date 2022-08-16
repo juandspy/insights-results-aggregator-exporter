@@ -24,7 +24,7 @@
 apiVersion: v1
 kind: Template
 metadata:
-  name: ccx-results-exporter-${DB_NAME}-cji
+  name: exporter-${DB_NAME}-cji
 objects:
 - apiVersion: cloud.redhat.com/v1alpha1
   kind: ClowdJobInvocation
@@ -33,7 +33,7 @@ objects:
       app: ccx-results-exporter
     name: ${DB_NAME}-job-launcher-${CJI_RANDOM_SUFFIX}
   spec:
-    appName: ccx-results-exporter-${DB_NAME}
+    appName: exporter-${DB_NAME}
     jobs:
       - instance
 
