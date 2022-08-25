@@ -24,6 +24,9 @@ objects:
     name: exporter-${DB_NAME}
   spec:
     envName: ${ENV_NAME}
+    dependencies:
+      - ccx-notification-writer
+      - ccx-insights-results-aggregator
     testing:
       iqePlugin: ccx
     jobs:
