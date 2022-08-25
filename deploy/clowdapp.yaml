@@ -26,7 +26,7 @@ objects:
     envName: ${ENV_NAME}
     dependencies:
       - ccx-notification-writer
-      - ccx-insights-results-aggregator
+      - ccx-insights-results
     testing:
       iqePlugin: ccx
     jobs:
