@@ -43,7 +43,7 @@ objects:
           - "-output=${OUTPUT}"
           - "-metadata=true"
           - "-ignore-tables=${TABLES_TO_IGNORE}"
-          - "-limit=10"
+          - "-limit=${SELECT_LIMIT}"
         restartPolicy: Never
         resources:
           requests:
@@ -155,3 +155,5 @@ parameters:
 - name: TEST_DATE
   description: A variable to force the job to run.
   value: 19/08/2022
+- name: SELECT_LIMIT
+  description: Number of rows to export
