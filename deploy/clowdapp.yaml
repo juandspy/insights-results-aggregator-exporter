@@ -154,7 +154,7 @@ parameters:
   description: S3 endpoint port. Leave it empty in case you are using AWS.
 - name: TEST_DATE
   description: A variable to force the job to run.
-  value: 19/08/2022
+  value: 09/09/2022
 - name: SELECT_LIMIT
   description: Number of rows to export
   value: "-1"
