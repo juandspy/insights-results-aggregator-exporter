@@ -189,6 +189,8 @@ https://redhatinsights.github.io/insights-results-aggregator-exporter/packages/t
 	<div class="ident">ExportMetadata</div>      <div class="ident">bool</div><div class="operator"></div>
 	<div class="ident">ExportDisabledRules</div> <div class="ident">bool</div><div class="operator"></div>
 	<div class="ident">ExportLog</div>           <div class="ident">bool</div><div class="operator"></div>
+	<div class="ident">Limit</div>               <div class="ident">int</div><div class="operator"></div>
+	<div class="ident">IgnoredTables</div>       <div class="ident">string</div><div class="operator"></div>
 <div class="operator">}</div><div class="operator"></div>
 
 </code></pre></td>
@@ -198,6 +200,14 @@ https://redhatinsights.github.io/insights-results-aggregator-exporter/packages/t
 	<td class="doc"><p>M represents a map with string keys and any value</p>
 </td>
 	<td class="code"><pre><code><div class="keyword">type</div> <div class="ident">M</div> <div class="keyword">map</div><div class="operator">[</div><div class="ident">string</div><div class="operator">]</div><div class="keyword">interface</div><div class="operator">{</div><div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>IgnoredTables represents set of ignored tables</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">type</div> <div class="ident">IgnoredTables</div> <div class="keyword">map</div><div class="operator">[</div><div class="ident">string</div><div class="operator">]</div><div class="keyword">struct</div><div class="operator">{</div><div class="operator">}</div><div class="operator"></div>
 
 </code></pre></td>
       </tr>

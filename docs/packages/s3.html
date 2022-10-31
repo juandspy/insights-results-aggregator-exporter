@@ -205,9 +205,13 @@ https://redhatinsights.github.io/insights-results-aggregator-exporter/packages/s
 </td>
 	<td class="code"><pre><code>	<div class="ident">s3Configuration</div> <div class="operator">:=</div> <div class="ident">GetS3Configuration</div><div class="operator">(</div><div class="ident">configuration</div><div class="operator">)</div><div class="operator"></div>
 
-	<div class="ident">endpoint</div> <div class="operator">:=</div> <div class="ident">fmt</div><div class="operator">.</div><div class="ident">Sprintf</div><div class="operator">(</div><div class="literal">&#34;%s:%d&#34;</div><div class="operator">,</div>
-		<div class="ident">s3Configuration</div><div class="operator">.</div><div class="ident">EndpointURL</div><div class="operator">,</div> <div class="ident">s3Configuration</div><div class="operator">.</div><div class="ident">EndpointPort</div><div class="operator">)</div><div class="operator"></div>
-
+	<div class="keyword">var</div> <div class="ident">endpoint</div> <div class="ident">string</div><div class="operator"></div>
+	<div class="keyword">if</div> <div class="ident">s3Configuration</div><div class="operator">.</div><div class="ident">EndpointPort</div> <div class="operator">==</div> <div class="literal">0</div> <div class="operator">{</div>
+		<div class="ident">endpoint</div> <div class="operator">=</div> <div class="ident">s3Configuration</div><div class="operator">.</div><div class="ident">EndpointURL</div><div class="operator"></div>
+	<div class="operator">}</div> <div class="keyword">else</div> <div class="operator">{</div>
+		<div class="ident">endpoint</div> <div class="operator">=</div> <div class="ident">fmt</div><div class="operator">.</div><div class="ident">Sprintf</div><div class="operator">(</div><div class="literal">&#34;%s:%d&#34;</div><div class="operator">,</div>
+			<div class="ident">s3Configuration</div><div class="operator">.</div><div class="ident">EndpointURL</div><div class="operator">,</div> <div class="ident">s3Configuration</div><div class="operator">.</div><div class="ident">EndpointPort</div><div class="operator">)</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
 	<div class="ident">log</div><div class="operator">.</div><div class="ident">Info</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Str</div><div class="operator">(</div><div class="literal">&#34;S3 endpoint&#34;</div><div class="operator">,</div> <div class="ident">endpoint</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;Preparing connection&#34;</div><div class="operator">)</div><div class="operator"></div>
 
 	<div class="ident">ctx</div> <div class="operator">:=</div> <div class="ident">context</div><div class="operator">.</div><div class="ident">Background</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>

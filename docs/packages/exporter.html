@@ -151,6 +151,7 @@ https://redhatinsights.github.io/insights-results-aggregator-exporter/packages/e
 	<div class="literal">&#34;flag&#34;</div><div class="operator"></div>
 	<div class="literal">&#34;fmt&#34;</div><div class="operator"></div>
 	<div class="literal">&#34;os&#34;</div><div class="operator"></div>
+	<div class="literal">&#34;strings&#34;</div><div class="operator"></div>
 
 	<div class="literal">&#34;github.com/rs/zerolog&#34;</div><div class="operator"></div>
 	<div class="literal">&#34;github.com/rs/zerolog/log&#34;</div><div class="operator"></div>
@@ -163,11 +164,12 @@ https://redhatinsights.github.io/insights-results-aggregator-exporter/packages/e
 	<td class="doc"><p>Messages</p>
 </td>
 	<td class="code"><pre><code><div class="keyword">const</div> <div class="operator">(</div>
-	<div class="ident">versionMessage</div>         <div class="operator">=</div> <div class="literal">&#34;Insights Results Aggregator Cleaner version 1.0&#34;</div><div class="operator"></div>
+	<div class="ident">versionMessage</div>         <div class="operator">=</div> <div class="literal">&#34;Insights Results Aggregator Exporter version 1.0&#34;</div><div class="operator"></div>
 	<div class="ident">authorsMessage</div>         <div class="operator">=</div> <div class="literal">&#34;Pavel Tisnovsky, Red Hat Inc.&#34;</div><div class="operator"></div>
 	<div class="ident">operationFailedMessage</div> <div class="operator">=</div> <div class="literal">&#34;Operation failed&#34;</div><div class="operator"></div>
 	<div class="ident">listOfTablesMsg</div>        <div class="operator">=</div> <div class="literal">&#34;List of tables&#34;</div><div class="operator"></div>
 	<div class="ident">tableNameMsg</div>           <div class="operator">=</div> <div class="literal">&#34;Table name&#34;</div><div class="operator"></div>
+	<div class="ident">tableIsIgnored</div>         <div class="operator">=</div> <div class="literal">&#34;Table is ignored, skipping export&#34;</div><div class="operator"></div>
 <div class="operator">)</div><div class="operator"></div>
 
 </code></pre></td>
@@ -330,7 +332,49 @@ into file failed etc.)</p>
 		<div class="ident">Str</div><div class="operator">(</div><div class="literal">&#34;SecretAccessKey&#34;</div><div class="operator">,</div> <div class="ident">s3Configuration</div><div class="operator">.</div><div class="ident">SecretAccessKey</div><div class="operator">)</div><div class="operator">.</div>
 		<div class="ident">Bool</div><div class="operator">(</div><div class="literal">&#34;Use SSL&#34;</div><div class="operator">,</div> <div class="ident">s3Configuration</div><div class="operator">.</div><div class="ident">UseSSL</div><div class="operator">)</div><div class="operator">.</div>
 		<div class="ident">Str</div><div class="operator">(</div><div class="literal">&#34;Bucket name&#34;</div><div class="operator">,</div> <div class="ident">s3Configuration</div><div class="operator">.</div><div class="ident">Bucket</div><div class="operator">)</div><div class="operator">.</div>
+		<div class="ident">Str</div><div class="operator">(</div><div class="literal">&#34;Bucket prefix&#34;</div><div class="operator">,</div> <div class="ident">s3Configuration</div><div class="operator">.</div><div class="ident">Prefix</div><div class="operator">)</div><div class="operator">.</div>
 		<div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;S3 configuration&#34;</div><div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>constructIgnoredTablesMap helper function splits list of tables by comma and
+constructs a map from it where keys are taken from splitted string</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">constructIgnoredTablesMap</div><div class="operator">(</div><div class="ident">input</div> <div class="ident">string</div><div class="operator">)</div> <div class="ident">IgnoredTables</div> <div class="operator">{</div>
+	<div class="ident">tables</div> <div class="operator">:=</div> <div class="ident">strings</div><div class="operator">.</div><div class="ident">Split</div><div class="operator">(</div><div class="ident">input</div><div class="operator">,</div> <div class="literal">&#34;,&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>prepare empty map with given capacity</p>
+</td>
+	<td class="code"><pre><code>	<div class="keyword">var</div> <div class="ident">m</div> <div class="ident">IgnoredTables</div> <div class="operator">=</div> <div class="ident">make</div><div class="operator">(</div><div class="ident">IgnoredTables</div><div class="operator">,</div> <div class="ident">len</div><div class="operator">(</div><div class="ident">tables</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>don't add empty string into a map</p>
+</td>
+	<td class="code"><pre><code>	<div class="keyword">if</div> <div class="ident">input</div> <div class="operator">==</div> <div class="literal">&#34;&#34;</div> <div class="operator">{</div>
+		<div class="keyword">return</div> <div class="ident">m</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>put ignored tables into such map</p>
+</td>
+	<td class="code"><pre><code>	<div class="keyword">for</div> <div class="ident">_</div><div class="operator">,</div> <div class="ident">table</div> <div class="operator">:=</div> <div class="keyword">range</div> <div class="ident">tables</div> <div class="operator">{</div>
+		<div class="ident">m</div><div class="operator">[</div><div class="ident">table</div><div class="operator">]</div> <div class="operator">=</div> <div class="keyword">struct</div><div class="operator">{</div><div class="operator">}</div><div class="operator">{</div><div class="operator">}</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+
+	<div class="keyword">return</div> <div class="ident">m</div><div class="operator"></div>
 <div class="operator">}</div><div class="operator"></div>
 
 </code></pre></td>
@@ -356,15 +400,17 @@ into file failed etc.)</p>
 		<div class="keyword">return</div> <div class="ident">ExitStatusStorageError</div><div class="operator">,</div> <div class="ident">err</div><div class="operator"></div>
 	<div class="operator">}</div><div class="operator"></div>
 
+	<div class="ident">ignoredTablesMap</div> <div class="operator">:=</div> <div class="ident">constructIgnoredTablesMap</div><div class="operator">(</div><div class="ident">cliFlags</div><div class="operator">.</div><div class="ident">IgnoredTables</div><div class="operator">)</div><div class="operator"></div>
+
 	<div class="keyword">switch</div> <div class="ident">cliFlags</div><div class="operator">.</div><div class="ident">Output</div> <div class="operator">{</div>
 	<div class="keyword">case</div> <div class="ident">s3Output</div><div class="operator">:</div>
 		<div class="keyword">return</div> <div class="ident">performDataExportToS3</div><div class="operator">(</div><div class="ident">configuration</div><div class="operator">,</div> <div class="ident">storage</div><div class="operator">,</div>
 			<div class="ident">cliFlags</div><div class="operator">.</div><div class="ident">ExportMetadata</div><div class="operator">,</div> <div class="ident">cliFlags</div><div class="operator">.</div><div class="ident">ExportDisabledRules</div><div class="operator">,</div>
-			<div class="ident">operationLogger</div><div class="operator">)</div><div class="operator"></div>
+			<div class="ident">operationLogger</div><div class="operator">,</div> <div class="ident">cliFlags</div><div class="operator">.</div><div class="ident">Limit</div><div class="operator">,</div> <div class="ident">ignoredTablesMap</div><div class="operator">)</div><div class="operator"></div>
 	<div class="keyword">case</div> <div class="ident">fileOutput</div><div class="operator">:</div>
 		<div class="keyword">return</div> <div class="ident">performDataExportToFiles</div><div class="operator">(</div><div class="ident">configuration</div><div class="operator">,</div> <div class="ident">storage</div><div class="operator">,</div>
 			<div class="ident">cliFlags</div><div class="operator">.</div><div class="ident">ExportMetadata</div><div class="operator">,</div> <div class="ident">cliFlags</div><div class="operator">.</div><div class="ident">ExportDisabledRules</div><div class="operator">,</div>
-			<div class="ident">operationLogger</div><div class="operator">)</div><div class="operator"></div>
+			<div class="ident">operationLogger</div><div class="operator">,</div> <div class="ident">cliFlags</div><div class="operator">.</div><div class="ident">Limit</div><div class="operator">,</div> <div class="ident">ignoredTablesMap</div><div class="operator">)</div><div class="operator"></div>
 	<div class="keyword">default</div><div class="operator">:</div>
 		<div class="ident">err</div> <div class="operator">:=</div> <div class="ident">fmt</div><div class="operator">.</div><div class="ident">Errorf</div><div class="operator">(</div><div class="ident">unknownOutputType</div><div class="operator">,</div> <div class="ident">cliFlags</div><div class="operator">.</div><div class="ident">Output</div><div class="operator">)</div><div class="operator"></div>
 		<div class="ident">operationLogger</div><div class="operator">.</div><div class="ident">Err</div><div class="operator">(</div><div class="ident">err</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;Wrong output type selected&#34;</div><div class="operator">)</div><div class="operator"></div>
@@ -381,8 +427,9 @@ bucket</p>
 </td>
 	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">performDataExportToS3</div><div class="operator">(</div><div class="ident">configuration</div> <div class="operator">*</div><div class="ident">ConfigStruct</div><div class="operator">,</div>
 	<div class="ident">storage</div> <div class="operator">*</div><div class="ident">DBStorage</div><div class="operator">,</div> <div class="ident">exportMetadata</div> <div class="ident">bool</div><div class="operator">,</div>
-	<div class="ident">ExportDisabledRules</div> <div class="ident">bool</div><div class="operator">,</div>
-	<div class="ident">operationLogger</div> <div class="ident">zerolog</div><div class="operator">.</div><div class="ident">Logger</div><div class="operator">)</div> <div class="operator">(</div><div class="ident">int</div><div class="operator">,</div> <div class="ident">error</div><div class="operator">)</div> <div class="operator">{</div>
+	<div class="ident">exportDisabledRules</div> <div class="ident">bool</div><div class="operator">,</div>
+	<div class="ident">operationLogger</div> <div class="ident">zerolog</div><div class="operator">.</div><div class="ident">Logger</div><div class="operator">,</div> <div class="ident">limit</div> <div class="ident">int</div><div class="operator">,</div>
+	<div class="ident">ignoredTables</div> <div class="ident">IgnoredTables</div><div class="operator">)</div> <div class="operator">(</div><div class="ident">int</div><div class="operator">,</div> <div class="ident">error</div><div class="operator">)</div> <div class="operator">{</div>
 
 	<div class="ident">operationLogger</div><div class="operator">.</div><div class="ident">Info</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;Exporting to S3&#34;</div><div class="operator">)</div><div class="operator"></div>
 
@@ -410,8 +457,11 @@ bucket</p>
 </td>
 	<td class="code"><pre><code>	<div class="ident">printTables</div><div class="operator">(</div><div class="ident">tableNames</div><div class="operator">)</div><div class="operator"></div>
 
-	<div class="ident">bucket</div> <div class="operator">:=</div> <div class="ident">GetS3Configuration</div><div class="operator">(</div><div class="ident">configuration</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Bucket</div><div class="operator"></div>
+	<div class="ident">s3config</div> <div class="operator">:=</div> <div class="ident">GetS3Configuration</div><div class="operator">(</div><div class="ident">configuration</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">bucket</div><div class="operator">,</div> <div class="ident">bucketPrefix</div> <div class="operator">:=</div> <div class="ident">s3config</div><div class="operator">.</div><div class="ident">Bucket</div><div class="operator">,</div> <div class="ident">s3config</div><div class="operator">.</div><div class="ident">Prefix</div><div class="operator"></div>
 	<div class="ident">log</div><div class="operator">.</div><div class="ident">Info</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Str</div><div class="operator">(</div><div class="literal">&#34;bucket name&#34;</div><div class="operator">,</div> <div class="ident">bucket</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;S3 bucket to write to&#34;</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">listOfTablesObject</div> <div class="operator">:=</div> <div class="ident">setObjectPrefix</div><div class="operator">(</div><div class="ident">bucketPrefix</div><div class="operator">,</div> <div class="ident">listOfTables</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">metadataTableObject</div> <div class="operator">:=</div> <div class="ident">setObjectPrefix</div><div class="operator">(</div><div class="ident">bucketPrefix</div><div class="operator">,</div> <div class="ident">metadataTable</div><div class="operator">)</div><div class="operator"></div>
 
 	<div class="keyword">if</div> <div class="ident">exportMetadata</div> <div class="operator">{</div>
 		<div class="ident">operationLogger</div><div class="operator">.</div><div class="ident">Info</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="ident">exportingMetadata</div><div class="operator">)</div><div class="operator"></div>
@@ -423,7 +473,7 @@ bucket</p>
 	<td class="doc"><p>export list of all tables into S3</p>
 </td>
 	<td class="code"><pre><code>		<div class="ident">err</div> <div class="operator">=</div> <div class="ident">storeTableNames</div><div class="operator">(</div><div class="ident">context</div><div class="operator">,</div> <div class="ident">minioClient</div><div class="operator">,</div>
-			<div class="ident">bucket</div><div class="operator">,</div> <div class="ident">listOfTables</div><div class="operator">,</div> <div class="ident">tableNames</div><div class="operator">)</div><div class="operator"></div>
+			<div class="ident">bucket</div><div class="operator">,</div> <div class="ident">listOfTablesObject</div><div class="operator">,</div> <div class="ident">tableNames</div><div class="operator">)</div><div class="operator"></div>
 		<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
 			<div class="keyword">const</div> <div class="ident">msg</div> <div class="operator">=</div> <div class="literal">&#34;Store table list to S3 failed&#34;</div><div class="operator"></div>
 			<div class="ident">log</div><div class="operator">.</div><div class="ident">Err</div><div class="operator">(</div><div class="ident">err</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="ident">msg</div><div class="operator">)</div><div class="operator"></div>
@@ -438,7 +488,7 @@ bucket</p>
 	<td class="doc"><p>export tables metadata into S3</p>
 </td>
 	<td class="code"><pre><code>		<div class="ident">err</div> <div class="operator">=</div> <div class="ident">storage</div><div class="operator">.</div><div class="ident">StoreTableMetadataIntoS3</div><div class="operator">(</div><div class="ident">context</div><div class="operator">,</div> <div class="ident">minioClient</div><div class="operator">,</div>
-			<div class="ident">bucket</div><div class="operator">,</div> <div class="ident">metadataTable</div><div class="operator">,</div> <div class="ident">tableNames</div><div class="operator">)</div><div class="operator"></div>
+			<div class="ident">bucket</div><div class="operator">,</div> <div class="ident">metadataTableObject</div><div class="operator">,</div> <div class="ident">tableNames</div><div class="operator">)</div><div class="operator"></div>
 		<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
 			<div class="keyword">const</div> <div class="ident">msg</div> <div class="operator">=</div> <div class="literal">&#34;Store tables metadata to S3 failed&#34;</div><div class="operator"></div>
 			<div class="ident">log</div><div class="operator">.</div><div class="ident">Err</div><div class="operator">(</div><div class="ident">err</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="ident">msg</div><div class="operator">)</div><div class="operator"></div>
@@ -446,7 +496,7 @@ bucket</p>
 		<div class="operator">}</div><div class="operator"></div>
 	<div class="operator">}</div><div class="operator"></div>
 
-	<div class="keyword">if</div> <div class="ident">ExportDisabledRules</div> <div class="operator">{</div>
+	<div class="keyword">if</div> <div class="ident">exportDisabledRules</div> <div class="operator">{</div>
 		<div class="ident">operationLogger</div><div class="operator">.</div><div class="ident">Info</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="ident">exportingDisabledRules</div><div class="operator">)</div><div class="operator"></div>
 
 </code></pre></td>
@@ -486,10 +536,22 @@ bucket</p>
 	<td class="doc"><p>read content of all tables and perform export</p>
 </td>
 	<td class="code"><pre><code>	<div class="keyword">for</div> <div class="ident">_</div><div class="operator">,</div> <div class="ident">tableName</div> <div class="operator">:=</div> <div class="keyword">range</div> <div class="ident">tableNames</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>ignore table if specified by user</p>
+</td>
+	<td class="code"><pre><code>		<div class="keyword">if</div> <div class="ident">_</div><div class="operator">,</div> <div class="ident">found</div> <div class="operator">:=</div> <div class="ident">ignoredTables</div><div class="operator">[</div><div class="ident">string</div><div class="operator">(</div><div class="ident">tableName</div><div class="operator">)</div><div class="operator">]</div><div class="operator">;</div> <div class="ident">found</div> <div class="operator">{</div>
+			<div class="ident">operationLogger</div><div class="operator">.</div><div class="ident">Info</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div>
+				<div class="ident">Str</div><div class="operator">(</div><div class="ident">tableNameMsg</div><div class="operator">,</div> <div class="ident">string</div><div class="operator">(</div><div class="ident">tableName</div><div class="operator">)</div><div class="operator">)</div><div class="operator">.</div>
+				<div class="ident">Msg</div><div class="operator">(</div><div class="ident">tableIsIgnored</div><div class="operator">)</div><div class="operator"></div>
+			<div class="keyword">continue</div><div class="operator"></div>
+		<div class="operator">}</div><div class="operator"></div>
 		<div class="ident">operationLogger</div><div class="operator">.</div><div class="ident">Info</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div>
 			<div class="ident">Str</div><div class="operator">(</div><div class="ident">tableNameMsg</div><div class="operator">,</div> <div class="ident">string</div><div class="operator">(</div><div class="ident">tableName</div><div class="operator">)</div><div class="operator">)</div><div class="operator">.</div>
 			<div class="ident">Msg</div><div class="operator">(</div><div class="ident">exportingTable</div><div class="operator">)</div><div class="operator"></div>
-		<div class="ident">err</div> <div class="operator">=</div> <div class="ident">storage</div><div class="operator">.</div><div class="ident">StoreTable</div><div class="operator">(</div><div class="ident">context</div><div class="operator">,</div> <div class="ident">minioClient</div><div class="operator">,</div> <div class="ident">bucket</div><div class="operator">,</div> <div class="ident">tableName</div><div class="operator">)</div><div class="operator"></div>
+		<div class="ident">err</div> <div class="operator">=</div> <div class="ident">storage</div><div class="operator">.</div><div class="ident">StoreTable</div><div class="operator">(</div><div class="ident">context</div><div class="operator">,</div> <div class="ident">minioClient</div><div class="operator">,</div> <div class="ident">bucket</div><div class="operator">,</div> <div class="ident">bucketPrefix</div><div class="operator">,</div> <div class="ident">tableName</div><div class="operator">,</div> <div class="ident">limit</div><div class="operator">)</div><div class="operator"></div>
 		<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
 			<div class="keyword">const</div> <div class="ident">msg</div> <div class="operator">=</div> <div class="literal">&#34;Store table into S3 failed&#34;</div><div class="operator"></div>
 			<div class="ident">log</div><div class="operator">.</div><div class="ident">Err</div><div class="operator">(</div><div class="ident">err</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Str</div><div class="operator">(</div><div class="ident">tableNameMsg</div><div class="operator">,</div> <div class="ident">string</div><div class="operator">(</div><div class="ident">tableName</div><div class="operator">)</div><div class="operator">)</div><div class="operator">.</div>
@@ -533,7 +595,8 @@ bucket</p>
 	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">performDataExportToFiles</div><div class="operator">(</div><div class="ident">configuration</div> <div class="operator">*</div><div class="ident">ConfigStruct</div><div class="operator">,</div>
 	<div class="ident">storage</div> <div class="operator">*</div><div class="ident">DBStorage</div><div class="operator">,</div> <div class="ident">exportMetadata</div> <div class="ident">bool</div><div class="operator">,</div>
 	<div class="ident">exportDisabledRules</div> <div class="ident">bool</div><div class="operator">,</div>
-	<div class="ident">operationLogger</div> <div class="ident">zerolog</div><div class="operator">.</div><div class="ident">Logger</div><div class="operator">)</div> <div class="operator">(</div><div class="ident">int</div><div class="operator">,</div> <div class="ident">error</div><div class="operator">)</div> <div class="operator">{</div>
+	<div class="ident">operationLogger</div> <div class="ident">zerolog</div><div class="operator">.</div><div class="ident">Logger</div><div class="operator">,</div> <div class="ident">limit</div> <div class="ident">int</div><div class="operator">,</div>
+	<div class="ident">ignoredTables</div> <div class="ident">IgnoredTables</div><div class="operator">)</div> <div class="operator">(</div><div class="ident">int</div><div class="operator">,</div> <div class="ident">error</div><div class="operator">)</div> <div class="operator">{</div>
 
 	<div class="ident">operationLogger</div><div class="operator">.</div><div class="ident">Info</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;Exporting to file&#34;</div><div class="operator">)</div><div class="operator"></div>
 
@@ -627,10 +690,22 @@ bucket</p>
 	<td class="doc"><p>read content of all tables and perform export</p>
 </td>
 	<td class="code"><pre><code>	<div class="keyword">for</div> <div class="ident">_</div><div class="operator">,</div> <div class="ident">tableName</div> <div class="operator">:=</div> <div class="keyword">range</div> <div class="ident">tableNames</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>ignore table if specified by user</p>
+</td>
+	<td class="code"><pre><code>		<div class="keyword">if</div> <div class="ident">_</div><div class="operator">,</div> <div class="ident">found</div> <div class="operator">:=</div> <div class="ident">ignoredTables</div><div class="operator">[</div><div class="ident">string</div><div class="operator">(</div><div class="ident">tableName</div><div class="operator">)</div><div class="operator">]</div><div class="operator">;</div> <div class="ident">found</div> <div class="operator">{</div>
+			<div class="ident">operationLogger</div><div class="operator">.</div><div class="ident">Info</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div>
+				<div class="ident">Str</div><div class="operator">(</div><div class="ident">tableNameMsg</div><div class="operator">,</div> <div class="ident">string</div><div class="operator">(</div><div class="ident">tableName</div><div class="operator">)</div><div class="operator">)</div><div class="operator">.</div>
+				<div class="ident">Msg</div><div class="operator">(</div><div class="ident">tableIsIgnored</div><div class="operator">)</div><div class="operator"></div>
+			<div class="keyword">continue</div><div class="operator"></div>
+		<div class="operator">}</div><div class="operator"></div>
 		<div class="ident">operationLogger</div><div class="operator">.</div><div class="ident">Info</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div>
 			<div class="ident">Str</div><div class="operator">(</div><div class="ident">tableNameMsg</div><div class="operator">,</div> <div class="ident">string</div><div class="operator">(</div><div class="ident">tableName</div><div class="operator">)</div><div class="operator">)</div><div class="operator">.</div>
 			<div class="ident">Msg</div><div class="operator">(</div><div class="ident">exportingTable</div><div class="operator">)</div><div class="operator"></div>
-		<div class="ident">err</div> <div class="operator">=</div> <div class="ident">storage</div><div class="operator">.</div><div class="ident">StoreTableIntoFile</div><div class="operator">(</div><div class="ident">tableName</div><div class="operator">)</div><div class="operator"></div>
+		<div class="ident">err</div> <div class="operator">=</div> <div class="ident">storage</div><div class="operator">.</div><div class="ident">StoreTableIntoFile</div><div class="operator">(</div><div class="ident">tableName</div><div class="operator">,</div> <div class="ident">limit</div><div class="operator">)</div><div class="operator"></div>
 		<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
 			<div class="keyword">const</div> <div class="ident">msg</div> <div class="operator">=</div> <div class="literal">&#34;Store table into file failed&#34;</div><div class="operator"></div>
 			<div class="ident">log</div><div class="operator">.</div><div class="ident">Err</div><div class="operator">(</div><div class="ident">err</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Str</div><div class="operator">(</div><div class="ident">tableNameMsg</div><div class="operator">,</div> <div class="ident">string</div><div class="operator">(</div><div class="ident">tableName</div><div class="operator">)</div><div class="operator">)</div><div class="operator">.</div>
@@ -706,8 +781,10 @@ bucket</p>
 		<div class="keyword">return</div> <div class="ident">err</div><div class="operator"></div>
 	<div class="operator">}</div><div class="operator"></div>
 
-	<div class="ident">bucketName</div> <div class="operator">:=</div> <div class="ident">GetS3Configuration</div><div class="operator">(</div><div class="ident">configuration</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Bucket</div><div class="operator"></div>
-	<div class="keyword">return</div> <div class="ident">storeBufferToS3</div><div class="operator">(</div><div class="ident">context</div><div class="operator">,</div> <div class="ident">minioClient</div><div class="operator">,</div> <div class="ident">bucketName</div><div class="operator">,</div> <div class="ident">logFile</div><div class="operator">,</div> <div class="ident">buffer</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">s3config</div> <div class="operator">:=</div> <div class="ident">GetS3Configuration</div><div class="operator">(</div><div class="ident">configuration</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">bucketName</div><div class="operator">,</div> <div class="ident">bucketPrefix</div> <div class="operator">:=</div> <div class="ident">s3config</div><div class="operator">.</div><div class="ident">Bucket</div><div class="operator">,</div> <div class="ident">s3config</div><div class="operator">.</div><div class="ident">Prefix</div><div class="operator"></div>
+	<div class="ident">logFileObject</div> <div class="operator">:=</div> <div class="ident">setObjectPrefix</div><div class="operator">(</div><div class="ident">bucketPrefix</div><div class="operator">,</div> <div class="ident">logFile</div><div class="operator">)</div><div class="operator"></div>
+	<div class="keyword">return</div> <div class="ident">storeBufferToS3</div><div class="operator">(</div><div class="ident">context</div><div class="operator">,</div> <div class="ident">minioClient</div><div class="operator">,</div> <div class="ident">bucketName</div><div class="operator">,</div> <div class="ident">logFileObject</div><div class="operator">,</div> <div class="ident">buffer</div><div class="operator">)</div><div class="operator"></div>
 <div class="operator">}</div><div class="operator"></div>
 
 </code></pre></td>
@@ -765,6 +842,8 @@ instead.</p>
 	<div class="ident">flag</div><div class="operator">.</div><div class="ident">BoolVar</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">cliFlags</div><div class="operator">.</div><div class="ident">ExportDisabledRules</div><div class="operator">,</div> <div class="literal">&#34;disabled-by-more-users&#34;</div><div class="operator">,</div> <div class="ident">false</div><div class="operator">,</div> <div class="literal">&#34;export rules disabled by more users&#34;</div><div class="operator">)</div><div class="operator"></div>
 	<div class="ident">flag</div><div class="operator">.</div><div class="ident">BoolVar</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">cliFlags</div><div class="operator">.</div><div class="ident">CheckS3Connection</div><div class="operator">,</div> <div class="literal">&#34;check-s3-connection&#34;</div><div class="operator">,</div> <div class="ident">false</div><div class="operator">,</div> <div class="literal">&#34;check S3 connection and exit&#34;</div><div class="operator">)</div><div class="operator"></div>
 	<div class="ident">flag</div><div class="operator">.</div><div class="ident">BoolVar</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">cliFlags</div><div class="operator">.</div><div class="ident">ExportLog</div><div class="operator">,</div> <div class="literal">&#34;export-log&#34;</div><div class="operator">,</div> <div class="ident">false</div><div class="operator">,</div> <div class="literal">&#34;export log&#34;</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">flag</div><div class="operator">.</div><div class="ident">IntVar</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">cliFlags</div><div class="operator">.</div><div class="ident">Limit</div><div class="operator">,</div> <div class="literal">&#34;limit&#34;</div><div class="operator">,</div> <div class="operator">-</div><div class="literal">1</div><div class="operator">,</div> <div class="literal">&#34;limit number of exported records&#34;</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">flag</div><div class="operator">.</div><div class="ident">StringVar</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">cliFlags</div><div class="operator">.</div><div class="ident">IgnoredTables</div><div class="operator">,</div> <div class="literal">&#34;ignore-tables&#34;</div><div class="operator">,</div> <div class="literal">&#34;&#34;</div><div class="operator">,</div> <div class="literal">&#34;comma-separated list of tables that will be ignored&#34;</div><div class="operator">)</div><div class="operator"></div>
 
 </code></pre></td>
       </tr>
@@ -827,9 +906,14 @@ instead.</p>
 
 <div class="operator">}</div><div class="operator"></div>
 
-<div class="keyword">func</div> <div class="ident">mainWithStatusCode</div><div class="operator">(</div><div class="operator">)</div> <div class="ident">int</div> <div class="operator">{</div>
-	<div class="ident">log</div><div class="operator">.</div><div class="ident">Debug</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;Started&#34;</div><div class="operator">)</div><div class="operator"></div>
+<div class="keyword">func</div> <div class="ident">setObjectPrefix</div><div class="operator">(</div><div class="ident">prefix</div><div class="operator">,</div> <div class="ident">object</div> <div class="ident">string</div><div class="operator">)</div> <div class="ident">string</div> <div class="operator">{</div>
+	<div class="keyword">if</div> <div class="ident">prefix</div> <div class="operator">!=</div> <div class="literal">&#34;&#34;</div> <div class="operator">{</div>
+		<div class="keyword">return</div> <div class="ident">prefix</div> <div class="operator">&#43;</div> <div class="literal">&#34;/&#34;</div> <div class="operator">&#43;</div> <div class="ident">object</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+	<div class="keyword">return</div> <div class="ident">object</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
 
+<div class="keyword">func</div> <div class="ident">mainWithStatusCode</div><div class="operator">(</div><div class="operator">)</div> <div class="ident">int</div> <div class="operator">{</div>
 </code></pre></td>
       </tr>
       

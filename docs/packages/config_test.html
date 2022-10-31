@@ -151,6 +151,7 @@ https://redhatinsights.github.io/insights-results-aggregator-exporter/packages/c
 
 	<div class="literal">&#34;testing&#34;</div><div class="operator"></div>
 
+	<div class="ident">clowder</div> <div class="literal">&#34;github.com/redhatinsights/app-common-go/pkg/api/v1&#34;</div><div class="operator"></div>
 	<div class="literal">&#34;github.com/rs/zerolog&#34;</div><div class="operator"></div>
 	<div class="literal">&#34;github.com/stretchr/testify/assert&#34;</div><div class="operator"></div>
 
@@ -179,7 +180,7 @@ will fail</p>
       </tr>
       
       <tr class="section">
-	<td class="doc"><p>mustSetEnv function set specified environemnt variable or the actual test
+	<td class="doc"><p>mustSetEnv function set specified environment variable or the actual test
 will fail</p>
 </td>
 	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">mustSetEnv</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">,</div> <div class="ident">key</div><div class="operator">,</div> <div class="ident">val</div> <div class="ident">string</div><div class="operator">)</div> <div class="operator">{</div>
@@ -345,6 +346,7 @@ config file when no environment variable is provided</p>
 
 	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="literal">&#34;minio&#34;</div><div class="operator">,</div> <div class="ident">S3Cfg</div><div class="operator">.</div><div class="ident">Type</div><div class="operator">)</div><div class="operator"></div>
 	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">false</div><div class="operator">,</div> <div class="ident">S3Cfg</div><div class="operator">.</div><div class="ident">UseSSL</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="literal">&#34;test_path&#34;</div><div class="operator">,</div> <div class="ident">S3Cfg</div><div class="operator">.</div><div class="ident">Prefix</div><div class="operator">)</div><div class="operator"></div>
 <div class="operator">}</div><div class="operator"></div>
 
 </code></pre></td>
@@ -356,11 +358,21 @@ file for testing from an environment variable. Clowder config is enabled in
 this case.</p>
 </td>
 	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">TestLoadConfigurationFromEnvVariableClowderEnabled</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+	<div class="keyword">var</div> <div class="ident">testDB</div> <div class="operator">=</div> <div class="literal">&#34;test_db&#34;</div><div class="operator"></div>
 	<div class="ident">os</div><div class="operator">.</div><div class="ident">Clearenv</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
 
-	<div class="ident">mustSetEnv</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="literal">&#34;INSIGHTS_RESULTS_AGGREGATOR_EXPORTER_CONFIG_FILE&#34;</div><div class="operator">,</div> <div class="literal">&#34;tests/config2&#34;</div><div class="operator">)</div><div class="operator"></div>
-	<div class="ident">mustSetEnv</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="literal">&#34;ACG_CONFIG&#34;</div><div class="operator">,</div> <div class="literal">&#34;tests/clowder_config.json&#34;</div><div class="operator">)</div><div class="operator"></div>
-	<div class="ident">mustLoadConfiguration</div><div class="operator">(</div><div class="literal">&#34;INSIGHTS_RESULTS_AGGREGATOR_EXPORTER_CONFIG_FILE&#34;</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">clowder</div><div class="operator">.</div><div class="ident">LoadedConfig</div> <div class="operator">=</div> <div class="operator">&amp;</div><div class="ident">clowder</div><div class="operator">.</div><div class="ident">AppConfig</div><div class="operator">{</div>
+		<div class="ident">Database</div><div class="operator">:</div> <div class="operator">&amp;</div><div class="ident">clowder</div><div class="operator">.</div><div class="ident">DatabaseConfig</div><div class="operator">{</div>
+			<div class="ident">Name</div><div class="operator">:</div> <div class="ident">testDB</div><div class="operator">,</div>
+		<div class="operator">}</div><div class="operator">,</div>
+	<div class="operator">}</div><div class="operator"></div>
+	<div class="ident">mustSetEnv</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="literal">&#34;ACG_CONFIG&#34;</div><div class="operator">,</div> <div class="literal">&#34;to enable clowder&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="ident">config</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">LoadConfiguration</div><div class="operator">(</div><div class="literal">&#34;INSIGHTS_RESULTS_AGGREGATOR_EXPORTER_CONFIG_FILE&#34;</div><div class="operator">,</div> <div class="literal">&#34;tests/config2&#34;</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">NoError</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">,</div> <div class="literal">&#34;Failed loading configuration file&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="ident">dbCfg</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">GetStorageConfiguration</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">config</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">testDB</div><div class="operator">,</div> <div class="ident">dbCfg</div><div class="operator">.</div><div class="ident">PGDBName</div><div class="operator">)</div><div class="operator"></div>
 <div class="operator">}</div><div class="operator"></div>
 
 </code></pre></td>
