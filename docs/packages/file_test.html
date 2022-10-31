@@ -147,7 +147,6 @@ https://redhatinsights.github.io/insights-results-aggregator-exporter/packages/f
 </td>
 	<td class="code"><pre><code>
 <div class="keyword">import</div> <div class="operator">(</div>
-	<div class="literal">&#34;io/ioutil&#34;</div><div class="operator"></div>
 	<div class="literal">&#34;os&#34;</div><div class="operator"></div>
 	<div class="literal">&#34;testing&#34;</div><div class="operator"></div>
 
@@ -164,7 +163,7 @@ https://redhatinsights.github.io/insights-results-aggregator-exporter/packages/f
 that will be cleaned up after tests</p>
 </td>
 	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">mustCreateTemporaryDirectory</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="ident">string</div> <div class="operator">{</div>
-	<div class="ident">directory</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">ioutil</div><div class="operator">.</div><div class="ident">TempDir</div><div class="operator">(</div><div class="ident">os</div><div class="operator">.</div><div class="ident">TempDir</div><div class="operator">(</div><div class="operator">)</div><div class="operator">,</div> <div class="literal">&#34;exporter&#34;</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">directory</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">os</div><div class="operator">.</div><div class="ident">MkdirTemp</div><div class="operator">(</div><div class="ident">os</div><div class="operator">.</div><div class="ident">TempDir</div><div class="operator">(</div><div class="operator">)</div><div class="operator">,</div> <div class="literal">&#34;exporter&#34;</div><div class="operator">)</div><div class="operator"></div>
 	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
 		<div class="ident">t</div><div class="operator">.</div><div class="ident">Fatal</div><div class="operator">(</div><div class="ident">err</div><div class="operator">)</div><div class="operator"></div>
 	<div class="operator">}</div><div class="operator"></div>
@@ -180,7 +179,7 @@ that will be cleaned up after tests</p>
 content as a string</p>
 </td>
 	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">mustReadFile</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">,</div> <div class="ident">filename</div> <div class="ident">string</div><div class="operator">)</div> <div class="ident">string</div> <div class="operator">{</div>
-	<div class="ident">fileContent</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">ioutil</div><div class="operator">.</div><div class="ident">ReadFile</div><div class="operator">(</div><div class="ident">filename</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">fileContent</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">os</div><div class="operator">.</div><div class="ident">ReadFile</div><div class="operator">(</div><div class="ident">filename</div><div class="operator">)</div><div class="operator"></div>
 	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
 		<div class="ident">t</div><div class="operator">.</div><div class="ident">Fatal</div><div class="operator">(</div><div class="ident">err</div><div class="operator">)</div><div class="operator"></div>
 	<div class="operator">}</div><div class="operator"></div>
@@ -192,9 +191,22 @@ content as a string</p>
       </tr>
       
       <tr class="section">
+	<td class="doc"><p>mustDeleteFile helper function tries to delete specified file</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">mustDeleteFile</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">,</div> <div class="ident">filename</div> <div class="ident">string</div><div class="operator">)</div> <div class="operator">{</div>
+	<div class="ident">err</div> <div class="operator">:=</div> <div class="ident">os</div><div class="operator">.</div><div class="ident">Remove</div><div class="operator">(</div><div class="ident">filename</div><div class="operator">)</div><div class="operator"></div>
+	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
+		<div class="ident">t</div><div class="operator">.</div><div class="ident">Fatal</div><div class="operator">(</div><div class="ident">err</div><div class="operator">)</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
 	<td class="doc"><p>checkFileContent helper function checks if file has the expected content</p>
 </td>
-	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">checkFileContent</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">,</div> <div class="ident">filename</div> <div class="ident">string</div><div class="operator">,</div> <div class="ident">expected</div> <div class="ident">string</div><div class="operator">)</div> <div class="operator">{</div>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">checkFileContent</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">,</div> <div class="ident">filename</div><div class="operator">,</div> <div class="ident">expected</div> <div class="ident">string</div><div class="operator">)</div> <div class="operator">{</div>
 	<div class="ident">content</div> <div class="operator">:=</div> <div class="ident">mustReadFile</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">filename</div><div class="operator">)</div><div class="operator"></div>
 	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">expected</div><div class="operator">,</div> <div class="ident">content</div><div class="operator">)</div><div class="operator"></div>
 <div class="operator">}</div><div class="operator"></div>
@@ -269,6 +281,14 @@ list of tables is pass into the storeDisabledRulesIntoFile function</p>
 </td>
 	<td class="code"><pre><code>	<div class="ident">expected</div> <div class="operator">:=</div> <div class="literal">&#34;Table name\n&#34;</div><div class="operator"></div>
 	<div class="ident">checkFileContent</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">filename</div><div class="operator">,</div> <div class="ident">expected</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>delete temporary file</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">mustDeleteFile</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">filename</div><div class="operator">)</div><div class="operator"></div>
 <div class="operator">}</div><div class="operator"></div>
 
 </code></pre></td>
@@ -315,6 +335,14 @@ storeDisabledRulesIntoFile function</p>
 </td>
 	<td class="code"><pre><code>	<div class="keyword">const</div> <div class="ident">expected</div> <div class="operator">=</div> <div class="literal">&#34;Table name\nfirst\nsecond\n&#34;</div><div class="operator"></div>
 	<div class="ident">checkFileContent</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">filename</div><div class="operator">,</div> <div class="ident">expected</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>delete temporary file</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">mustDeleteFile</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">filename</div><div class="operator">)</div><div class="operator"></div>
 <div class="operator">}</div><div class="operator"></div>
 
 </code></pre></td>
@@ -373,6 +401,14 @@ list of disabled rules is pass into the storeDisabledRulesIntoFile function</p>
 </td>
 	<td class="code"><pre><code>	<div class="ident">expected</div> <div class="operator">:=</div> <div class="literal">&#34;Rule,Count\n&#34;</div><div class="operator"></div>
 	<div class="ident">checkFileContent</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">filename</div><div class="operator">,</div> <div class="ident">expected</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>delete temporary file</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">mustDeleteFile</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">filename</div><div class="operator">)</div><div class="operator"></div>
 <div class="operator">}</div><div class="operator"></div>
 
 </code></pre></td>
@@ -388,9 +424,9 @@ storeDisabledRulesIntoFile function</p>
 
 	<div class="ident">filename</div> <div class="operator">:=</div> <div class="ident">directory</div> <div class="operator">&#43;</div> <div class="literal">&#34;disabled_rules.csv&#34;</div><div class="operator"></div>
 	<div class="ident">disabledRules</div> <div class="operator">:=</div> <div class="operator">[</div><div class="operator">]</div><div class="ident">main</div><div class="operator">.</div><div class="ident">DisabledRuleInfo</div><div class="operator">{</div>
-		<div class="ident">main</div><div class="operator">.</div><div class="ident">DisabledRuleInfo</div><div class="operator">{</div><div class="literal">&#34;first&#34;</div><div class="operator">,</div> <div class="literal">1</div><div class="operator">}</div><div class="operator">,</div>
-		<div class="ident">main</div><div class="operator">.</div><div class="ident">DisabledRuleInfo</div><div class="operator">{</div><div class="literal">&#34;second&#34;</div><div class="operator">,</div> <div class="literal">2</div><div class="operator">}</div><div class="operator">,</div>
-		<div class="ident">main</div><div class="operator">.</div><div class="ident">DisabledRuleInfo</div><div class="operator">{</div><div class="literal">&#34;third&#34;</div><div class="operator">,</div> <div class="literal">3</div><div class="operator">}</div><div class="operator">,</div>
+		<div class="operator">{</div><div class="literal">&#34;first&#34;</div><div class="operator">,</div> <div class="literal">1</div><div class="operator">}</div><div class="operator">,</div>
+		<div class="operator">{</div><div class="literal">&#34;second&#34;</div><div class="operator">,</div> <div class="literal">2</div><div class="operator">}</div><div class="operator">,</div>
+		<div class="operator">{</div><div class="literal">&#34;third&#34;</div><div class="operator">,</div> <div class="literal">3</div><div class="operator">}</div><div class="operator">,</div>
 	<div class="operator">}</div><div class="operator"></div>
 
 </code></pre></td>
@@ -420,6 +456,14 @@ storeDisabledRulesIntoFile function</p>
 </td>
 	<td class="code"><pre><code>	<div class="ident">expected</div> <div class="operator">:=</div> <div class="literal">&#34;Rule,Count\nfirst,1\nsecond,2\nthird,3\n&#34;</div><div class="operator"></div>
 	<div class="ident">checkFileContent</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">filename</div><div class="operator">,</div> <div class="ident">expected</div><div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>delete temporary file</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">mustDeleteFile</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">filename</div><div class="operator">)</div><div class="operator"></div>
 <div class="operator">}</div><div class="operator"></div>
 
 </code></pre></td>

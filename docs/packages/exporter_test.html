@@ -167,7 +167,7 @@ https://redhatinsights.github.io/insights-results-aggregator-exporter/packages/e
 <div class="operator">)</div><div class="operator"></div>
 
 <div class="keyword">const</div> <div class="operator">(</div>
-	<div class="ident">expectedVersionMessage</div>        <div class="operator">=</div> <div class="literal">&#34;Insights Results Aggregator Cleaner version 1.0&#34;</div><div class="operator"></div>
+	<div class="ident">expectedVersionMessage</div>        <div class="operator">=</div> <div class="literal">&#34;Insights Results Aggregator Exporter version 1.0&#34;</div><div class="operator"></div>
 	<div class="ident">expectedAuthorsMessage</div>        <div class="operator">=</div> <div class="literal">&#34;Pavel Tisnovsky&#34;</div><div class="operator"></div>
 	<div class="ident">expectedCopyrightMessage</div>      <div class="operator">=</div> <div class="literal">&#34;Red Hat Inc.&#34;</div><div class="operator"></div>
 	<div class="ident">expectedConfigurationMessage1</div> <div class="operator">=</div> <div class="literal">&#34;Driver&#34;</div><div class="operator"></div>
@@ -755,6 +755,50 @@ but DB connection is specified</p>
 	<td class="code"><pre><code>	<div class="ident">code</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">PerformDataExport</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">configuration</div><div class="operator">,</div> <div class="ident">cliFlags</div><div class="operator">,</div> <div class="ident">log</div><div class="operator">.</div><div class="ident">Logger</div><div class="operator">)</div><div class="operator"></div>
 	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">code</div><div class="operator">,</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">ExitStatusStorageError</div><div class="operator">)</div><div class="operator"></div>
 	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Error</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>TestConstructIgnoreTableMapEmptyInput checks the function
+constructIgnoredTablesMap for empty input.</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">TestConstructIgnoreTableMapEmptyInput</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+	<div class="ident">m</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">ConstructIgnoredTablesMap</div><div class="operator">(</div><div class="literal">&#34;&#34;</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Len</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">m</div><div class="operator">,</div> <div class="literal">0</div><div class="operator">,</div> <div class="literal">&#34;Empty map should be returned&#34;</div><div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>TestConstructIgnoreTableMapOneTable checks the function
+constructIgnoredTablesMap for input with one table only.</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">TestConstructIgnoreTableMapOneTable</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+	<div class="ident">m</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">ConstructIgnoredTablesMap</div><div class="operator">(</div><div class="literal">&#34;table_name&#34;</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Len</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">m</div><div class="operator">,</div> <div class="literal">1</div><div class="operator">,</div> <div class="literal">&#34;Map with one item should be returned&#34;</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Contains</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">m</div><div class="operator">,</div> <div class="literal">&#34;table_name&#34;</div><div class="operator">,</div> <div class="literal">&#34;Table name should be added into a map&#34;</div><div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>TestConstructIgnoreTableMapTwoTables checks the function
+constructIgnoredTablesMap for input with two tables</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">TestConstructIgnoreTableMapTwoTables</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+	<div class="ident">m</div> <div class="operator">:=</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">ConstructIgnoredTablesMap</div><div class="operator">(</div><div class="literal">&#34;table1,table2&#34;</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Len</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">m</div><div class="operator">,</div> <div class="literal">2</div><div class="operator">,</div> <div class="literal">&#34;Map with two items should be returned&#34;</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Contains</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">m</div><div class="operator">,</div> <div class="literal">&#34;table1&#34;</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Contains</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">m</div><div class="operator">,</div> <div class="literal">&#34;table2&#34;</div><div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+<div class="keyword">func</div> <div class="ident">TestSetObjectPrefix</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="literal">&#34;test/bucket&#34;</div><div class="operator">,</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">SetObjectPrefix</div><div class="operator">(</div><div class="literal">&#34;test&#34;</div><div class="operator">,</div> <div class="literal">&#34;bucket&#34;</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="literal">&#34;bucket&#34;</div><div class="operator">,</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">SetObjectPrefix</div><div class="operator">(</div><div class="literal">&#34;&#34;</div><div class="operator">,</div> <div class="literal">&#34;bucket&#34;</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
 <div class="operator">}</div><div class="operator"></div>
 
 </code></pre></td>

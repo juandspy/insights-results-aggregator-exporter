@@ -198,19 +198,19 @@ client or make the test fail</p>
 	<td class="doc"><p>all test cases</p>
 </td>
 	<td class="code"><pre><code>	<div class="ident">testCases</div> <div class="operator">:=</div> <div class="operator">[</div><div class="operator">]</div><div class="ident">newS3ConnectionTestSpecification</div><div class="operator">{</div>
-		<div class="ident">newS3ConnectionTestSpecification</div><div class="operator">{</div>
+		<div class="operator">{</div>
 			<div class="ident">description</div><div class="operator">:</div>   <div class="literal">&#34;nilConfiguration&#34;</div><div class="operator">,</div>
 			<div class="ident">configuration</div><div class="operator">:</div> <div class="ident">nil</div><div class="operator">,</div>
 			<div class="ident">shouldFail</div><div class="operator">:</div>    <div class="ident">true</div><div class="operator">,</div>
 			<div class="ident">expectedError</div><div class="operator">:</div> <div class="literal">&#34;Configuration is nil&#34;</div><div class="operator">,</div>
 		<div class="operator">}</div><div class="operator">,</div>
-		<div class="ident">newS3ConnectionTestSpecification</div><div class="operator">{</div>
+		<div class="operator">{</div>
 			<div class="ident">description</div><div class="operator">:</div>   <div class="literal">&#34;emptyConfiguration&#34;</div><div class="operator">,</div>
 			<div class="ident">configuration</div><div class="operator">:</div> <div class="operator">&amp;</div><div class="ident">main</div><div class="operator">.</div><div class="ident">ConfigStruct</div><div class="operator">{</div><div class="operator">}</div><div class="operator">,</div>
 			<div class="ident">shouldFail</div><div class="operator">:</div>    <div class="ident">true</div><div class="operator">,</div>
-			<div class="ident">expectedError</div><div class="operator">:</div> <div class="literal">&#34;Endpoint: :0 does not follow ip address or domain name standards.&#34;</div><div class="operator">,</div>
+			<div class="ident">expectedError</div><div class="operator">:</div> <div class="literal">&#34;Endpoint:  does not follow ip address or domain name standards.&#34;</div><div class="operator">,</div>
 		<div class="operator">}</div><div class="operator">,</div>
-		<div class="ident">newS3ConnectionTestSpecification</div><div class="operator">{</div>
+		<div class="operator">{</div>
 			<div class="ident">description</div><div class="operator">:</div> <div class="literal">&#34;wrongConfiguration&#34;</div><div class="operator">,</div>
 			<div class="ident">configuration</div><div class="operator">:</div> <div class="operator">&amp;</div><div class="ident">main</div><div class="operator">.</div><div class="ident">ConfigStruct</div><div class="operator">{</div>
 				<div class="ident">S3</div><div class="operator">:</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">S3Configuration</div><div class="operator">{</div>
@@ -225,7 +225,7 @@ client or make the test fail</p>
 			<div class="ident">shouldFail</div><div class="operator">:</div>    <div class="ident">true</div><div class="operator">,</div>
 			<div class="ident">expectedError</div><div class="operator">:</div> <div class="literal">&#34;Endpoint: :1234 does not follow ip address or domain name standards.&#34;</div><div class="operator">,</div>
 		<div class="operator">}</div><div class="operator">,</div>
-		<div class="ident">newS3ConnectionTestSpecification</div><div class="operator">{</div>
+		<div class="operator">{</div>
 			<div class="ident">description</div><div class="operator">:</div> <div class="literal">&#34;correctConfiguration&#34;</div><div class="operator">,</div>
 			<div class="ident">configuration</div><div class="operator">:</div> <div class="operator">&amp;</div><div class="ident">main</div><div class="operator">.</div><div class="ident">ConfigStruct</div><div class="operator">{</div>
 				<div class="ident">S3</div><div class="operator">:</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">S3Configuration</div><div class="operator">{</div>
@@ -321,21 +321,21 @@ should not be returned</p>
 	<td class="doc"><p>all test cases</p>
 </td>
 	<td class="code"><pre><code>	<div class="ident">testCases</div> <div class="operator">:=</div> <div class="operator">[</div><div class="operator">]</div><div class="ident">s3BucketExistsTestSpecification</div><div class="operator">{</div>
-		<div class="ident">s3BucketExistsTestSpecification</div><div class="operator">{</div>
+		<div class="operator">{</div>
 			<div class="ident">description</div><div class="operator">:</div>   <div class="literal">&#34;NoMinioClient&#34;</div><div class="operator">,</div>
 			<div class="ident">minioClient</div><div class="operator">:</div>   <div class="ident">nil</div><div class="operator">,</div>
 			<div class="ident">bucketName</div><div class="operator">:</div>    <div class="literal">&#34;&#34;</div><div class="operator">,</div>
 			<div class="ident">shouldFail</div><div class="operator">:</div>    <div class="ident">true</div><div class="operator">,</div>
 			<div class="ident">expectedError</div><div class="operator">:</div> <div class="literal">&#34;Minio Client is nil&#34;</div><div class="operator">,</div>
 		<div class="operator">}</div><div class="operator">,</div>
-		<div class="ident">s3BucketExistsTestSpecification</div><div class="operator">{</div>
+		<div class="operator">{</div>
 			<div class="ident">description</div><div class="operator">:</div>   <div class="literal">&#34;EmptyBucketName&#34;</div><div class="operator">,</div>
 			<div class="ident">minioClient</div><div class="operator">:</div>   <div class="ident">mustConstructMinioClient</div><div class="operator">(</div><div class="ident">t</div><div class="operator">)</div><div class="operator">,</div>
 			<div class="ident">bucketName</div><div class="operator">:</div>    <div class="literal">&#34;&#34;</div><div class="operator">,</div>
 			<div class="ident">shouldFail</div><div class="operator">:</div>    <div class="ident">true</div><div class="operator">,</div>
 			<div class="ident">expectedError</div><div class="operator">:</div> <div class="literal">&#34;Bucket name is not set&#34;</div><div class="operator">,</div>
 		<div class="operator">}</div><div class="operator">,</div>
-		<div class="ident">s3BucketExistsTestSpecification</div><div class="operator">{</div>
+		<div class="operator">{</div>
 			<div class="ident">description</div><div class="operator">:</div>   <div class="literal">&#34;NotAccessibleClient&#34;</div><div class="operator">,</div>
 			<div class="ident">minioClient</div><div class="operator">:</div>   <div class="ident">mustConstructMinioClient</div><div class="operator">(</div><div class="ident">t</div><div class="operator">)</div><div class="operator">,</div>
 			<div class="ident">bucketName</div><div class="operator">:</div>    <div class="literal">&#34;bucket&#34;</div><div class="operator">,</div>
@@ -404,7 +404,7 @@ should not be returned</p>
 	<td class="doc"><p>all test cases</p>
 </td>
 	<td class="code"><pre><code>	<div class="ident">testCases</div> <div class="operator">:=</div> <div class="operator">[</div><div class="operator">]</div><div class="ident">storeTableTestSpecification</div><div class="operator">{</div>
-		<div class="ident">storeTableTestSpecification</div><div class="operator">{</div>
+		<div class="operator">{</div>
 			<div class="ident">description</div><div class="operator">:</div>   <div class="literal">&#34;NoMinioClient&#34;</div><div class="operator">,</div>
 			<div class="ident">minioClient</div><div class="operator">:</div>   <div class="ident">nil</div><div class="operator">,</div>
 			<div class="ident">bucketName</div><div class="operator">:</div>    <div class="literal">&#34;&#34;</div><div class="operator">,</div>
@@ -413,7 +413,7 @@ should not be returned</p>
 			<div class="ident">shouldFail</div><div class="operator">:</div>    <div class="ident">true</div><div class="operator">,</div>
 			<div class="ident">expectedError</div><div class="operator">:</div> <div class="literal">&#34;Minio Client is nil&#34;</div><div class="operator">,</div>
 		<div class="operator">}</div><div class="operator">,</div>
-		<div class="ident">storeTableTestSpecification</div><div class="operator">{</div>
+		<div class="operator">{</div>
 			<div class="ident">description</div><div class="operator">:</div>   <div class="literal">&#34;EmptyBucketName&#34;</div><div class="operator">,</div>
 			<div class="ident">minioClient</div><div class="operator">:</div>   <div class="ident">mustConstructMinioClient</div><div class="operator">(</div><div class="ident">t</div><div class="operator">)</div><div class="operator">,</div>
 			<div class="ident">bucketName</div><div class="operator">:</div>    <div class="literal">&#34;&#34;</div><div class="operator">,</div>
@@ -422,7 +422,7 @@ should not be returned</p>
 			<div class="ident">shouldFail</div><div class="operator">:</div>    <div class="ident">true</div><div class="operator">,</div>
 			<div class="ident">expectedError</div><div class="operator">:</div> <div class="literal">&#34;Bucket name is not set&#34;</div><div class="operator">,</div>
 		<div class="operator">}</div><div class="operator">,</div>
-		<div class="ident">storeTableTestSpecification</div><div class="operator">{</div>
+		<div class="operator">{</div>
 			<div class="ident">description</div><div class="operator">:</div>   <div class="literal">&#34;EmptyObjectName&#34;</div><div class="operator">,</div>
 			<div class="ident">minioClient</div><div class="operator">:</div>   <div class="ident">mustConstructMinioClient</div><div class="operator">(</div><div class="ident">t</div><div class="operator">)</div><div class="operator">,</div>
 			<div class="ident">bucketName</div><div class="operator">:</div>    <div class="literal">&#34;bucket&#34;</div><div class="operator">,</div>
@@ -431,7 +431,7 @@ should not be returned</p>
 			<div class="ident">shouldFail</div><div class="operator">:</div>    <div class="ident">true</div><div class="operator">,</div>
 			<div class="ident">expectedError</div><div class="operator">:</div> <div class="literal">&#34;Object name is not set&#34;</div><div class="operator">,</div>
 		<div class="operator">}</div><div class="operator">,</div>
-		<div class="ident">storeTableTestSpecification</div><div class="operator">{</div>
+		<div class="operator">{</div>
 			<div class="ident">description</div><div class="operator">:</div>   <div class="literal">&#34;NotAccessibleClient&#34;</div><div class="operator">,</div>
 			<div class="ident">minioClient</div><div class="operator">:</div>   <div class="ident">mustConstructMinioClient</div><div class="operator">(</div><div class="ident">t</div><div class="operator">)</div><div class="operator">,</div>
 			<div class="ident">bucketName</div><div class="operator">:</div>    <div class="literal">&#34;bucket&#34;</div><div class="operator">,</div>
@@ -440,7 +440,7 @@ should not be returned</p>
 			<div class="ident">shouldFail</div><div class="operator">:</div>    <div class="ident">true</div><div class="operator">,</div>
 			<div class="ident">expectedError</div><div class="operator">:</div> <div class="literal">&#34;connect: connection refused&#34;</div><div class="operator">,</div>
 		<div class="operator">}</div><div class="operator">,</div>
-		<div class="ident">storeTableTestSpecification</div><div class="operator">{</div>
+		<div class="operator">{</div>
 			<div class="ident">description</div><div class="operator">:</div>   <div class="literal">&#34;NotAccessibleClient&#34;</div><div class="operator">,</div>
 			<div class="ident">minioClient</div><div class="operator">:</div>   <div class="ident">mustConstructMinioClient</div><div class="operator">(</div><div class="ident">t</div><div class="operator">)</div><div class="operator">,</div>
 			<div class="ident">bucketName</div><div class="operator">:</div>    <div class="literal">&#34;bucket&#34;</div><div class="operator">,</div>
