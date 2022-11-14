@@ -140,6 +140,7 @@ style                Run all the formatting related commands (fmt, vet, lint, cy
 run                  Build the project and executes the binary
 test                 Run the unit tests
 before_commit        Checks done before commit
+function_list        List all functions in generated binary file
 help                 Show this help screen
 ```
 
