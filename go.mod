@@ -12,6 +12,7 @@ require (
 	github.com/mattn/go-sqlite3 v2.0.3+incompatible
 	github.com/microcosm-cc/bluemonday v1.0.21 // indirect
 	github.com/minio/minio-go/v7 v7.0.12
+	github.com/prometheus/client_golang v1.14.0 // indirect
 	github.com/redhatinsights/app-common-go v1.5.1
 	github.com/rs/zerolog v1.26.1
 	github.com/spf13/afero v1.6.0 // indirect
