@@ -13,11 +13,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# to run this script, you need to have bonfire and oc set up correctly and be logged in to the ephemeral cluster.
+# put the exported .csv files into a ./testdata path, the rest will be done automatically
+# see the docs on how to login to the eph. cluster https://ccx.pages.redhat.com/ccx-docs/docs/processing/howto/ephemeral_env/
+
 GREEN_BG=$(tput setab 2)
 NC=$(tput sgr0) # No Color
 
-# to run this script, you need to have bonfire and oc set up correctly and be logged in to the ephemeral cluster
-# see the docs on how to login to the eph. cluster https://ccx.pages.redhat.com/ccx-docs/docs/processing/howto/ephemeral_env/
 APP_NAME="ccx-data-pipeline" 
 REF_ENV="insights-production"
 TESTDATA_PATH="testdata"
@@ -58,7 +60,7 @@ function copy_testdata() {
 
 function generate_import_script() {
    # generate import script in correct order
-   FILENAME=(${TESTDATA_PATH}/import.sql)
+   FILENAME="${TESTDATA_PATH}/import.sql"
 
    # connect to DB
    echo "\c ${APP_NAME};" > ${FILENAME}
