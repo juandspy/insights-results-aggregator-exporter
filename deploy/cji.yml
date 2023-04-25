@@ -33,9 +33,9 @@ objects:
       app: ccx-results-exporter
     name: ${DB_NAME}-job-launcher-${CJI_RANDOM_SUFFIX}
   spec:
-    appName: exporter-${DB_NAME}
+    appName: exporter
     jobs:
-      - instance
+      - ${DB_NAME}-instance
 
 parameters:
 - name: CLOWDER_ENABLED
