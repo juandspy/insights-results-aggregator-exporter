@@ -21,7 +21,7 @@ objects:
 - apiVersion: cloud.redhat.com/v1alpha1
   kind: ClowdApp
   metadata:
-    name: exporter-${DB_NAME}
+    name: exporter
   spec:
     envName: ${ENV_NAME}
     dependencies:
@@ -30,7 +30,7 @@ objects:
     testing:
       iqePlugin: ccx
     jobs:
-    - name: instance
+    - name: ${DB_NAME}-instance
       parallelism: 1
       completions: 1
       activeDeadlineSeconds: ${{ACTIVE_DEADLINE_SECONDS}}
