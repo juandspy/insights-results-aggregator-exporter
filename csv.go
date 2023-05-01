@@ -25,6 +25,7 @@ package main
 import (
 	"encoding/csv"
 	"errors"
+	"fmt"
 	"io"
 	"strconv"
 
@@ -110,4 +111,35 @@ func TableMetadataToCSV(buffer io.Writer, tableNames []TableName, storage DBStor
 	}
 
 	return nil
+}
+
+// LoadOrgIDsFromCSV creates a new CSV reader and returns a list of
+// organization IDs
+func LoadOrgIDsFromCSV(r io.Reader) ([]string, error) {
+	orgIDs := make([]string, 0)
+
+	reader := csv.NewReader(r)
+
+	lines, err := reader.ReadAll()
+	if err != nil {
+		return nil, fmt.Errorf("error reading CSV file: %v", err)
+	}
+
+	for index, line := range lines {
+		if index == 0 {
+			continue // skip header
+		}
+
+		orgID, err := strconv.ParseUint(line[0], 10, 64)
+		if err != nil {
+			return nil, fmt.Errorf(
+				"organization ID on line %v in CSV is not numerical. Found value: %v",
+				index+1, line[0],
+			)
+		}
+
+		orgIDs = append(orgIDs, fmt.Sprintf("%d", orgID))
+	}
+
+	return orgIDs, nil
 }
