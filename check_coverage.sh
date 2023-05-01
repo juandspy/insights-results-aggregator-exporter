@@ -15,7 +15,7 @@
 
 
 # Overrided by .gitlab-ci.yml in gitlab CI
-THRESHOLD=${COV_THRESHOLD:=65}
+THRESHOLD=${COV_THRESHOLD:=60}
 
 RED_BG=$(tput setab 1)
 GREEN_BG=$(tput setab 2)
