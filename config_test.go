@@ -24,6 +24,7 @@ package main_test
 
 import (
 	"os"
+	"strings"
 
 	"testing"
 
@@ -108,6 +109,8 @@ func TestLoadingConfigurationEnvVariableBadValueDefaultConfigFailure(t *testing.
 
 // TestLoadStorageConfiguration tests loading the storage configuration sub-tree
 func TestLoadStorageConfiguration(t *testing.T) {
+	os.Clearenv()
+
 	envVar := "INSIGHTS_RESULTS_AGGREGATOR_EXPORTER_CONFIG_FILE"
 	mustSetEnv(t, envVar, "tests/config2")
 	config, err := main.LoadConfiguration(envVar, "")
@@ -123,6 +126,77 @@ func TestLoadStorageConfiguration(t *testing.T) {
 	assert.Equal(t, "notifications", storageCfg.PGDBName)
 	assert.Equal(t, "", storageCfg.PGParams)
 	assert.Equal(t, true, storageCfg.LogSQLQueries)
+	assert.Equal(t, false, storageCfg.EnableOrgIDFiltering)
+	assert.Equal(t, "./tests/db_exporter_organization_ids.csv", storageCfg.OrganizationIDsCSVFile)
+}
+
+// TestGetOrganizationsToExportNonExistentFile tests loading the org_ids for selective export with non-existent file
+func TestGetOrganizationsToExportNonExistentFile(t *testing.T) {
+	os.Clearenv()
+
+	envVar := "INSIGHTS_RESULTS_AGGREGATOR_EXPORTER_CONFIG_FILE"
+	mustSetEnv(t, envVar, "tests/config2")
+	mustSetEnv(t, "INSIGHTS_RESULTS_AGGREGATOR_EXPORTER__STORAGE__ENABLE_ORG_ID_FILTERING", "true")
+	mustSetEnv(t, "INSIGHTS_RESULTS_AGGREGATOR_EXPORTER__STORAGE__ORGANIZATION_IDS_CSV_FILE", "non-existent file")
+	config, err := main.LoadConfiguration(envVar, "")
+	assert.Nil(t, err, "Failed loading configuration file from env var!")
+
+	_, err = main.GetOrganizationsToExport(&config)
+	assert.Error(t, err)
+}
+
+// TestGetOrganizationsToExportNoFilePath tests loading the org_ids for selective export with no path defined
+func TestGetOrganizationsToExportNoFilePath(t *testing.T) {
+	os.Clearenv()
+
+	envVar := "INSIGHTS_RESULTS_AGGREGATOR_EXPORTER_CONFIG_FILE"
+	mustSetEnv(t, envVar, "tests/config1")
+	mustSetEnv(t, "INSIGHTS_RESULTS_AGGREGATOR_EXPORTER__STORAGE__ENABLE_ORG_ID_FILTERING", "true")
+	mustSetEnv(t, "INSIGHTS_RESULTS_AGGREGATOR_EXPORTER__STORAGE__ORGANIZATION_IDS_CSV_FILE", "")
+	config, err := main.LoadConfiguration(envVar, "")
+	assert.Nil(t, err, "Failed loading configuration file from env var!")
+
+	_, err = main.GetOrganizationsToExport(&config)
+	assert.Error(t, err)
+}
+
+// TestGetOrganizationsToExportBadCSV tests loading the org_ids for selective export with improper CSV format
+func TestGetOrganizationsToExportBadCSV(t *testing.T) {
+	os.Clearenv()
+
+	envVar := "INSIGHTS_RESULTS_AGGREGATOR_EXPORTER_CONFIG_FILE"
+	mustSetEnv(t, envVar, "tests/config1")
+	mustSetEnv(t, "INSIGHTS_RESULTS_AGGREGATOR_EXPORTER__STORAGE__ENABLE_ORG_ID_FILTERING", "true")
+	mustSetEnv(t, "INSIGHTS_RESULTS_AGGREGATOR_EXPORTER__STORAGE__ORGANIZATION_IDS_CSV_FILE", "./tests/db_exporter_organization_ids_bad.csv")
+	config, err := main.LoadConfiguration(envVar, "")
+	assert.Nil(t, err, "Failed loading configuration file from env var!")
+
+	_, err = main.GetOrganizationsToExport(&config)
+	assert.Error(t, err)
+}
+
+func TestLoadStorageConfigurationSelectiveExport(t *testing.T) {
+	os.Clearenv()
+
+	envVar := "INSIGHTS_RESULTS_AGGREGATOR_EXPORTER_CONFIG_FILE"
+	mustSetEnv(t, envVar, "tests/config2")
+	mustSetEnv(t, "INSIGHTS_RESULTS_AGGREGATOR_EXPORTER__STORAGE__ENABLE_ORG_ID_FILTERING", "true")
+	config, err := main.LoadConfiguration(envVar, "")
+	assert.Nil(t, err, "Failed loading configuration file from env var!")
+
+	storageCfg := main.GetStorageConfiguration(&config)
+
+	assert.Equal(t, "sqlite3", storageCfg.Driver)
+	assert.Equal(t, "user", storageCfg.PGUsername)
+	assert.Equal(t, "password", storageCfg.PGPassword)
+	assert.Equal(t, "localhost", storageCfg.PGHost)
+	assert.Equal(t, 5432, storageCfg.PGPort)
+	assert.Equal(t, "notifications", storageCfg.PGDBName)
+	assert.Equal(t, "", storageCfg.PGParams)
+	assert.Equal(t, true, storageCfg.LogSQLQueries)
+	assert.Equal(t, true, storageCfg.EnableOrgIDFiltering)
+	assert.Equal(t, "./tests/db_exporter_organization_ids.csv", storageCfg.OrganizationIDsCSVFile)
+	assert.ElementsMatch(t, []string{"1", "42"}, storageCfg.OrganizationsToExport)
 }
 
 // TestLoadLoggingConfiguration tests loading the logging configuration sub-tree
@@ -184,4 +258,26 @@ func TestLoadConfigurationFromEnvVariableClowderEnabled(t *testing.T) {
 
 	dbCfg := main.GetStorageConfiguration(&config)
 	assert.Equal(t, testDB, dbCfg.PGDBName)
+}
+
+// TestLoadOrgIDsFromCSVExtraParam tests incorrect CSV format
+func TestLoadOrgIDsFromCSVExtraParam(t *testing.T) {
+	extraParamCSV := `OrgID
+1,2
+3
+`
+	r := strings.NewReader(extraParamCSV)
+	_, err := main.LoadOrgIDsFromCSV(r)
+	assert.EqualError(t, err, "error reading CSV file: record on line 2: wrong number of fields")
+}
+
+// TestLoadOrgIDsFromCSVNonInt tests non-integer ID in CSV
+func TestLoadOrgIDsFromCSVNonInt(t *testing.T) {
+	nonIntIDCSV := `OrgID
+str
+3
+`
+	r := strings.NewReader(nonIntIDCSV)
+	_, err := main.LoadOrgIDsFromCSV(r)
+	assert.EqualError(t, err, "organization ID on line 2 in CSV is not numerical. Found value: str")
 }
