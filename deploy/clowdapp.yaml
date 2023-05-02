@@ -53,14 +53,14 @@ objects:
             cpu: ${CPU_LIMIT}
             memory: ${MEMORY_LIMIT}
         volumeMounts:
-          - mountPath: /db-exporter-organization-ids
-            name: db-exporter-organization-ids
-            readOnly: true
-          volumes:
-          - name: /db-exporter-organization-ids
-            secret:
-              secretName: db-exporter-organization-ids
-              optional: true
+        - mountPath: /db-exporter-organization-ids
+          name: db-exporter-organization-ids
+          readOnly: true
+        volumes:
+        - name: /db-exporter-organization-ids
+          secret:
+            secretName: db-exporter-organization-ids
+            optional: true
         env:
         - name: ENV_NAME
           value: ${ENV_NAME}
