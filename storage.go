@@ -349,9 +349,7 @@ func selectAllFromTable(tableName TableName) string {
 func (storage DBStorage) ReadTable(tableName TableName, limit int) ([]M, error) {
 	sqlStatement := selectAllFromTable(tableName)
 
-	if storage.config.EnableOrgIDFiltering && selectiveExportAllowed(tableName) {
-		sqlStatement += fmt.Sprintf(whereOrgIDFilter, strings.Join(storage.config.OrganizationsToExport, ","))
-	}
+	storage.applySelectiveExport(&sqlStatement, tableName)
 
 	if limit > 0 {
 		sqlStatement += fmt.Sprintf(" LIMIT %d", limit)
@@ -516,9 +514,7 @@ func (storage DBStorage) StoreTableIntoFile(tableName TableName,
 func (storage DBStorage) ReadRecordsCount(tableName TableName) (int, error) {
 	sqlStatement := selectCountFromTable(tableName)
 
-	if storage.config.EnableOrgIDFiltering && selectiveExportAllowed(tableName) {
-		sqlStatement += fmt.Sprintf(whereOrgIDFilter, strings.Join(storage.config.OrganizationsToExport, ","))
-	}
+	storage.applySelectiveExport(&sqlStatement, tableName)
 
 	// try to query DB
 	row := storage.connection.QueryRow(sqlStatement)
@@ -713,4 +709,10 @@ func selectiveExportAllowed(tablename TableName) bool {
 		}
 	}
 	return false
+}
+
+func (storage DBStorage) applySelectiveExport(sqlStatement *string, tablename TableName) {
+	if storage.config.EnableOrgIDFiltering && selectiveExportAllowed(tablename) {
+		*sqlStatement += fmt.Sprintf(whereOrgIDFilter, strings.Join(storage.config.OrganizationsToExport, ","))
+	}
 }
