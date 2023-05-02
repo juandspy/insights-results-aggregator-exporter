@@ -8,6 +8,8 @@ pg_port = 5432
 pg_db_name = "notifications"
 pg_params = ""
 log_sql_queries = true
+enable_org_id_filtering = false
+organization_ids_csv_file = "./tests/db_exporter_organization_ids.csv"
 
 [s3]
 type = "minio"

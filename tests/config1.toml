@@ -8,6 +8,8 @@ pg_port = 5432
 pg_db_name = "aggregator"
 pg_params = ""
 log_sql_queries = true
+enable_org_id_filtering = false
+organization_ids_csv_file = ""
 
 [logging]
 debug = false

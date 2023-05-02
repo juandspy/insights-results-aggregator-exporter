@@ -79,6 +79,7 @@ package main
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"os"
 	"strings"
@@ -129,15 +130,18 @@ type LoggingConfiguration struct {
 // StorageConfiguration represents configuration of input data storage
 // (database)
 type StorageConfiguration struct {
-	Driver           string `mapstructure:"db_driver"         toml:"db_driver"`
-	SQLiteDataSource string `mapstructure:"sqlite_datasource" toml:"sqlite_datasource"`
-	PGUsername       string `mapstructure:"pg_username"       toml:"pg_username"`
-	PGPassword       string `mapstructure:"pg_password"       toml:"pg_password"`
-	PGHost           string `mapstructure:"pg_host"           toml:"pg_host"`
-	PGPort           int    `mapstructure:"pg_port"           toml:"pg_port"`
-	PGDBName         string `mapstructure:"pg_db_name"        toml:"pg_db_name"`
-	PGParams         string `mapstructure:"pg_params"         toml:"pg_params"`
-	LogSQLQueries    bool   `mapstructure:"log_sql_queries"   toml:"log_sql_queries"`
+	Driver                 string   `mapstructure:"db_driver"         toml:"db_driver"`
+	SQLiteDataSource       string   `mapstructure:"sqlite_datasource" toml:"sqlite_datasource"`
+	PGUsername             string   `mapstructure:"pg_username"       toml:"pg_username"`
+	PGPassword             string   `mapstructure:"pg_password"       toml:"pg_password"`
+	PGHost                 string   `mapstructure:"pg_host"           toml:"pg_host"`
+	PGPort                 int      `mapstructure:"pg_port"           toml:"pg_port"`
+	PGDBName               string   `mapstructure:"pg_db_name"        toml:"pg_db_name"`
+	PGParams               string   `mapstructure:"pg_params"         toml:"pg_params"`
+	LogSQLQueries          bool     `mapstructure:"log_sql_queries"   toml:"log_sql_queries"`
+	EnableOrgIDFiltering   bool     `mapstructure:"enable_org_id_filtering"   toml:"enable_org_id_filtering"`
+	OrganizationIDsCSVFile string   `mapstructure:"organization_ids_csv_file" toml:"organization_ids_csv_file"`
+	OrganizationsToExport  []string `mapstructure:"organizations_to_export" toml:"organizations_to_export"`
 }
 
 // S3Configuration represents configuration of S3/Minio data storage
@@ -236,6 +240,12 @@ func LoadConfiguration(configFileEnvVariableName, defaultConfigFile string) (Con
 
 // GetStorageConfiguration function returns storage configuration
 func GetStorageConfiguration(config *ConfigStruct) StorageConfiguration {
+	orgIDsToExport, err := GetOrganizationsToExport(config)
+	if err != nil {
+		log.Fatal().Msg("failed to load organization IDs to export")
+	}
+	config.Storage.OrganizationsToExport = orgIDsToExport
+
 	return config.Storage
 }
 
@@ -275,4 +285,35 @@ func updateConfigFromClowder(c *ConfigStruct) error {
 	}
 
 	return nil
+}
+
+// GetOrganizationsToExport retrieves org_id list from provided CSV file
+func GetOrganizationsToExport(config *ConfigStruct) ([]string, error) {
+	if !config.Storage.EnableOrgIDFiltering {
+		log.Info().Msg("Selective export based on org_ids disabled")
+		return nil, nil
+	}
+
+	if config.Storage.OrganizationIDsCSVFile == "" {
+		err := errors.New("Selective export based on org_ids enabled, but none supplied")
+		log.Error().Err(err)
+		return nil, err
+	}
+
+	organizationIDsData, err := os.ReadFile(config.Storage.OrganizationIDsCSVFile)
+	if err != nil {
+		err := errors.New("Organization IDs file could not be opened")
+		log.Error().Err(err)
+		return nil, err
+	}
+
+	organizationsToExport, err := LoadOrgIDsFromCSV(bytes.NewBuffer(organizationIDsData))
+	if err != nil {
+		err := errors.New("Organization IDs CSV file could not be processed")
+		log.Error().Err(err)
+		return nil, err
+	}
+
+	log.Info().Msgf("Selective export based on org_ids enabled. Exporting organizations: %v", organizationsToExport)
+	return organizationsToExport, nil
 }

@@ -37,6 +37,20 @@ import (
 
 const NO_LIMITS = -1
 
+var testConfig = main.StorageConfiguration{
+	Driver:                 "postgres",
+	PGUsername:             "user",
+	PGPassword:             "password",
+	PGHost:                 "nowhere",
+	PGPort:                 1234,
+	PGDBName:               "test",
+	PGParams:               "",
+	LogSQLQueries:          true,
+	EnableOrgIDFiltering:   false,
+	OrganizationIDsCSVFile: "",
+	OrganizationsToExport:  nil,
+}
+
 // TestNewStorage checks whether constructor for new storage returns error for improper storage configuration
 func TestNewStorageError(t *testing.T) {
 	_, err := main.NewStorage(&main.StorageConfiguration{
@@ -47,16 +61,7 @@ func TestNewStorageError(t *testing.T) {
 
 // TestNewStoragePostgreSQL function tests creating new storage with logs
 func TestNewStoragePostgreSQL(t *testing.T) {
-	_, err := main.NewStorage(&main.StorageConfiguration{
-		Driver:        "postgres",
-		PGUsername:    "user",
-		PGPassword:    "password",
-		PGHost:        "nowhere",
-		PGPort:        1234,
-		PGDBName:      "test",
-		PGParams:      "",
-		LogSQLQueries: true,
-	})
+	_, err := main.NewStorage(&testConfig)
 
 	// we just happen to make connection without trying to actually connect
 	assert.Nil(t, err)
@@ -157,7 +162,7 @@ func TestReadRecordCount(t *testing.T) {
 	mock.ExpectClose()
 
 	// prepare connection to mocked database
-	storage := main.NewFromConnection(connection, 1)
+	storage := main.NewFromConnection(connection, 1, &testConfig)
 
 	// call the tested method
 	count, err := storage.ReadRecordsCount("TESTED_TABLE")
@@ -189,7 +194,7 @@ func TestReadRecordCountScanError(t *testing.T) {
 	mock.ExpectClose()
 
 	// prepare connection to mocked database
-	storage := main.NewFromConnection(connection, 1)
+	storage := main.NewFromConnection(connection, 1, &testConfig)
 
 	// call the tested method
 	_, err := storage.ReadRecordsCount("TESTED_TABLE")
@@ -216,7 +221,7 @@ func TestReadRecordCountOnError(t *testing.T) {
 	mock.ExpectClose()
 
 	// prepare connection to mocked database
-	storage := main.NewFromConnection(connection, 1)
+	storage := main.NewFromConnection(connection, 1, &testConfig)
 
 	// call the tested method
 	count, err := storage.ReadRecordsCount("TESTED_TABLE")
@@ -225,6 +230,83 @@ func TestReadRecordCountOnError(t *testing.T) {
 	}
 
 	if count != -1 {
+		t.Errorf("wrong number records returned: %d", count)
+	}
+
+	// connection to mocked DB needs to be closed properly
+	checkConnectionClose(t, connection)
+
+	// check if all expectations were met
+	checkAllExpectations(t, mock)
+}
+
+// check the function ReadRecordCount with selective export enabled, but table isn't in the predefined list
+func TestReadRecordCountSelectiveExportDisallowedTable(t *testing.T) {
+	config := &testConfig
+	config.EnableOrgIDFiltering = true
+	config.OrganizationsToExport = []string{"1", "42"}
+
+	// prepare new mocked connection to database
+	connection, mock := mustCreateMockConnection(t)
+
+	// prepare mocked result for SQL query
+	rowsCount := sqlmock.NewRows([]string{"count"})
+	expected := 100
+	rowsCount.AddRow(expected)
+
+	// expected query performed by tested function
+	mock.ExpectQuery(readRecordCountQuery).WillReturnRows(rowsCount)
+	mock.ExpectClose()
+
+	// prepare connection to mocked database
+	storage := main.NewFromConnection(connection, 1, config)
+
+	// call the tested method
+	count, err := storage.ReadRecordsCount("TESTED_TABLE")
+	if err != nil {
+		t.Errorf("error was not expected %s", err)
+	}
+
+	if count != expected {
+		t.Errorf("wrong number records returned: %d", count)
+	}
+
+	// connection to mocked DB needs to be closed properly
+	checkConnectionClose(t, connection)
+
+	// check if all expectations were met
+	checkAllExpectations(t, mock)
+}
+
+// check the function ReadRecordCount with seletive export enabled
+func TestReadRecordCountSelectiveExportAllowedTable(t *testing.T) {
+	config := &testConfig
+	config.EnableOrgIDFiltering = true
+	config.OrganizationsToExport = []string{"1", "42"}
+
+	// prepare new mocked connection to database
+	connection, mock := mustCreateMockConnection(t)
+
+	// prepare mocked result for SQL query
+	rowsCount := sqlmock.NewRows([]string{"count"})
+	expected := 100
+	rowsCount.AddRow(expected)
+
+	expectedQuery := "SELECT count\\(\\*\\) FROM report WHERE org_id IN \\(1,42\\)"
+	// expected query performed by tested function
+	mock.ExpectQuery(expectedQuery).WillReturnRows(rowsCount)
+	mock.ExpectClose()
+
+	// prepare connection to mocked database
+	storage := main.NewFromConnection(connection, 1, config)
+
+	// call the tested method
+	count, err := storage.ReadRecordsCount("report")
+	if err != nil {
+		t.Errorf("error was not expected %s", err)
+	}
+
+	if count != expected {
 		t.Errorf("wrong number records returned: %d", count)
 	}
 
@@ -251,7 +333,7 @@ func TestReadListOfTables(t *testing.T) {
 	mock.ExpectClose()
 
 	// prepare connection to mocked database
-	storage := main.NewFromConnection(connection, 1)
+	storage := main.NewFromConnection(connection, 1, &testConfig)
 
 	// call the tested method
 	tableNames, err := storage.ReadListOfTables()
@@ -283,7 +365,7 @@ func TestReadListOfTablesOnError(t *testing.T) {
 	mock.ExpectClose()
 
 	// prepare connection to mocked database
-	storage := main.NewFromConnection(connection, 1)
+	storage := main.NewFromConnection(connection, 1, &testConfig)
 
 	// call the tested method
 	_, err := storage.ReadListOfTables()
@@ -314,7 +396,7 @@ func TestReadListOfTablesScanError(t *testing.T) {
 	mock.ExpectClose()
 
 	// prepare connection to mocked database
-	storage := main.NewFromConnection(connection, 1)
+	storage := main.NewFromConnection(connection, 1, &testConfig)
 
 	// call the tested method
 	_, err := storage.ReadListOfTables()
@@ -352,7 +434,7 @@ func TestReadTable(t *testing.T) {
 	mock.ExpectClose()
 
 	// prepare connection to mocked database
-	storage := main.NewFromConnection(connection, 1)
+	storage := main.NewFromConnection(connection, 1, &testConfig)
 
 	// call the tested method
 	values, err := storage.ReadTable("table_name", NO_LIMITS)
@@ -400,10 +482,160 @@ func TestReadTableWithLimits(t *testing.T) {
 	mock.ExpectClose()
 
 	// prepare connection to mocked database
-	storage := main.NewFromConnection(connection, 1)
+	storage := main.NewFromConnection(connection, 1, &testConfig)
 
 	// call the tested method
 	values, err := storage.ReadTable("table_name", 2)
+	if err != nil {
+		t.Errorf("error was not expected %s", err)
+	}
+
+	if len(values) != 2 {
+		t.Errorf("wrong number records returned: %d", len(values))
+	}
+
+	assert.Equal(t, values[0]["id"], int64(1))
+	assert.Equal(t, values[1]["id"], int64(2))
+	assert.Equal(t, values[0]["text"], "foo")
+	assert.Equal(t, values[1]["text"], "bar")
+
+	// connection to mocked DB needs to be closed properly
+	checkConnectionClose(t, connection)
+
+	// check if all expectations were met
+	checkAllExpectations(t, mock)
+}
+
+// check the function ReadTable with selective export enabled
+func TestReadTableWithSelectiveExportDisallowedTable(t *testing.T) {
+	config := &testConfig
+	config.EnableOrgIDFiltering = true
+	config.OrganizationsToExport = []string{"1", "42"}
+
+	// prepare new mocked connection to database
+	connection, mock := mustCreateMockConnection(t)
+
+	// prepare mocked result for SQL query
+	column1 := sqlmock.NewColumn("id").OfType("INT4", int64(0))
+	column2 := sqlmock.NewColumn("value").OfType("FLOAT64", float64(0.0))
+	column3 := sqlmock.NewColumn("text").OfType("VARCHAR", "")
+	column4 := sqlmock.NewColumn("valid").OfType("BOOL", false)
+
+	// columns of different types
+	rows := mock.NewRowsWithColumnDefinition(column1, column2, column3, column4)
+
+	rows.AddRow(1, 1.2, "foo", true)
+	rows.AddRow(2, 1.5, "bar", false)
+
+	// expected query performed by tested function
+	mock.ExpectQuery(readTableQuery).WillReturnRows(rows)
+	mock.ExpectClose()
+
+	// prepare connection to mocked database
+	storage := main.NewFromConnection(connection, 1, config)
+
+	// call the tested method, table name must be in predefined list
+	values, err := storage.ReadTable("table_name", NO_LIMITS)
+	if err != nil {
+		t.Errorf("error was not expected %s", err)
+	}
+
+	if len(values) != 2 {
+		t.Errorf("wrong number records returned: %d", len(values))
+	}
+
+	assert.Equal(t, values[0]["id"], int64(1))
+	assert.Equal(t, values[1]["id"], int64(2))
+	assert.Equal(t, values[0]["text"], "foo")
+	assert.Equal(t, values[1]["text"], "bar")
+
+	// connection to mocked DB needs to be closed properly
+	checkConnectionClose(t, connection)
+
+	// check if all expectations were met
+	checkAllExpectations(t, mock)
+}
+
+// check the function ReadTable with selective export enabled
+func TestReadTableWithSelectiveExportAllowedTable(t *testing.T) {
+	config := &testConfig
+	config.EnableOrgIDFiltering = true
+	config.OrganizationsToExport = []string{"1", "42"}
+
+	// prepare new mocked connection to database
+	connection, mock := mustCreateMockConnection(t)
+
+	// prepare mocked result for SQL query
+	column1 := sqlmock.NewColumn("id").OfType("INT4", int64(0))
+	column2 := sqlmock.NewColumn("value").OfType("FLOAT64", float64(0.0))
+	column3 := sqlmock.NewColumn("text").OfType("VARCHAR", "")
+	column4 := sqlmock.NewColumn("valid").OfType("BOOL", false)
+
+	// columns of different types
+	rows := mock.NewRowsWithColumnDefinition(column1, column2, column3, column4)
+
+	rows.AddRow(1, 1.2, "foo", true)
+	rows.AddRow(2, 1.5, "bar", false)
+
+	// expected query performed by tested function
+	mock.ExpectQuery("SELECT \\* FROM report WHERE org_id IN \\(1,42\\)").WillReturnRows(rows)
+	mock.ExpectClose()
+
+	// prepare connection to mocked database
+	storage := main.NewFromConnection(connection, 1, config)
+
+	// call the tested method, table name must be in predefined list
+	values, err := storage.ReadTable("report", NO_LIMITS)
+	if err != nil {
+		t.Errorf("error was not expected %s", err)
+	}
+
+	if len(values) != 2 {
+		t.Errorf("wrong number records returned: %d", len(values))
+	}
+
+	assert.Equal(t, values[0]["id"], int64(1))
+	assert.Equal(t, values[1]["id"], int64(2))
+	assert.Equal(t, values[0]["text"], "foo")
+	assert.Equal(t, values[1]["text"], "bar")
+
+	// connection to mocked DB needs to be closed properly
+	checkConnectionClose(t, connection)
+
+	// check if all expectations were met
+	checkAllExpectations(t, mock)
+}
+
+// check the function ReadTable with selective export enabled and LIMIT enabled
+func TestReadTableWithSelectiveExportAllowedTableWithLimits(t *testing.T) {
+	config := &testConfig
+	config.EnableOrgIDFiltering = true
+	config.OrganizationsToExport = []string{"1", "42"}
+
+	// prepare new mocked connection to database
+	connection, mock := mustCreateMockConnection(t)
+
+	// prepare mocked result for SQL query
+	column1 := sqlmock.NewColumn("id").OfType("INT4", int64(0))
+	column2 := sqlmock.NewColumn("value").OfType("FLOAT64", float64(0.0))
+	column3 := sqlmock.NewColumn("text").OfType("VARCHAR", "")
+	column4 := sqlmock.NewColumn("valid").OfType("BOOL", false)
+
+	// columns of different types
+	rows := mock.NewRowsWithColumnDefinition(column1, column2, column3, column4)
+
+	rows.AddRow(1, 1.2, "foo", true)
+	rows.AddRow(2, 1.5, "bar", false)
+
+	// expected query performed by tested function
+	mock.ExpectQuery("SELECT \\* FROM report WHERE org_id IN \\(1,42\\) LIMIT 2").WillReturnRows(rows)
+	mock.ExpectClose()
+
+	// prepare connection to mocked database
+	storage := main.NewFromConnection(connection, 1, config)
+
+	// call the tested method, table name must be in predefined list, limit == 2
+	values, err := storage.ReadTable("report", 2)
 	if err != nil {
 		t.Errorf("error was not expected %s", err)
 	}
@@ -437,7 +669,7 @@ func TestReadTableOnError(t *testing.T) {
 	mock.ExpectClose()
 
 	// prepare connection to mocked database
-	storage := main.NewFromConnection(connection, 1)
+	storage := main.NewFromConnection(connection, 1, &testConfig)
 
 	// call the tested method
 	_, err := storage.ReadTable("table_name", NO_LIMITS)
@@ -474,7 +706,7 @@ func TestRetrieveColumnTypes(t *testing.T) {
 	mock.ExpectClose()
 
 	// prepare connection to mocked database
-	storage := main.NewFromConnection(connection, 1)
+	storage := main.NewFromConnection(connection, 1, &testConfig)
 
 	// call the tested method
 	types, err := storage.RetrieveColumnTypes("table_name")
@@ -510,7 +742,7 @@ func TestRetrieveColumnTypesOnError(t *testing.T) {
 	mock.ExpectClose()
 
 	// prepare connection to mocked database
-	storage := main.NewFromConnection(connection, 1)
+	storage := main.NewFromConnection(connection, 1, &testConfig)
 
 	// call the tested method
 	_, err := storage.RetrieveColumnTypes("table_name")
@@ -553,7 +785,7 @@ func TestStoreTableIntoFile(t *testing.T) {
 	mock.ExpectClose()
 
 	// prepare connection to mocked database
-	storage := main.NewFromConnection(connection, 1)
+	storage := main.NewFromConnection(connection, 1, &testConfig)
 
 	// call the tested method
 	err := storage.StoreTableIntoFile("table_name", NO_LIMITS)
@@ -607,7 +839,7 @@ func TestStoreTableIntoFileWithLimit(t *testing.T) {
 	mock.ExpectClose()
 
 	// prepare connection to mocked database
-	storage := main.NewFromConnection(connection, 1)
+	storage := main.NewFromConnection(connection, 1, &testConfig)
 
 	// call the tested method
 	err := storage.StoreTableIntoFile("table_name", 2)
@@ -650,7 +882,7 @@ func TestReadDisabledRules(t *testing.T) {
 	mock.ExpectClose()
 
 	// prepare connection to mocked database
-	storage := main.NewFromConnection(connection, 1)
+	storage := main.NewFromConnection(connection, 1, &testConfig)
 
 	// call the tested method
 	results, err := storage.ReadDisabledRules()
@@ -691,7 +923,7 @@ func TestReadDisabledRulesOnError(t *testing.T) {
 	mock.ExpectClose()
 
 	// prepare connection to mocked database
-	storage := main.NewFromConnection(connection, 1)
+	storage := main.NewFromConnection(connection, 1, &testConfig)
 
 	// call the tested method
 	_, err := storage.ReadDisabledRules()
@@ -724,7 +956,7 @@ func TestReadDisabledRulesScanError(t *testing.T) {
 	mock.ExpectClose()
 
 	// prepare connection to mocked database
-	storage := main.NewFromConnection(connection, 1)
+	storage := main.NewFromConnection(connection, 1, &testConfig)
 
 	// call the tested method
 	_, err := storage.ReadDisabledRules()

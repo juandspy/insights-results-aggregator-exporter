@@ -29,6 +29,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strings"
 
 	"database/sql"
 
@@ -77,6 +78,21 @@ const (
    `
 )
 
+var (
+	selectiveExportAllowedTables = []TableName{
+		"report",
+		"recommendation",
+		"rule_hit",
+		"rule_disable",
+		"rule_toggle",
+		"cluster_rule_user_feedback",
+		"cluster_user_rule_disable_feedback",
+		"advisor_ratings",
+	}
+
+	whereOrgIDFilter = " WHERE org_id IN (%v)"
+)
+
 // Storage represents an interface to almost any database or storage system
 type Storage interface {
 	Close() error
@@ -92,6 +108,7 @@ type Storage interface {
 type DBStorage struct {
 	connection   *sql.DB
 	dbDriverType DBDriver
+	config       *StorageConfiguration
 }
 
 // NewStorage function creates and initializes a new instance of Storage interface
@@ -119,14 +136,15 @@ func NewStorage(configuration *StorageConfiguration) (*DBStorage, error) {
 	}
 
 	log.Info().Msg("Connection to storage established")
-	return NewFromConnection(connection, driverType), nil
+	return NewFromConnection(connection, driverType, configuration), nil
 }
 
 // NewFromConnection function creates and initializes a new instance of Storage interface from prepared connection
-func NewFromConnection(connection *sql.DB, dbDriverType DBDriver) *DBStorage {
+func NewFromConnection(connection *sql.DB, dbDriverType DBDriver, config *StorageConfiguration) *DBStorage {
 	return &DBStorage{
 		connection:   connection,
 		dbDriverType: dbDriverType,
+		config:       config,
 	}
 }
 
@@ -331,6 +349,8 @@ func selectAllFromTable(tableName TableName) string {
 func (storage DBStorage) ReadTable(tableName TableName, limit int) ([]M, error) {
 	sqlStatement := selectAllFromTable(tableName)
 
+	storage.applySelectiveExport(&sqlStatement, tableName)
+
 	if limit > 0 {
 		sqlStatement += fmt.Sprintf(" LIMIT %d", limit)
 	}
@@ -493,6 +513,8 @@ func (storage DBStorage) StoreTableIntoFile(tableName TableName,
 // table.
 func (storage DBStorage) ReadRecordsCount(tableName TableName) (int, error) {
 	sqlStatement := selectCountFromTable(tableName)
+
+	storage.applySelectiveExport(&sqlStatement, tableName)
 
 	// try to query DB
 	row := storage.connection.QueryRow(sqlStatement)
@@ -677,4 +699,20 @@ func (storage DBStorage) ReadDisabledRules() ([]DisabledRuleInfo, error) {
 	}
 
 	return disabledRulesInfo, nil
+}
+
+// check whether table is allowed to be exported selectively by org_id
+func selectiveExportAllowed(tablename TableName) bool {
+	for i := range selectiveExportAllowedTables {
+		if tablename == selectiveExportAllowedTables[i] {
+			return true
+		}
+	}
+	return false
+}
+
+func (storage DBStorage) applySelectiveExport(sqlStatement *string, tablename TableName) {
+	if storage.config.EnableOrgIDFiltering && selectiveExportAllowed(tablename) {
+		*sqlStatement += fmt.Sprintf(whereOrgIDFilter, strings.Join(storage.config.OrganizationsToExport, ","))
+	}
 }
