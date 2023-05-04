@@ -278,6 +278,45 @@ func TestReadRecordCountSelectiveExportDisallowedTable(t *testing.T) {
 	checkAllExpectations(t, mock)
 }
 
+// check the function ReadRecordCount with seletive export enabled for a single org_id to export
+func TestReadRecordCountSelectiveExportAllowedTableSingleOrgID(t *testing.T) {
+	config := &testConfig
+	config.EnableOrgIDFiltering = true
+	config.OrganizationsToExport = []string{"1"}
+
+	// prepare new mocked connection to database
+	connection, mock := mustCreateMockConnection(t)
+
+	// prepare mocked result for SQL query
+	rowsCount := sqlmock.NewRows([]string{"count"})
+	expected := 100
+	rowsCount.AddRow(expected)
+
+	expectedQuery := "SELECT count\\(\\*\\) FROM report WHERE org_id IN \\('1'\\)"
+	// expected query performed by tested function
+	mock.ExpectQuery(expectedQuery).WillReturnRows(rowsCount)
+	mock.ExpectClose()
+
+	// prepare connection to mocked database
+	storage := main.NewFromConnection(connection, 1, config)
+
+	// call the tested method
+	count, err := storage.ReadRecordsCount("report")
+	if err != nil {
+		t.Errorf("error was not expected %s", err)
+	}
+
+	if count != expected {
+		t.Errorf("wrong number records returned: %d", count)
+	}
+
+	// connection to mocked DB needs to be closed properly
+	checkConnectionClose(t, connection)
+
+	// check if all expectations were met
+	checkAllExpectations(t, mock)
+}
+
 // check the function ReadRecordCount with seletive export enabled
 func TestReadRecordCountSelectiveExportAllowedTable(t *testing.T) {
 	config := &testConfig
@@ -292,7 +331,7 @@ func TestReadRecordCountSelectiveExportAllowedTable(t *testing.T) {
 	expected := 100
 	rowsCount.AddRow(expected)
 
-	expectedQuery := "SELECT count\\(\\*\\) FROM report WHERE org_id IN \\(1,42\\)"
+	expectedQuery := "SELECT count\\(\\*\\) FROM report WHERE org_id IN \\('1','42'\\)"
 	// expected query performed by tested function
 	mock.ExpectQuery(expectedQuery).WillReturnRows(rowsCount)
 	mock.ExpectClose()
@@ -556,6 +595,56 @@ func TestReadTableWithSelectiveExportDisallowedTable(t *testing.T) {
 	checkAllExpectations(t, mock)
 }
 
+// check the function ReadTable with selective export enabled for a single org_id to export
+func TestReadTableWithSelectiveExportAllowedTableSingleOrgID(t *testing.T) {
+	config := &testConfig
+	config.EnableOrgIDFiltering = true
+	config.OrganizationsToExport = []string{"1"}
+
+	// prepare new mocked connection to database
+	connection, mock := mustCreateMockConnection(t)
+
+	// prepare mocked result for SQL query
+	column1 := sqlmock.NewColumn("id").OfType("INT4", int64(0))
+	column2 := sqlmock.NewColumn("value").OfType("FLOAT64", float64(0.0))
+	column3 := sqlmock.NewColumn("text").OfType("VARCHAR", "")
+	column4 := sqlmock.NewColumn("valid").OfType("BOOL", false)
+
+	// columns of different types
+	rows := mock.NewRowsWithColumnDefinition(column1, column2, column3, column4)
+
+	rows.AddRow(1, 1.2, "foo", true)
+	rows.AddRow(2, 1.5, "bar", false)
+
+	// expected query performed by tested function
+	mock.ExpectQuery("SELECT \\* FROM report WHERE org_id IN \\('1'\\)").WillReturnRows(rows)
+	mock.ExpectClose()
+
+	// prepare connection to mocked database
+	storage := main.NewFromConnection(connection, 1, config)
+
+	// call the tested method, table name must be in predefined list
+	values, err := storage.ReadTable("report", NO_LIMITS)
+	if err != nil {
+		t.Errorf("error was not expected %s", err)
+	}
+
+	if len(values) != 2 {
+		t.Errorf("wrong number records returned: %d", len(values))
+	}
+
+	assert.Equal(t, values[0]["id"], int64(1))
+	assert.Equal(t, values[1]["id"], int64(2))
+	assert.Equal(t, values[0]["text"], "foo")
+	assert.Equal(t, values[1]["text"], "bar")
+
+	// connection to mocked DB needs to be closed properly
+	checkConnectionClose(t, connection)
+
+	// check if all expectations were met
+	checkAllExpectations(t, mock)
+}
+
 // check the function ReadTable with selective export enabled
 func TestReadTableWithSelectiveExportAllowedTable(t *testing.T) {
 	config := &testConfig
@@ -578,7 +667,7 @@ func TestReadTableWithSelectiveExportAllowedTable(t *testing.T) {
 	rows.AddRow(2, 1.5, "bar", false)
 
 	// expected query performed by tested function
-	mock.ExpectQuery("SELECT \\* FROM report WHERE org_id IN \\(1,42\\)").WillReturnRows(rows)
+	mock.ExpectQuery("SELECT \\* FROM report WHERE org_id IN \\('1','42'\\)").WillReturnRows(rows)
 	mock.ExpectClose()
 
 	// prepare connection to mocked database
@@ -628,7 +717,7 @@ func TestReadTableWithSelectiveExportAllowedTableWithLimits(t *testing.T) {
 	rows.AddRow(2, 1.5, "bar", false)
 
 	// expected query performed by tested function
-	mock.ExpectQuery("SELECT \\* FROM report WHERE org_id IN \\(1,42\\) LIMIT 2").WillReturnRows(rows)
+	mock.ExpectQuery("SELECT \\* FROM report WHERE org_id IN \\('1','42'\\) LIMIT 2").WillReturnRows(rows)
 	mock.ExpectClose()
 
 	// prepare connection to mocked database
