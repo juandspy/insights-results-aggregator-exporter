@@ -90,7 +90,7 @@ var (
 		"advisor_ratings",
 	}
 
-	whereOrgIDFilter = " WHERE org_id IN (%v)"
+	whereOrgIDFilter = " WHERE org_id IN ('%v')"
 )
 
 // Storage represents an interface to almost any database or storage system
@@ -713,6 +713,6 @@ func selectiveExportAllowed(tablename TableName) bool {
 
 func (storage DBStorage) applySelectiveExport(sqlStatement *string, tablename TableName) {
 	if storage.config.EnableOrgIDFiltering && selectiveExportAllowed(tablename) {
-		*sqlStatement += fmt.Sprintf(whereOrgIDFilter, strings.Join(storage.config.OrganizationsToExport, ","))
+		*sqlStatement += fmt.Sprintf(whereOrgIDFilter, strings.Join(storage.config.OrganizationsToExport, "','"))
 	}
 }
