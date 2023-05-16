@@ -3,7 +3,7 @@ module github.com/RedHatInsights/insights-results-aggregator-exporter
 go 1.16
 
 require (
-	github.com/BurntSushi/toml v0.3.1
+	github.com/BurntSushi/toml v1.2.1
 	github.com/DATA-DOG/go-sqlmock v1.5.0
 	github.com/RedHatInsights/insights-results-types v1.3.22
 	github.com/archdx/zerolog-sentry v0.0.2
