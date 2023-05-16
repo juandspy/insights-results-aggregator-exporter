@@ -15,7 +15,7 @@ require (
 	github.com/redhatinsights/app-common-go v1.5.1
 	github.com/rs/zerolog v1.26.1
 	github.com/spf13/viper v1.8.1
-	github.com/stretchr/testify v1.7.0
+	github.com/stretchr/testify v1.8.2
 	github.com/tisnik/go-capture v1.0.1
 	golang.org/x/net v0.1.0 // indirect
 	gopkg.in/check.v1 v1.0.0-20190902080502-41f04d3bba15 // indirect
