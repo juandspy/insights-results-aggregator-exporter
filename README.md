@@ -7,7 +7,7 @@
 ![GitHub go.mod Go version](https://img.shields.io/github/go-mod/go-version/RedHatInsights/insights-results-aggregator-exporter)
 [![License](https://img.shields.io/badge/license-Apache-blue)](https://github.com/RedHatInsights/insights-results-aggregator-exporter/blob/master/LICENSE)
 
-Exporter for Insights Results data stored by Insights Results Aggregator
+Exporter for Insights Results data stored by Insights Results Aggregator into PostgreSQL.
 
 <!-- vim-markdown-toc GFM -->
 
