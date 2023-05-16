@@ -1,5 +1,5 @@
 /*
-Copyright © 2021, 2022 Red Hat, Inc.
+Copyright © 2021, 2022, 2023 Red Hat, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -164,7 +164,7 @@ func constructIgnoredTablesMap(input string) IgnoredTables {
 }
 
 // performDataExport function exports all data into selected output
-func performDataExport(configuration *ConfigStruct, cliFlags CliFlags, operationLogger zerolog.Logger) (int, error) {
+func performDataExport(configuration *ConfigStruct, cliFlags CliFlags, operationLogger *zerolog.Logger) (int, error) {
 	operationLogger.Info().Msg("Retrieving connection to storage")
 
 	// prepare the storage
@@ -199,7 +199,7 @@ func performDataExport(configuration *ConfigStruct, cliFlags CliFlags, operation
 func performDataExportToS3(configuration *ConfigStruct,
 	storage *DBStorage, exportMetadata bool,
 	exportDisabledRules bool,
-	operationLogger zerolog.Logger, limit int,
+	operationLogger *zerolog.Logger, limit int,
 	ignoredTables IgnoredTables) (int, error) {
 
 	operationLogger.Info().Msg("Exporting to S3")
@@ -316,7 +316,7 @@ func performDataExportToS3(configuration *ConfigStruct,
 func performDataExportToFiles(configuration *ConfigStruct,
 	storage *DBStorage, exportMetadata bool,
 	exportDisabledRules bool,
-	operationLogger zerolog.Logger, limit int,
+	operationLogger *zerolog.Logger, limit int,
 	ignoredTables IgnoredTables) (int, error) {
 
 	operationLogger.Info().Msg("Exporting to file")
@@ -462,7 +462,7 @@ func storeOpertionLogIntoS3(configuration *ConfigStruct,
 // When no operation is specified, the Notification writer service is started
 // instead.
 func doSelectedOperation(configuration *ConfigStruct, cliFlags CliFlags,
-	operationLogger zerolog.Logger) (int, error) {
+	operationLogger *zerolog.Logger) (int, error) {
 	switch {
 	case cliFlags.ShowVersion:
 		showVersion()
@@ -570,7 +570,7 @@ func mainWithStatusCode() int {
 	}
 
 	// perform selected operation
-	exitStatus, err := doSelectedOperation(&config, cliFlags, operationLogger)
+	exitStatus, err := doSelectedOperation(&config, cliFlags, &operationLogger)
 	if err != nil {
 		log.Err(err).Msg("Do selected operation")
 		return exitStatus
