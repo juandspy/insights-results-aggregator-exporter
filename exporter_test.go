@@ -1,5 +1,5 @@
 /*
-Copyright © 2021, 2022 Red Hat, Inc.
+Copyright © 2021, 2022, 2023 Red Hat, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -114,7 +114,7 @@ func TestDoSelectedOperationShowVersion(t *testing.T) {
 
 	// try to call the tested function and capture its output
 	output, err := capture.StandardOutput(func() {
-		code, err := main.DoSelectedOperation(&configuration, cliFlags, log.Logger)
+		code, err := main.DoSelectedOperation(&configuration, cliFlags, &log.Logger)
 		assert.Equal(t, code, main.ExitStatusOK)
 		assert.Nil(t, err)
 	})
@@ -138,7 +138,7 @@ func TestDoSelectedOperationShowAuthors(t *testing.T) {
 
 	// try to call the tested function and capture its output
 	output, err := capture.StandardOutput(func() {
-		code, err := main.DoSelectedOperation(&configuration, cliFlags, log.Logger)
+		code, err := main.DoSelectedOperation(&configuration, cliFlags, &log.Logger)
 		assert.Equal(t, code, main.ExitStatusOK)
 		assert.Nil(t, err)
 	})
@@ -164,7 +164,7 @@ func TestDoSelectedOperationShowConfiguration(t *testing.T) {
 	// try to call the tested function and capture its output
 	output, err := capture.ErrorOutput(func() {
 		log.Logger = log.Output(zerolog.New(os.Stderr))
-		code, err := main.DoSelectedOperation(&configuration, cliFlags, log.Logger)
+		code, err := main.DoSelectedOperation(&configuration, cliFlags, &log.Logger)
 		assert.Equal(t, code, main.ExitStatusOK)
 		assert.Nil(t, err)
 	})
@@ -189,7 +189,7 @@ func TestDoSelectedOperationCheckS3Connection(t *testing.T) {
 		CheckS3Connection: true,
 	}
 
-	code, err := main.DoSelectedOperation(&configuration, cliFlags, log.Logger)
+	code, err := main.DoSelectedOperation(&configuration, cliFlags, &log.Logger)
 	assert.Equal(t, code, main.ExitStatusS3Error)
 	assert.Error(t, err)
 }
@@ -237,7 +237,7 @@ func TestPerformDataExportViaDoSelectedOperation(t *testing.T) {
 	}
 
 	// the call should fail
-	code, err := main.DoSelectedOperation(&configuration, cliFlags, log.Logger)
+	code, err := main.DoSelectedOperation(&configuration, cliFlags, &log.Logger)
 	assert.Equal(t, code, main.ExitStatusStorageError)
 	assert.Error(t, err)
 }
@@ -269,7 +269,7 @@ func TestPerformDataExportNoStorage(t *testing.T) {
 	}
 
 	// the call should fail
-	code, err := main.PerformDataExport(&configuration, cliFlags, log.Logger)
+	code, err := main.PerformDataExport(&configuration, cliFlags, &log.Logger)
 	assert.Equal(t, code, main.ExitStatusStorageError)
 	assert.Error(t, err)
 }
@@ -303,7 +303,7 @@ func TestPerformDataExportConfigError(t *testing.T) {
 	}
 
 	// the call should fail, but now because of improper configuration
-	code, err := main.PerformDataExport(&configuration, cliFlags, log.Logger)
+	code, err := main.PerformDataExport(&configuration, cliFlags, &log.Logger)
 	assert.Equal(t, code, main.ExitStatusConfigurationError)
 	assert.Error(t, err)
 }
@@ -338,7 +338,7 @@ func TestPerformDataExportToS3(t *testing.T) {
 	}
 
 	// the call should fail due to inaccessible S3/Minio
-	code, err := main.PerformDataExport(&configuration, cliFlags, log.Logger)
+	code, err := main.PerformDataExport(&configuration, cliFlags, &log.Logger)
 	assert.Equal(t, code, main.ExitStatusS3Error)
 	assert.Error(t, err)
 }
@@ -373,7 +373,7 @@ func TestPerformDataExportToFile(t *testing.T) {
 	}
 
 	// the call should fail due to inaccessible storage (DB)
-	code, err := main.PerformDataExport(&configuration, cliFlags, log.Logger)
+	code, err := main.PerformDataExport(&configuration, cliFlags, &log.Logger)
 	assert.Equal(t, code, main.ExitStatusStorageError)
 	assert.Error(t, err)
 }
