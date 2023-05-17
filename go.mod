@@ -10,7 +10,7 @@ require (
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/lib/pq v1.10.9
 	github.com/mattn/go-sqlite3 v2.0.3+incompatible
-	github.com/minio/minio-go/v7 v7.0.12
+	github.com/minio/minio-go/v7 v7.0.52
 	github.com/redhatinsights/app-common-go v1.5.1
 	github.com/rs/zerolog v1.29.1
 	github.com/spf13/viper v1.15.0
