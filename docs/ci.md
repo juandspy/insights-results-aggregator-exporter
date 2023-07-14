@@ -39,4 +39,4 @@ to merge new changes into `master` branch.
 
 History of checks performed by CI is available at
 [RedHatInsights /
-insights-results-smart-proxy](https://travis-ci.org/RedHatInsights/insights-results-smart-proxy).
+insights-results-smart-proxy](https://travis-ci.org/RedHatInsights/insights-results-aggregator-exporter).
