@@ -67,7 +67,7 @@ objects:
         - name: INSIGHTS_RESULTS_AGGREGATOR_EXPORTER__STORAGE__DB_DRIVER
           value: postgres
         - name: INSIGHTS_RESULTS_AGGREGATOR_EXPORTER__STORAGE__PG_PARAMS
-          value: sslmode=disable
+          value: ${PG_PARAMS}
         - name: INSIGHTS_RESULTS_AGGREGATOR_EXPORTER__S3__TYPE
           value: ${S3__TYPE}
         - name: INSIGHTS_RESULTS_AGGREGATOR_EXPORTER__S3__ENDPOINT_URL
@@ -123,6 +123,8 @@ parameters:
 - name: CLOWDER_ENABLED
   description: Determines if this is a Clowder deployment
   value: "true"
+- name: PG_PARAMS
+  value: sslmode=require
 - description: Env Name
   name: ENV_NAME
   required: true
