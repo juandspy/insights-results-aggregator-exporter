@@ -253,7 +253,5 @@ func TestStoreTable(t *testing.T) {
 				assert.NoError(t, err)
 			}
 		})
-
 	}
-
 }
