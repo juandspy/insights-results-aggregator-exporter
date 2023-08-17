@@ -148,7 +148,7 @@ func constructIgnoredTablesMap(input string) IgnoredTables {
 	tables := strings.Split(input, ",")
 
 	// prepare empty map with given capacity
-	var m IgnoredTables = make(IgnoredTables, len(tables))
+	var m = make(IgnoredTables, len(tables))
 
 	// don't add empty string into a map
 	if input == "" {
@@ -201,7 +201,6 @@ func performDataExportToS3(configuration *ConfigStruct,
 	exportDisabledRules bool,
 	operationLogger *zerolog.Logger, limit int,
 	ignoredTables IgnoredTables) (int, error) {
-
 	operationLogger.Info().Msg("Exporting to S3")
 
 	operationLogger.Info().Msg(readingListOfTables)
@@ -313,12 +312,11 @@ func performDataExportToS3(configuration *ConfigStruct,
 }
 
 // performDataExportToFiles exports all tables and metadata info files
-func performDataExportToFiles(configuration *ConfigStruct,
+func performDataExportToFiles(_ *ConfigStruct,
 	storage *DBStorage, exportMetadata bool,
 	exportDisabledRules bool,
 	operationLogger *zerolog.Logger, limit int,
 	ignoredTables IgnoredTables) (int, error) {
-
 	operationLogger.Info().Msg("Exporting to file")
 
 	operationLogger.Info().Msg(readingListOfTables)
@@ -506,7 +504,7 @@ func parseFlags() (cliFlags CliFlags) {
 type DummyWriter struct{}
 
 // Write method satisfies noop io.Write
-func (w DummyWriter) Write(p []byte) (n int, err error) {
+func (w DummyWriter) Write(_ []byte) (n int, err error) {
 	return 0, nil
 }
 
@@ -534,7 +532,6 @@ func createOperationLog(cliFlags CliFlags, buffer *bytes.Buffer) (zerolog.Logger
 	}
 
 	return dummyLogger, nil
-
 }
 
 func setObjectPrefix(prefix, object string) string {
