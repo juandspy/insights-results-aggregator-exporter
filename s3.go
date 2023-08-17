@@ -1,5 +1,5 @@
 /*
-Copyright © 2021, 2022 Red Hat, Inc.
+Copyright © 2021, 2022, 2023 Red Hat, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -94,7 +94,6 @@ func NewS3Connection(configuration *ConfigStruct) (*minio.Client, context.Contex
 // accessed by current client
 func s3BucketExists(ctx context.Context, minioClient *minio.Client,
 	bucketName string) (bool, error) {
-
 	// check if Minio client has been passed to this function
 	if minioClient == nil {
 		err := errors.New(minioClientIsNil)
@@ -124,7 +123,6 @@ func s3BucketExists(ctx context.Context, minioClient *minio.Client,
 // parameter into given bucket under selected object name
 func storeTableNames(ctx context.Context, minioClient *minio.Client,
 	bucketName string, objectName string, tableNames []TableName) error {
-
 	// check if Minio client has been passed to this function
 	if minioClient == nil {
 		err := errors.New(minioClientIsNil)
@@ -183,7 +181,6 @@ func storeTableNames(ctx context.Context, minioClient *minio.Client,
 // into given bucket under selected object name
 func storeDisabledRulesIntoS3(ctx context.Context, minioClient *minio.Client,
 	bucketName string, objectName string, disabledRulesInfo []DisabledRuleInfo) error {
-
 	// check if Minio client has been passed to this function
 	if minioClient == nil {
 		err := errors.New(minioClientIsNil)

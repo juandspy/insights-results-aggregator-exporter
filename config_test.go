@@ -1,5 +1,5 @@
 /*
-Copyright © 2021, 2022 Red Hat, Inc.
+Copyright © 2021, 2022, 2023 Red Hat, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -60,7 +60,7 @@ func mustSetEnv(t *testing.T, key, val string) {
 
 // TestLoadDefaultConfiguration test loads a configuration file for testing
 // with check that load was correct
-func TestLoadDefaultConfiguration(t *testing.T) {
+func TestLoadDefaultConfiguration(_ *testing.T) {
 	os.Clearenv()
 	mustLoadConfiguration("nonExistingEnvVar")
 }

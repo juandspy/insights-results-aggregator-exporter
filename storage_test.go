@@ -35,7 +35,7 @@ import (
 	main "github.com/RedHatInsights/insights-results-aggregator-exporter"
 )
 
-const NO_LIMITS = -1
+const NoLimits = -1
 
 var testConfig = main.StorageConfiguration{
 	Driver:                 "postgres",
@@ -476,7 +476,7 @@ func TestReadTable(t *testing.T) {
 	storage := main.NewFromConnection(connection, 1, &testConfig)
 
 	// call the tested method
-	values, err := storage.ReadTable("table_name", NO_LIMITS)
+	values, err := storage.ReadTable("table_name", NoLimits)
 	if err != nil {
 		t.Errorf("error was not expected %s", err)
 	}
@@ -574,7 +574,7 @@ func TestReadTableWithSelectiveExportDisallowedTable(t *testing.T) {
 	storage := main.NewFromConnection(connection, 1, config)
 
 	// call the tested method, table name must be in predefined list
-	values, err := storage.ReadTable("table_name", NO_LIMITS)
+	values, err := storage.ReadTable("table_name", NoLimits)
 	if err != nil {
 		t.Errorf("error was not expected %s", err)
 	}
@@ -624,7 +624,7 @@ func TestReadTableWithSelectiveExportAllowedTableSingleOrgID(t *testing.T) {
 	storage := main.NewFromConnection(connection, 1, config)
 
 	// call the tested method, table name must be in predefined list
-	values, err := storage.ReadTable("report", NO_LIMITS)
+	values, err := storage.ReadTable("report", NoLimits)
 	if err != nil {
 		t.Errorf("error was not expected %s", err)
 	}
@@ -674,7 +674,7 @@ func TestReadTableWithSelectiveExportAllowedTable(t *testing.T) {
 	storage := main.NewFromConnection(connection, 1, config)
 
 	// call the tested method, table name must be in predefined list
-	values, err := storage.ReadTable("report", NO_LIMITS)
+	values, err := storage.ReadTable("report", NoLimits)
 	if err != nil {
 		t.Errorf("error was not expected %s", err)
 	}
@@ -761,7 +761,7 @@ func TestReadTableOnError(t *testing.T) {
 	storage := main.NewFromConnection(connection, 1, &testConfig)
 
 	// call the tested method
-	_, err := storage.ReadTable("table_name", NO_LIMITS)
+	_, err := storage.ReadTable("table_name", NoLimits)
 	if err != mockedError {
 		t.Errorf("different error was returned: %v", err)
 	}
@@ -877,7 +877,7 @@ func TestStoreTableIntoFile(t *testing.T) {
 	storage := main.NewFromConnection(connection, 1, &testConfig)
 
 	// call the tested method
-	err := storage.StoreTableIntoFile("table_name", NO_LIMITS)
+	err := storage.StoreTableIntoFile("table_name", NoLimits)
 	if err != nil {
 		t.Errorf("error was not expected %s", err)
 	}

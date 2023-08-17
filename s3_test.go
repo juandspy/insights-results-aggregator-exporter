@@ -1,5 +1,5 @@
 /*
-Copyright © 2022 Red Hat, Inc.
+Copyright © 2022, 2023 Red Hat, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -118,7 +118,6 @@ func TestNewS3Connection(t *testing.T) {
 				assert.NotNil(t, client)
 			}
 		})
-
 	}
 }
 
@@ -173,9 +172,7 @@ func TestS3BucketExists(t *testing.T) {
 				assert.NoError(t, err)
 			}
 		})
-
 	}
-
 }
 
 // Test case specification structure for function main.storeTableNames
@@ -256,7 +253,5 @@ func TestStoreTable(t *testing.T) {
 				assert.NoError(t, err)
 			}
 		})
-
 	}
-
 }
