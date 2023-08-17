@@ -172,9 +172,7 @@ func TestS3BucketExists(t *testing.T) {
 				assert.NoError(t, err)
 			}
 		})
-
 	}
-
 }
 
 // Test case specification structure for function main.storeTableNames

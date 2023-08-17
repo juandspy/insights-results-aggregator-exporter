@@ -123,7 +123,6 @@ func s3BucketExists(ctx context.Context, minioClient *minio.Client,
 // parameter into given bucket under selected object name
 func storeTableNames(ctx context.Context, minioClient *minio.Client,
 	bucketName string, objectName string, tableNames []TableName) error {
-
 	// check if Minio client has been passed to this function
 	if minioClient == nil {
 		err := errors.New(minioClientIsNil)
@@ -182,7 +181,6 @@ func storeTableNames(ctx context.Context, minioClient *minio.Client,
 // into given bucket under selected object name
 func storeDisabledRulesIntoS3(ctx context.Context, minioClient *minio.Client,
 	bucketName string, objectName string, disabledRulesInfo []DisabledRuleInfo) error {
-
 	// check if Minio client has been passed to this function
 	if minioClient == nil {
 		err := errors.New(minioClientIsNil)
