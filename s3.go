@@ -1,5 +1,5 @@
 /*
-Copyright © 2021, 2022 Red Hat, Inc.
+Copyright © 2021, 2022, 2023 Red Hat, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -94,7 +94,6 @@ func NewS3Connection(configuration *ConfigStruct) (*minio.Client, context.Contex
 // accessed by current client
 func s3BucketExists(ctx context.Context, minioClient *minio.Client,
 	bucketName string) (bool, error) {
-
 	// check if Minio client has been passed to this function
 	if minioClient == nil {
 		err := errors.New(minioClientIsNil)
