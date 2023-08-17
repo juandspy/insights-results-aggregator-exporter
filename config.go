@@ -1,5 +1,5 @@
 /*
-Copyright © 2021, 2022 Red Hat, Inc.
+Copyright © 2021, 2022, 2023 Red Hat, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -279,7 +279,6 @@ func updateConfigFromClowder(c *ConfigStruct) error {
 			c.Storage.PGUsername = clowder.LoadedConfig.Database.Username
 			c.Storage.PGPassword = clowder.LoadedConfig.Database.Password
 		}
-
 	} else {
 		fmt.Println("Clowder is disabled")
 	}
@@ -289,6 +288,7 @@ func updateConfigFromClowder(c *ConfigStruct) error {
 
 // GetOrganizationsToExport retrieves org_id list from provided CSV file
 func GetOrganizationsToExport(config *ConfigStruct) ([]string, error) {
+	const errorMessage = "GetOrganizationsToExport"
 	if !config.Storage.EnableOrgIDFiltering {
 		log.Info().Msg("Selective export based on org_ids disabled")
 		return nil, nil
@@ -296,21 +296,21 @@ func GetOrganizationsToExport(config *ConfigStruct) ([]string, error) {
 
 	if config.Storage.OrganizationIDsCSVFile == "" {
 		err := errors.New("Selective export based on org_ids enabled, but none supplied")
-		log.Error().Err(err)
+		log.Error().Err(err).Msg(errorMessage)
 		return nil, err
 	}
 
 	organizationIDsData, err := os.ReadFile(config.Storage.OrganizationIDsCSVFile)
 	if err != nil {
 		err := errors.New("Organization IDs file could not be opened")
-		log.Error().Err(err)
+		log.Error().Err(err).Msg(errorMessage)
 		return nil, err
 	}
 
 	organizationsToExport, err := LoadOrgIDsFromCSV(bytes.NewBuffer(organizationIDsData))
 	if err != nil {
 		err := errors.New("Organization IDs CSV file could not be processed")
-		log.Error().Err(err)
+		log.Error().Err(err).Msg(errorMessage)
 		return nil, err
 	}
 
