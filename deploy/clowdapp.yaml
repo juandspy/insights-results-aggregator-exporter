@@ -129,7 +129,7 @@ parameters:
   name: ENV_NAME
   required: true
 - name: ACTIVE_DEADLINE_SECONDS
-  description: The maximum duration the job can run. 
+  description: The maximum duration the job can run.
   value: "300" # 5 minutes
 - name: BACKOFF_LIMIT
   description: The number of retries for a job.
@@ -173,7 +173,7 @@ parameters:
   value: "false"
 - name: TEST_DATE
   description: A variable to force the job to run.
-  value: 02/05/2023
+  value: 24/08/2023
 - name: SELECT_LIMIT
   description: Number of rows to export
   value: "-1"
