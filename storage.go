@@ -78,6 +78,9 @@ const (
    `
 )
 
+// CSVFileExtension is common extension used for files with comma-separated records
+const CSVFileExtension = ".csv"
+
 var (
 	selectiveExportAllowedTables = []TableName{
 		"report",
@@ -449,7 +452,7 @@ func (storage DBStorage) StoreTable(ctx context.Context,
 	size := buffer.Len()
 
 	options := minio.PutObjectOptions{ContentType: "text/csv"}
-	objectName := setObjectPrefix(prefix, string(tableName)) + ".csv"
+	objectName := setObjectPrefix(prefix, string(tableName)) + CSVFileExtension
 	_, err = minioClient.PutObject(ctx, bucketName, objectName, reader, int64(size), options)
 	if err != nil {
 		return err
@@ -470,7 +473,7 @@ func (storage DBStorage) StoreTableIntoFile(tableName TableName,
 
 	colNames := getColumnNames(columnTypes)
 
-	fileName := string(tableName) + ".csv"
+	fileName := string(tableName) + CSVFileExtension
 
 	// open new CSV file to be filled in
 	// disable "G304 (CWE-22): Potential file inclusion via variable"
