@@ -27,6 +27,10 @@ FROM registry.access.redhat.com/ubi8/ubi-micro:latest
 
 COPY --from=builder /opt/app-root/src/insights-results-aggregator-exporter .
 
+# copy the certificates from builder image
+COPY --from=builder /etc/ssl /etc/ssl
+COPY --from=builder /etc/pki /etc/pki
+
 USER 1001
 
 CMD ["/insights-results-aggregator-exporter"]
