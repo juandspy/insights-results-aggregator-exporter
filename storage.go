@@ -57,6 +57,7 @@ const (
 	readTableContentFailed      = "Read table content failed"
 	readListOfRecordsFailed     = "Unable to read list of records"
 	writeOneRowToCSV            = "Write one row to CSV"
+	sqlStatementExecuted        = "SQL statement"
 )
 
 // SQL statements
@@ -358,11 +359,11 @@ func (storage DBStorage) ReadTable(tableName TableName, limit int) ([]M, error) 
 		sqlStatement += fmt.Sprintf(" LIMIT %d", limit)
 	}
 
-	log.Info().Str("SQL statement", sqlStatement).Msg("Performing")
+	log.Info().Str(sqlStatementExecuted, sqlStatement).Msg("Performing")
 
 	rows, err := storage.connection.Query(sqlStatement)
 	if err != nil {
-		log.Error().Err(err).Msg(sqlStatementExecutionError)
+		log.Error().Err(err).Str(sqlStatementExecuted, sqlStatement).Msg(sqlStatementExecutionError)
 		return nil, err
 	}
 
@@ -541,7 +542,7 @@ func (storage DBStorage) RetrieveColumnTypes(tableName TableName) ([]*sql.Column
 	// try to query DB
 	rows, err := storage.connection.Query(sqlStatement)
 	if err != nil {
-		log.Error().Err(err).Msg(sqlStatementExecutionError)
+		log.Error().Err(err).Str(sqlStatementExecuted, sqlStatement).Msg(sqlStatementExecutionError)
 		return nil, err
 	}
 
