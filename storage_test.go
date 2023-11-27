@@ -135,13 +135,20 @@ func checkAllExpectations(t *testing.T, mock sqlmock.Sqlmock) {
 
 // Expected queries
 const (
-	readRecordCountQuery   = "SELECT count\\(\\*\\) FROM TESTED_TABLE"
-	readDisabledRulesQuery = "SELECT rule_id, count\\(rule_id\\) AS rule_count FROM rule_disable GROUP BY rule_id HAVING count\\(rule_id\\)\\>1 ORDER BY rule_count DESC;"
-	readListOfTablesQuery  = `
+	readRecordCountQuery          = "SELECT count\\(\\*\\) FROM TESTED_TABLE"
+	readDisabledRulesQuery        = "SELECT rule_id, count\\(rule_id\\) AS rule_count FROM rule_disable GROUP BY rule_id HAVING count\\(rule_id\\)\\>1 ORDER BY rule_count DESC;"
+	readListOfTablesQueryPostgres = `
            SELECT tablename
              FROM pg_catalog.pg_tables
             WHERE schemaname != 'information_schema'
               AND schemaname != 'pg_catalog';
+`
+	readListOfTablesQuerySQLite = `
+           SELECT name FROM sqlite_master
+            WHERE type IN \('table','view'\)
+              AND name NOT LIKE 'sqlite_%'
+            ORDER BY 1;
+
 `
 	readTableQuery       = "SELECT \\* FROM table_name"
 	readColumnTypesQuery = "SELECT \\* FROM table_name LIMIT 1"
@@ -368,7 +375,7 @@ func TestReadListOfTables(t *testing.T) {
 	rows.AddRow("baz")
 
 	// expected query performed by tested function
-	mock.ExpectQuery(readListOfTablesQuery).WillReturnRows(rows)
+	mock.ExpectQuery(readListOfTablesQueryPostgres).WillReturnRows(rows)
 	mock.ExpectClose()
 
 	// prepare connection to mocked database
@@ -400,7 +407,7 @@ func TestReadListOfTablesOnError(t *testing.T) {
 	connection, mock := mustCreateMockConnection(t)
 
 	// expected query performed by tested function
-	mock.ExpectQuery(readListOfTablesQuery).WillReturnError(mockedError)
+	mock.ExpectQuery(readListOfTablesQueryPostgres).WillReturnError(mockedError)
 	mock.ExpectClose()
 
 	// prepare connection to mocked database
@@ -431,7 +438,7 @@ func TestReadListOfTablesScanError(t *testing.T) {
 	rows.AddRow(3)
 
 	// expected query performed by tested function
-	mock.ExpectQuery(readListOfTablesQuery).WillReturnRows(rows)
+	mock.ExpectQuery(readListOfTablesQueryPostgres).WillReturnRows(rows)
 	mock.ExpectClose()
 
 	// prepare connection to mocked database
