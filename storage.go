@@ -63,11 +63,18 @@ const (
 // SQL statements
 const (
 	// Select all public tables from open database
-	selectListOfTables = `
+	selectListOfTablesInPostgres = `
            SELECT tablename
              FROM pg_catalog.pg_tables
             WHERE schemaname != 'information_schema'
               AND schemaname != 'pg_catalog';
+   `
+
+	selectListOfTablesInSQLite = `
+           SELECT name FROM sqlite_master
+            WHERE type IN ('table','view')
+              AND name NOT LIKE 'sqlite_%'
+            ORDER BY 1;
    `
 
 	selectDisabledRules = `
@@ -201,6 +208,16 @@ func (storage DBStorage) Close() error {
 func (storage DBStorage) ReadListOfTables() ([]TableName, error) {
 	// slice to make list of tables
 	var tableList = make([]TableName, 0)
+
+	var selectListOfTables string
+	switch storage.dbDriverType {
+	case DBDriverSQLite3:
+		selectListOfTables = selectListOfTablesInSQLite
+	case DBDriverPostgres:
+		selectListOfTables = selectListOfTablesInPostgres
+	default:
+		return tableList, fmt.Errorf("Invalid DB driver")
+	}
 
 	rows, err := storage.connection.Query(selectListOfTables)
 	if err != nil {
