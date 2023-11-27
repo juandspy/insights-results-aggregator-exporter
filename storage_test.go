@@ -399,6 +399,59 @@ func TestReadListOfTables(t *testing.T) {
 }
 
 // check the function ReadListOfTables
+func TestReadListOfTablesSQLiteDriver(t *testing.T) {
+	// prepare new mocked connection to database
+	connection, mock := mustCreateMockConnection(t)
+
+	// prepare mocked result for SQL query
+	rows := sqlmock.NewRows([]string{"tablename"})
+	rows.AddRow("foo")
+	rows.AddRow("bar")
+	rows.AddRow("baz")
+
+	// expected query performed by tested function
+	mock.ExpectQuery(readListOfTablesQuerySQLite).WillReturnRows(rows)
+	mock.ExpectClose()
+
+	// prepare connection to mocked database
+	storage := main.NewFromConnection(connection, main.DBDriverSQLite3, &testConfig)
+
+	// call the tested method
+	tableNames, err := storage.ReadListOfTables()
+	if err != nil {
+		t.Errorf("error was not expected %s", err)
+	}
+
+	if len(tableNames) != 3 {
+		t.Errorf("wrong number records returned: %d", len(tableNames))
+	}
+
+	// connection to mocked DB needs to be closed properly
+	checkConnectionClose(t, connection)
+
+	// check if all expectations were met
+	checkAllExpectations(t, mock)
+}
+
+// check the function ReadListOfTables
+func TestReadListOfTablesInvalidDriver(t *testing.T) {
+	// prepare new mocked connection to database
+	connection, mock := mustCreateMockConnection(t)
+
+	// prepare connection to mocked database
+	storage := main.NewFromConnection(connection, 2+main.DBDriverSQLite3, &testConfig)
+
+	// call the tested method
+	_, err := storage.ReadListOfTables()
+	if err == nil {
+		t.Errorf("error was expected")
+	}
+
+	// check if all expectations were met
+	checkAllExpectations(t, mock)
+}
+
+// check the function ReadListOfTables
 func TestReadListOfTablesOnError(t *testing.T) {
 	// error to be thrown
 	mockedError := errors.New("mocked error")
