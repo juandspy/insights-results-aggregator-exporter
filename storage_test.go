@@ -135,13 +135,20 @@ func checkAllExpectations(t *testing.T, mock sqlmock.Sqlmock) {
 
 // Expected queries
 const (
-	readRecordCountQuery   = "SELECT count\\(\\*\\) FROM TESTED_TABLE"
-	readDisabledRulesQuery = "SELECT rule_id, count\\(rule_id\\) AS rule_count FROM rule_disable GROUP BY rule_id HAVING count\\(rule_id\\)\\>1 ORDER BY rule_count DESC;"
-	readListOfTablesQuery  = `
+	readRecordCountQuery          = "SELECT count\\(\\*\\) FROM TESTED_TABLE"
+	readDisabledRulesQuery        = "SELECT rule_id, count\\(rule_id\\) AS rule_count FROM rule_disable GROUP BY rule_id HAVING count\\(rule_id\\)\\>1 ORDER BY rule_count DESC;"
+	readListOfTablesQueryPostgres = `
            SELECT tablename
              FROM pg_catalog.pg_tables
             WHERE schemaname != 'information_schema'
               AND schemaname != 'pg_catalog';
+`
+	readListOfTablesQuerySQLite = `
+           SELECT name FROM sqlite_master
+            WHERE type IN \('table','view'\)
+              AND name NOT LIKE 'sqlite_%'
+            ORDER BY 1;
+
 `
 	readTableQuery       = "SELECT \\* FROM table_name"
 	readColumnTypesQuery = "SELECT \\* FROM table_name LIMIT 1"
@@ -162,7 +169,7 @@ func TestReadRecordCount(t *testing.T) {
 	mock.ExpectClose()
 
 	// prepare connection to mocked database
-	storage := main.NewFromConnection(connection, 1, &testConfig)
+	storage := main.NewFromConnection(connection, main.DBDriverPostgres, &testConfig)
 
 	// call the tested method
 	count, err := storage.ReadRecordsCount("TESTED_TABLE")
@@ -194,7 +201,7 @@ func TestReadRecordCountScanError(t *testing.T) {
 	mock.ExpectClose()
 
 	// prepare connection to mocked database
-	storage := main.NewFromConnection(connection, 1, &testConfig)
+	storage := main.NewFromConnection(connection, main.DBDriverPostgres, &testConfig)
 
 	// call the tested method
 	_, err := storage.ReadRecordsCount("TESTED_TABLE")
@@ -221,7 +228,7 @@ func TestReadRecordCountOnError(t *testing.T) {
 	mock.ExpectClose()
 
 	// prepare connection to mocked database
-	storage := main.NewFromConnection(connection, 1, &testConfig)
+	storage := main.NewFromConnection(connection, main.DBDriverPostgres, &testConfig)
 
 	// call the tested method
 	count, err := storage.ReadRecordsCount("TESTED_TABLE")
@@ -259,7 +266,7 @@ func TestReadRecordCountSelectiveExportDisallowedTable(t *testing.T) {
 	mock.ExpectClose()
 
 	// prepare connection to mocked database
-	storage := main.NewFromConnection(connection, 1, config)
+	storage := main.NewFromConnection(connection, main.DBDriverPostgres, config)
 
 	// call the tested method
 	count, err := storage.ReadRecordsCount("TESTED_TABLE")
@@ -298,7 +305,7 @@ func TestReadRecordCountSelectiveExportAllowedTableSingleOrgID(t *testing.T) {
 	mock.ExpectClose()
 
 	// prepare connection to mocked database
-	storage := main.NewFromConnection(connection, 1, config)
+	storage := main.NewFromConnection(connection, main.DBDriverPostgres, config)
 
 	// call the tested method
 	count, err := storage.ReadRecordsCount("report")
@@ -337,7 +344,7 @@ func TestReadRecordCountSelectiveExportAllowedTable(t *testing.T) {
 	mock.ExpectClose()
 
 	// prepare connection to mocked database
-	storage := main.NewFromConnection(connection, 1, config)
+	storage := main.NewFromConnection(connection, main.DBDriverPostgres, config)
 
 	// call the tested method
 	count, err := storage.ReadRecordsCount("report")
@@ -368,11 +375,11 @@ func TestReadListOfTables(t *testing.T) {
 	rows.AddRow("baz")
 
 	// expected query performed by tested function
-	mock.ExpectQuery(readListOfTablesQuery).WillReturnRows(rows)
+	mock.ExpectQuery(readListOfTablesQueryPostgres).WillReturnRows(rows)
 	mock.ExpectClose()
 
 	// prepare connection to mocked database
-	storage := main.NewFromConnection(connection, 1, &testConfig)
+	storage := main.NewFromConnection(connection, main.DBDriverPostgres, &testConfig)
 
 	// call the tested method
 	tableNames, err := storage.ReadListOfTables()
@@ -392,6 +399,59 @@ func TestReadListOfTables(t *testing.T) {
 }
 
 // check the function ReadListOfTables
+func TestReadListOfTablesSQLiteDriver(t *testing.T) {
+	// prepare new mocked connection to database
+	connection, mock := mustCreateMockConnection(t)
+
+	// prepare mocked result for SQL query
+	rows := sqlmock.NewRows([]string{"tablename"})
+	rows.AddRow("foo")
+	rows.AddRow("bar")
+	rows.AddRow("baz")
+
+	// expected query performed by tested function
+	mock.ExpectQuery(readListOfTablesQuerySQLite).WillReturnRows(rows)
+	mock.ExpectClose()
+
+	// prepare connection to mocked database
+	storage := main.NewFromConnection(connection, main.DBDriverSQLite3, &testConfig)
+
+	// call the tested method
+	tableNames, err := storage.ReadListOfTables()
+	if err != nil {
+		t.Errorf("error was not expected %s", err)
+	}
+
+	if len(tableNames) != 3 {
+		t.Errorf("wrong number records returned: %d", len(tableNames))
+	}
+
+	// connection to mocked DB needs to be closed properly
+	checkConnectionClose(t, connection)
+
+	// check if all expectations were met
+	checkAllExpectations(t, mock)
+}
+
+// check the function ReadListOfTables
+func TestReadListOfTablesInvalidDriver(t *testing.T) {
+	// prepare new mocked connection to database
+	connection, mock := mustCreateMockConnection(t)
+
+	// prepare connection to mocked database
+	storage := main.NewFromConnection(connection, 2+main.DBDriverSQLite3, &testConfig)
+
+	// call the tested method
+	_, err := storage.ReadListOfTables()
+	if err == nil {
+		t.Errorf("error was expected")
+	}
+
+	// check if all expectations were met
+	checkAllExpectations(t, mock)
+}
+
+// check the function ReadListOfTables
 func TestReadListOfTablesOnError(t *testing.T) {
 	// error to be thrown
 	mockedError := errors.New("mocked error")
@@ -400,11 +460,11 @@ func TestReadListOfTablesOnError(t *testing.T) {
 	connection, mock := mustCreateMockConnection(t)
 
 	// expected query performed by tested function
-	mock.ExpectQuery(readListOfTablesQuery).WillReturnError(mockedError)
+	mock.ExpectQuery(readListOfTablesQueryPostgres).WillReturnError(mockedError)
 	mock.ExpectClose()
 
 	// prepare connection to mocked database
-	storage := main.NewFromConnection(connection, 1, &testConfig)
+	storage := main.NewFromConnection(connection, main.DBDriverPostgres, &testConfig)
 
 	// call the tested method
 	_, err := storage.ReadListOfTables()
@@ -431,11 +491,11 @@ func TestReadListOfTablesScanError(t *testing.T) {
 	rows.AddRow(3)
 
 	// expected query performed by tested function
-	mock.ExpectQuery(readListOfTablesQuery).WillReturnRows(rows)
+	mock.ExpectQuery(readListOfTablesQueryPostgres).WillReturnRows(rows)
 	mock.ExpectClose()
 
 	// prepare connection to mocked database
-	storage := main.NewFromConnection(connection, 1, &testConfig)
+	storage := main.NewFromConnection(connection, main.DBDriverPostgres, &testConfig)
 
 	// call the tested method
 	_, err := storage.ReadListOfTables()
@@ -473,7 +533,7 @@ func TestReadTable(t *testing.T) {
 	mock.ExpectClose()
 
 	// prepare connection to mocked database
-	storage := main.NewFromConnection(connection, 1, &testConfig)
+	storage := main.NewFromConnection(connection, main.DBDriverPostgres, &testConfig)
 
 	// call the tested method
 	values, err := storage.ReadTable("table_name", NoLimits)
@@ -521,7 +581,7 @@ func TestReadTableWithLimits(t *testing.T) {
 	mock.ExpectClose()
 
 	// prepare connection to mocked database
-	storage := main.NewFromConnection(connection, 1, &testConfig)
+	storage := main.NewFromConnection(connection, main.DBDriverPostgres, &testConfig)
 
 	// call the tested method
 	values, err := storage.ReadTable("table_name", 2)
@@ -571,7 +631,7 @@ func TestReadTableWithSelectiveExportDisallowedTable(t *testing.T) {
 	mock.ExpectClose()
 
 	// prepare connection to mocked database
-	storage := main.NewFromConnection(connection, 1, config)
+	storage := main.NewFromConnection(connection, main.DBDriverPostgres, config)
 
 	// call the tested method, table name must be in predefined list
 	values, err := storage.ReadTable("table_name", NoLimits)
@@ -621,7 +681,7 @@ func TestReadTableWithSelectiveExportAllowedTableSingleOrgID(t *testing.T) {
 	mock.ExpectClose()
 
 	// prepare connection to mocked database
-	storage := main.NewFromConnection(connection, 1, config)
+	storage := main.NewFromConnection(connection, main.DBDriverPostgres, config)
 
 	// call the tested method, table name must be in predefined list
 	values, err := storage.ReadTable("report", NoLimits)
@@ -671,7 +731,7 @@ func TestReadTableWithSelectiveExportAllowedTable(t *testing.T) {
 	mock.ExpectClose()
 
 	// prepare connection to mocked database
-	storage := main.NewFromConnection(connection, 1, config)
+	storage := main.NewFromConnection(connection, main.DBDriverPostgres, config)
 
 	// call the tested method, table name must be in predefined list
 	values, err := storage.ReadTable("report", NoLimits)
@@ -721,7 +781,7 @@ func TestReadTableWithSelectiveExportAllowedTableWithLimits(t *testing.T) {
 	mock.ExpectClose()
 
 	// prepare connection to mocked database
-	storage := main.NewFromConnection(connection, 1, config)
+	storage := main.NewFromConnection(connection, main.DBDriverPostgres, config)
 
 	// call the tested method, table name must be in predefined list, limit == 2
 	values, err := storage.ReadTable("report", 2)
@@ -758,7 +818,7 @@ func TestReadTableOnError(t *testing.T) {
 	mock.ExpectClose()
 
 	// prepare connection to mocked database
-	storage := main.NewFromConnection(connection, 1, &testConfig)
+	storage := main.NewFromConnection(connection, main.DBDriverPostgres, &testConfig)
 
 	// call the tested method
 	_, err := storage.ReadTable("table_name", NoLimits)
@@ -795,7 +855,7 @@ func TestRetrieveColumnTypes(t *testing.T) {
 	mock.ExpectClose()
 
 	// prepare connection to mocked database
-	storage := main.NewFromConnection(connection, 1, &testConfig)
+	storage := main.NewFromConnection(connection, main.DBDriverPostgres, &testConfig)
 
 	// call the tested method
 	types, err := storage.RetrieveColumnTypes("table_name")
@@ -831,7 +891,7 @@ func TestRetrieveColumnTypesOnError(t *testing.T) {
 	mock.ExpectClose()
 
 	// prepare connection to mocked database
-	storage := main.NewFromConnection(connection, 1, &testConfig)
+	storage := main.NewFromConnection(connection, main.DBDriverPostgres, &testConfig)
 
 	// call the tested method
 	_, err := storage.RetrieveColumnTypes("table_name")
@@ -874,7 +934,7 @@ func TestStoreTableIntoFile(t *testing.T) {
 	mock.ExpectClose()
 
 	// prepare connection to mocked database
-	storage := main.NewFromConnection(connection, 1, &testConfig)
+	storage := main.NewFromConnection(connection, main.DBDriverPostgres, &testConfig)
 
 	// call the tested method
 	err := storage.StoreTableIntoFile("table_name", NoLimits)
@@ -928,7 +988,7 @@ func TestStoreTableIntoFileWithLimit(t *testing.T) {
 	mock.ExpectClose()
 
 	// prepare connection to mocked database
-	storage := main.NewFromConnection(connection, 1, &testConfig)
+	storage := main.NewFromConnection(connection, main.DBDriverPostgres, &testConfig)
 
 	// call the tested method
 	err := storage.StoreTableIntoFile("table_name", 2)
@@ -971,7 +1031,7 @@ func TestReadDisabledRules(t *testing.T) {
 	mock.ExpectClose()
 
 	// prepare connection to mocked database
-	storage := main.NewFromConnection(connection, 1, &testConfig)
+	storage := main.NewFromConnection(connection, main.DBDriverPostgres, &testConfig)
 
 	// call the tested method
 	results, err := storage.ReadDisabledRules()
@@ -1012,7 +1072,7 @@ func TestReadDisabledRulesOnError(t *testing.T) {
 	mock.ExpectClose()
 
 	// prepare connection to mocked database
-	storage := main.NewFromConnection(connection, 1, &testConfig)
+	storage := main.NewFromConnection(connection, main.DBDriverPostgres, &testConfig)
 
 	// call the tested method
 	_, err := storage.ReadDisabledRules()
@@ -1045,7 +1105,7 @@ func TestReadDisabledRulesScanError(t *testing.T) {
 	mock.ExpectClose()
 
 	// prepare connection to mocked database
-	storage := main.NewFromConnection(connection, 1, &testConfig)
+	storage := main.NewFromConnection(connection, main.DBDriverPostgres, &testConfig)
 
 	// call the tested method
 	_, err := storage.ReadDisabledRules()
